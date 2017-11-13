@@ -6,8 +6,7 @@ class Allele {
   Allele(int const key);
   ~Allele();
 
-  private:
-  int Allele const;
+  int allele;
 };
 
 #endif

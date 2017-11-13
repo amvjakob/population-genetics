@@ -1,10 +1,12 @@
 cmake_minimum_required (VERSION 2.6)
 project (Genetics)
 
-set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pedantic -std=c++11")
+set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pthread -pedantic -std=c++11")
+
+set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp) 
 
 
-add_executable (Genetics src/main.cpp)
+add_executable (Genetics src/main.cpp ${SOURCE_FILES})
 
 
 enable_testing()
