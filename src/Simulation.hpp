@@ -3,8 +3,9 @@
 
 #include <vector>
 #include <map>
-#include <random>
+//#include <random>
 #include "Allele.hpp"
+//#include "Random.hpp"
 
 /** \brief Class representing a Simulation
  * 
@@ -32,15 +33,6 @@ public:
 	 * Uses a mt19937 mersenne twister.
 	 * 
 	 * */
-	static int binomial(int n, double p) {
-		static std::random_device rd;
-		
-		static std::mt19937 rng = std::mt19937(rd());
-		
-		std::binomial_distribution<int> dbinom(n, p);
-		
-		return dbinom(rng);
-	}
 	
 	/** \brief Get the allele distribution in the population
 	 * 

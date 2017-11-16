@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip> 
 #include "Simulation.hpp"
+#include "random.hpp"
 
 Simulation::Simulation(int N, int T, std::vector<double> alleleFq)
 	: populationSize(N), simulationSteps(T)
@@ -80,7 +81,7 @@ void Simulation::update() {
 		nParent -= allele.second;
 		
 		// generate new number of allele copies in population
-		int newAlleleCount = Simulation::binomial(populationSize - nOffspring, p);
+        int newAlleleCount = Randomdist::binomial(populationSize - nOffspring, p);
 		allele.second = newAlleleCount;
 		
 		// reduce residual population size
