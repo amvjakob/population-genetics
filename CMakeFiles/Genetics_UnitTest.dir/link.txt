@@ -1,1 +1,0 @@
-/usr/bin/c++   -O3 -W -Wall -pthread -pedantic -std=c++11   CMakeFiles/Genetics_UnitTest.dir/src/test_main.cpp.o CMakeFiles/Genetics_UnitTest.dir/src/random.cpp.o  -o Genetics_UnitTest -rdynamic test/gtest/libgtest.a test/gtest/libgtest_main.a test/gtest/libgtest.a -pthread 
