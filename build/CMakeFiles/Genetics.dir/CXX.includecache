@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4/src/main.cpp
+iostream
+-
+
