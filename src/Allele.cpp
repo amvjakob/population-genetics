@@ -5,3 +5,13 @@
 
   Allele::~Allele()
   {}
+
+  Allele::getAllele()
+  {
+    return allele;
+  }
+
+  setAllele(int const id)
+  {
+    allele=id;
+  }
