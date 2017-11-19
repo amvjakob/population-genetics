@@ -1,0 +1,14 @@
+//DATA INPUTS FILE (NOT TO BE MODIFIED)
+
+#Number of generations
+GEN = 10
+#Number of replicas
+REP = 4
+#Migration probabilities for each nucleotide
+AD = 10E-8
+TH = 10E-8
+CY = 10E-8
+GU = 10E-8
+
+#Marker Sites
+SITES = 1|2|3|4
