@@ -10,15 +10,15 @@ class Allele {
   /**
   * @return int Allele
   */
-  getAllele() const;
+  int getAllele() const;
 
   /**
   *@param int const id
   */
-  setAllele(int const id);
+  void setAllele(int const id);
 
   private:
-  int allele const;//!< identifier specific to the allele
+  int allele;//!< identifier specific to the allele
 };
 
 #endif

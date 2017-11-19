@@ -6,12 +6,12 @@
   Allele::~Allele()
   {}
 
-  Allele::getAllele()
+  int Allele::getAllele() const
   {
     return allele;
   }
 
-  setAllele(int const id)
+ void Allele::setAllele(int const id)
   {
     allele=id;
   }

@@ -8,33 +8,40 @@
 
 using namespace std;
 
-Data::Data() :  dataName ("../doc/input.txt"),fastaName("../doc/test.fa"),populationSize(0), numberGenerations (0), replicates (0),numberAlleles(0) {
+Data::Data(string input, string fasta) :  inputName (input),fastaName(fasta),populationSize(0), numberGenerations (0), replicates (0),numberAlleles(0) {
 
 	assert(alleleFq.empty());
 	assert(markerSites.empty());
 	assert (sequences.empty());
+	assert (mutations.empty());
+	
 
-	/*
-	cout << "Please enter the name of your input file: " << endl;
-	cin >> dataName;
-	dataName += ".txt";
-
-	cout << "Please enter the name of your fasta file: " << endl;
-	cin >> fastaName;
-	dataName += ".fa";
-	*/
 }
 
+Data::Data() {
+	
+	string input;
+	string fasta;
+	
+	cout << "Please enter the path of your input file: " << endl;
+	cin >> input;
 
+	cout << "Please enter the path of your fasta file: " << endl;
+	cin >> fasta;
+	
+	Data (input, fasta);
+
+}
+	
 
 void Data::collectAll() {
 
-	ifstream dataFile (dataName, ios::in);
+	ifstream dataFile (inputName, ios::in);
 	ifstream fastaFile (fastaName, ios::in);
 
 	if (dataFile.is_open()) {
 
-		collectDataFile(dataFile);
+		collectUserFile(dataFile);
 	} else {
 		cout << "Ouverture  de l'input impossible" << endl;
 	}
@@ -49,7 +56,7 @@ void Data::collectAll() {
 
 }
 
-void Data::collectDataFile(ifstream& file) {
+void Data::collectUserFile(ifstream& file) {
 
 
   string line;
@@ -83,25 +90,25 @@ void Data::collectDataFile(ifstream& file) {
                 }
 
 
-                case MigrationA :
+                case MutationA :
                 {
-                    setMigrations(compar_son(2,"AD",line));
+                    setMutations(compar_son(2,"AD",line));
                 }
 
-                case MigrationT :
+                case MutationT :
                 {
-                    setMigrations(compar_son(2,"TH",line));
+                    setMutations(compar_son(2,"TH",line));
 
                 }
 
-                case MigrationC :
+                case MutationC :
                 {
-                    setMigrations(compar_son(2,"CY",line));
+                    setMutations(compar_son(2,"CY",line));
                 }
 
-                case MigrationG :
+                case MutationG :
                 {
-                    setMigrations(compar_son(2,"GU",line));
+                    setMutations(compar_son(2,"GU",line));
 
                 }
 
@@ -158,7 +165,7 @@ double  Data::getReplicates() const {
 	return replicates;
 }
 
-std::list<double> Data::getMarkerSites() const {
+std::vector<double> Data::getMarkerSites() const {
 	return markerSites;
 }
 
@@ -184,11 +191,11 @@ void Data::countAlleles() {
 
 }
 
-list <double> Data::getMigrations() const {
-	return migrations;
+vector <double> Data::getMutations() const {
+	return mutations;
 }
 
-double Data:: comparison(double size,string s2,string l)
+double Data:: comparison(int size,string s2,string l)
 {
 	string value ;
     string key;
@@ -214,11 +221,11 @@ double Data:: comparison(double size,string s2,string l)
 
 
 
-std::list<double> Data::compar_son(double size,std::string s2,std::string l)
+std::vector<double> Data::compar_son(int size,std::string s2,std::string l)
 {
     string key;
     string value ;
-    std::list<double> v;
+    std::vector<double> v;
 
         stringstream ss(l);
         getline(ss, key, '=');
@@ -259,20 +266,24 @@ Input Data:: resolveInput (std::string input)
     if( input == "GEN" ) return Generation;
     if( input == "REP" ) return Replicas;
     if( input == "SITES")return Sites;
-    if( input == "AD" ) return MigrationA;
-    if( input == "TH" ) return MigrationT;
-    if( input == "CY" ) return MigrationC;
-    if( input == "GU" ) return MigrationG;
+    if( input == "AD" ) return MutationA;
+    if( input == "TH" ) return MutationT;
+    if( input == "CY" ) return MutationC;
+    if( input == "GU" ) return MutationG;
 
     return NoInput ;
 
 
 
 }
-void Data::setMigrations(std::list<double> list)
+void Data::setMutations(std::vector<double> list)
 {
     for(auto mig  : list )
     {
-        migrations.push_back(mig);
+        mutations.push_back(mig);
     }
+}
+
+std::vector<double> Data::getAllelesFq() const {
+	return alleleFq;
 }

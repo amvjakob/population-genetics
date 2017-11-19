@@ -12,10 +12,13 @@ add_subdirectory(test/gtest)
 include_directories(test/gtest/include test/googletest)
 
 add_executable (Genetics_UnitTest src/test_main.cpp src/random.cpp)
-
+add_executable (testData src/data.cpp test/dataTest.cpp)
 
 target_link_libraries(Genetics_UnitTest gtest gtest_main)
 add_test(Genetics_UnitTest Genetics_UnitTest)
+
+target_link_libraries(testData gtest gtest_main)
+add_test(testData testData)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(tclap/include)
