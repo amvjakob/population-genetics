@@ -1,4 +1,4 @@
-# Install script for directory: /Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4
+# Install script for directory: /Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4 
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4/build/test/googletest/cmake_install.cmake")
+  include("/Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4 /build/test/gtest/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/ducrotaurelie/Documents/EPFL/2e Annee/Programmation III/Genomic-Project/Team_4 /build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

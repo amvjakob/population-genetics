@@ -109,8 +109,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.10.0-rc3/CMakeSystem.cmake"
   "CMakeFiles/feature_tests.c"
   "CMakeFiles/feature_tests.cxx"
-  "../test/googletest/CMakeLists.txt"
-  "../test/googletest/cmake/internal_utils.cmake"
+  "../test/gtest/CMakeLists.txt"
+  "../test/gtest/cmake/internal_utils.cmake"
   )
 
 # The corresponding makefile is:
@@ -128,14 +128,15 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/3.10.0-rc3/CMakeCXXCompiler.cmake"
   "Doxyfile"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
-  "test/googletest/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "test/gtest/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/doc.dir/DependInfo.cmake"
+  "CMakeFiles/program_using_tclap.dir/DependInfo.cmake"
   "CMakeFiles/Genetics_UnitTest.dir/DependInfo.cmake"
   "CMakeFiles/Genetics.dir/DependInfo.cmake"
-  "test/googletest/CMakeFiles/gtest_main.dir/DependInfo.cmake"
-  "test/googletest/CMakeFiles/gtest.dir/DependInfo.cmake"
+  "test/gtest/CMakeFiles/gtest_main.dir/DependInfo.cmake"
+  "test/gtest/CMakeFiles/gtest.dir/DependInfo.cmake"
   )

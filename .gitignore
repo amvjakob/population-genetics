@@ -1,3 +1,11 @@
+# Build files
+build/*
+!build/.gitignore
+
+# Doc files
+doc/*
+!doc/.gitignore
+
 # Prerequisites
 *.d
 

@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Genetics_UnitTest.dir/test/main.cpp.o"
+  "CMakeFiles/Genetics_UnitTest.dir/src/test_main.cpp.o"
+  "CMakeFiles/Genetics_UnitTest.dir/src/Random.cpp.o"
   "Genetics_UnitTest.pdb"
   "Genetics_UnitTest"
 )

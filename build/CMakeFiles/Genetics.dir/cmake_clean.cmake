@@ -1,5 +1,9 @@
 file(REMOVE_RECURSE
   "CMakeFiles/Genetics.dir/src/main.cpp.o"
+  "CMakeFiles/Genetics.dir/src/Allele.cpp.o"
+  "CMakeFiles/Genetics.dir/src/Simulation.cpp.o"
+  "CMakeFiles/Genetics.dir/src/SimulationsExecutor.cpp.o"
+  "CMakeFiles/Genetics.dir/src/Random.cpp.o"
   "Genetics.pdb"
   "Genetics"
 )
