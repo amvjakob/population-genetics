@@ -13,6 +13,7 @@ include_directories(test/gtest/include test/googletest)
 
 add_executable (Genetics_UnitTest src/test_main.cpp src/random.cpp)
 
+
 target_link_libraries(Genetics_UnitTest gtest gtest_main)
 add_test(Genetics_UnitTest Genetics_UnitTest)
 
