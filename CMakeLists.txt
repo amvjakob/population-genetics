@@ -3,27 +3,33 @@ project (Genetics)
 
 set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pthread -pedantic -std=c++11")
 
-set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp) 
+
+set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/random.cpp) 
 
 add_executable (Genetics src/main.cpp ${SOURCE_FILES})
 
+
 enable_testing()
-add_subdirectory(test/gtest)
-include_directories(test/gtest/include test/googletest)
+add_subdirectory(test/googletest)
+include_directories(test/googletest/include test/googletest)
 
-add_executable (Genetics_UnitTest src/test_main.cpp src/random.cpp)
-add_executable (testData src/data.cpp test/dataTest.cpp)
+add_executable(test src/test_main.cpp src/random.cpp)
+add_executable(testData test/dataTest.cpp src/data.cpp)
 
-target_link_libraries(Genetics_UnitTest gtest gtest_main)
-add_test(Genetics_UnitTest Genetics_UnitTest)
+target_link_libraries(test gtest gtest_main)
+add_test(test test)
 
 target_link_libraries(testData gtest gtest_main)
 add_test(testData testData)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
-include_directories(tclap/include)
 
-add_executable(program_using_tclap src/random_main.cpp src/random.cpp)
+include_directories(src/tclap/include)
+add_executable(tclap src/random_main.cpp src/random.cpp)
+
+
+
+###### Doxygen generation ######
 
 # We first check if Doxygen is present.
 find_package(Doxygen)

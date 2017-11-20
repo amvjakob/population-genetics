@@ -1,6 +1,6 @@
 #include "random.hpp"
 #include <iostream>
-#include <tclap/CmdLine.h>
+#include "tclap/include/tclap/CmdLine.h"
 
 Randomdist* parse_args(int argc, char **argv) {
     TCLAP::CmdLine cmd("Random number generator");
