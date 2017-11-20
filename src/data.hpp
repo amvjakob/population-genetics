@@ -9,7 +9,7 @@
  *  Handles the different types of data that are read 
  */
 enum Input {
-	Generation, Replicas, Sites, MutationA, MutationT, MutationC, MutationG,NoInput
+	Generation, Replicas, Sites, Mutations,NoInput
 };
 
 /** \brief Class regrouping the data necessary to run a simulation
@@ -102,7 +102,7 @@ class Data {
 	 * */
 	void countAlleles();
 
-	/** \brief Getter of the nucleotide mutations probabilities
+	/** \brief Getter of the sites mutations probabilities
 	 *
 	 * 	\return migrations, a vector of double
 	 * */

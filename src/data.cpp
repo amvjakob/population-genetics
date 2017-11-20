@@ -90,26 +90,9 @@ void Data::collectUserFile(ifstream& file) {
                 }
 
 
-                case MutationA :
+                case Mutations :
                 {
-                    setMutations(compar_son(2,"AD",line));
-                }
-
-                case MutationT :
-                {
-                    setMutations(compar_son(2,"TH",line));
-
-                }
-
-                case MutationC :
-                {
-                    setMutations(compar_son(2,"CY",line));
-                }
-
-                case MutationG :
-                {
-                    setMutations(compar_son(2,"GU",line));
-
+                    setMutations(compar_son(3,"MUT",line));
                 }
 
                  case NoInput :
@@ -266,14 +249,9 @@ Input Data:: resolveInput (std::string input)
     if( input == "GEN" ) return Generation;
     if( input == "REP" ) return Replicas;
     if( input == "SITES")return Sites;
-    if( input == "AD" ) return MutationA;
-    if( input == "TH" ) return MutationT;
-    if( input == "CY" ) return MutationC;
-    if( input == "GU" ) return MutationG;
+    if( input == "MUT" ) return Mutations;
 
     return NoInput ;
-
-
 
 }
 void Data::setMutations(std::vector<double> list)
