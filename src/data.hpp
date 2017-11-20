@@ -9,18 +9,18 @@
  *  Handles the different types of data that are read 
  */
 enum Input {
-	Generation, Replicas, Sites, Mutations,NoInput
+	Generation, Replicas, Sites, Mutations, NoInput
 };
+
 
 /** \brief Class regrouping the data necessary to run a simulation
  *
  * Collecting the data requires : a user input file (.txt) and a fasta file (.fa)
  *
  * */
-
 class Data {
 
-	public:
+public:
 
 	/** \brief Data constructor
 	 *
@@ -30,7 +30,7 @@ class Data {
 	 * Initialises populationSize, numberGenerations, replicates, numberAlleles to 0
 	 * Initialises the name of the data files, according to the parameters
 	 * */
-	Data (std::string input, std::string fasta);
+	Data(std::string input, std::string fasta);
 	
 	
 	/** \brief Second Data constructor
@@ -40,7 +40,7 @@ class Data {
 	 * Call the first constructor
 	 * 
 	 * */
-	Data ();
+	Data();
 	
 	/** \brief Collects all the data required for the program
 	 *
@@ -93,7 +93,7 @@ class Data {
 	 *
 	 * 	\return markerSites, a vector of doubles
 	 * */
-	std::vector<double> getMarkerSites() const;
+	const std::vector<double>& getMarkerSites() const;
 
 	/** \brief Collects information related to the alleles
 	 *
@@ -106,7 +106,7 @@ class Data {
 	 *
 	 * 	\return migrations, a vector of double
 	 * */
-	std::vector <double> getMutations() const;
+	const std::vector<double>& getMutations() const;
 
 	/** \brief Utility function to read data from the user input file
 	 *
@@ -116,7 +116,7 @@ class Data {
 	 * 
 	 * 	\return the data read, a double
 	 * */
-	double comparison(int,std::string,std::string);
+	double extractDouble(std::string) const;
 	
 	/** \brief Utility function to read data from the user input file
 	 *
@@ -126,7 +126,7 @@ class Data {
 	 * 
 	 * 	\return the data read, a vector of double
 	 * */
-    std::vector<double> compar_son(int,std::string,std::string);
+    std::vector<double> extractVec(std::string) const;
 	
 	/** \brief Utility function to convert a string into the input enum type
 	 *
@@ -134,21 +134,22 @@ class Data {
 	 * 
 	 * 	\return the enum value corresponding to a given string, an Input
 	 * */
-    Input resolveInput (std::string );
+    Input resolveInput(std::string);
 	
 	/** \brief Setter of the vector of mutations
 	 * 
 	 * 	\param a vector of double, the new value of mutations
 	 * */
-    void setMutations(std::vector<double>);
+    void setMutations(std::vector<double>&);
 	
 	/** \brief Getter of the vector of the allele frequencies
 	 * 
 	 * 	\return a vector of double, the allele frequencies
 	 * */
-	std::vector<double> getAllelesFq() const;
+	const std::vector<double>& getAllelesFq() const;
 	
-	private:
+	
+private:
 
 	//!< Name of the user input file, a string
 	std::string inputName;
@@ -161,24 +162,24 @@ class Data {
 
 	//!< Number of generations (number of simulation steps), an int
 	double numberGenerations;
-
+	
+	//!< Number of replicates of the simulation, an int
+	double replicates;
+	
+	//!< Number of alleles, an int
+	int numberAlleles;
+	
 	//!< Vector of double containing the allele frequencies of the fasta file
 	std::vector<double> alleleFq;
 
 	//!< Vector of double containing the user marker sites
 	std::vector<double> markerSites;
 
-	//!< Number of replicates of the simulation, an int
-	double replicates;
-
 	//!< List of strings containing the allele sequences of all the individuals of the simulation
-	std::list <std::string> sequences;
-
-	//!< Number of alleles, an int
-	int numberAlleles;
+	std::list<std::string> sequences;
 
 	//!< Vector of double containing the mutations probabilities of respectively nucleotides A, T, C, G
-	std::vector <double> mutations;
+	std::vector<double> mutations;
 
 };
 

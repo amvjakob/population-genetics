@@ -1,26 +1,24 @@
-#include "Data.hpp"
-
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include "Data.hpp"
 
 using namespace std;
 
-Data::Data(string input, string fasta) :  inputName (input),fastaName(fasta),populationSize(0), numberGenerations (0), replicates (0),numberAlleles(0) {
-
+Data::Data(string input, string fasta)
+  : inputName(input), fastaName(fasta), populationSize(0), 
+  numberGenerations(0), replicates(0), numberAlleles(0)
+{
 	assert(alleleFq.empty());
 	assert(markerSites.empty());
-	assert (sequences.empty());
-	assert (mutations.empty());
-	
-
+	assert(sequences.empty());
+	assert(mutations.empty());
 }
 
 Data::Data() {
-	
 	string input;
 	string fasta;
 	
@@ -30,79 +28,74 @@ Data::Data() {
 	cout << "Please enter the path of your fasta file: " << endl;
 	cin >> fasta;
 	
-	Data (input, fasta);
-
+	Data(input, fasta);
 }
-	
 
 void Data::collectAll() {
-
-	ifstream dataFile (inputName, ios::in);
-	ifstream fastaFile (fastaName, ios::in);
+	ifstream dataFile(inputName, ios::in);
+	ifstream fastaFile(fastaName, ios::in);
 
 	if (dataFile.is_open()) {
-
 		collectUserFile(dataFile);
 	} else {
-		cout << "Ouverture  de l'input impossible" << endl;
+		cerr << "Ouverture de l'input impossible" << endl;
 	}
 
 	if (fastaFile.is_open()) {
-
 		collectFastaFile(fastaFile);
-
 	} else {
-		cout << "Ouverture  du fasta impossible" << endl;
+		cerr << "Ouverture  du fasta impossible" << endl;
 	}
-
 }
 
 void Data::collectUserFile(ifstream& file) {
+	string line, key;
 
-
-  string line;
-	string key;
-
-
-	while (getline(file,line)) {
-		line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
+	while (getline(file, line)) {
+		
+		// remove whitespace
+		line.erase(
+			remove_if(line.begin(), line.end(), ::isspace), 
+			line.end()
+		);
+		
+		// lines starting with # are comments
 		if (line[0] == '#') continue;
+		
 		stringstream ss(line);
 		getline(ss, key, '=');
 
         switch (resolveInput(key)) {
 			case Generation:
-                numberGenerations=comparison(3,"GEN", line);
+                numberGenerations = extractDouble(line);
                 break;
                 
 			case Replicas:
-				replicates=comparison(3,"REP", line);
+				replicates = extractDouble(line);
 				break;
 
             case Sites:
-				markerSites=compar_son(5,"SITES", line);
+				markerSites = extractVec(line);
 				break;
 
 			case Mutations:
-				setMutations(compar_son(3,"MUT",line));
+				mutations = extractVec(line);
                 break;
 
             case NoInput:
             default:
 				break;
         }
-
-        }
-
+	}
 }
 
 
 
 void Data::collectFastaFile(ifstream& file) {
-
 	string line;
 
-	while (getline(file,line)) {
+	while (getline(file, line)) {
+		
 		if (line[0] == '>') {
 			++populationSize;
 			continue;
@@ -110,8 +103,8 @@ void Data::collectFastaFile(ifstream& file) {
 
 		string seq;
 
-		for ( auto marker : markerSites ) {
-			seq += line [marker-1];
+		for (auto& marker : markerSites) {
+			seq += line[marker - 1];
 		}
 
 		sequences.push_back(seq);
@@ -132,124 +125,90 @@ int Data::getNumberAlleles() const {
 	return numberAlleles;
 }
 
-double  Data::getReplicates() const {
+double Data::getReplicates() const {
 	return replicates;
 }
 
-std::vector<double> Data::getMarkerSites() const {
+const std::vector<double>& Data::getMarkerSites() const {
 	return markerSites;
 }
 
 void Data::countAlleles() {
-
-	list <string> sequencesSorted = sequences;
+	list<string> sequencesSorted = sequences;
+	
 	sequencesSorted.sort();
 	sequencesSorted.unique();
+	
 	numberAlleles = sequencesSorted.size();
 
-	double count (0);
+	double count(0);
+	
+	
+	for (auto& seqS : sequencesSorted) {
+		count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
+				return allele == seqS;
+		});
 
-	for (auto seqS : sequencesSorted) {
-		count = 0;
-		for (auto seq : sequences) {
-			if (seq == seqS) {
-				++count;
-			}
-		}
-
-		alleleFq.push_back(count/populationSize);
+		alleleFq.push_back(count / populationSize);
 	}
-
 }
 
-vector <double> Data::getMutations() const {
+const vector<double>& Data::getMutations() const {
 	return mutations;
 }
 
-double Data:: comparison(int size,string s2,string l)
-{
-	string value ;
-    string key;
-	double v(0);
-          stringstream ss(l);
-         getline(ss, key, '=');
-   if (key.compare(0,size,s2)==0)
-   {
-       std::getline(ss, value);
-       try
-       {
-           v = stoi(value);
-       }
+double Data::extractDouble(string line) const {
+	string key, strValue;
+	
+	double value(0);
+    
+    stringstream ss(line);
+    getline(ss, key, '=');
+	getline(ss, strValue);
+	
+	try {
+		value = stoi(strValue);
+	} catch (std::invalid_argument& e) {	
+		cerr << e.what() << endl;
+	}
 
-       catch (std::invalid_argument& e)
-       {}
-   }
-
-          return v;
-
-      }
-
-
-
-
-std::vector<double> Data::compar_son(int size,std::string s2,std::string l)
-{
-    string key;
-    string value ;
-    std::vector<double> v;
-
-        stringstream ss(l);
-        getline(ss, key, '=');
-
-    if (key.compare(0,size,s2)==0) {
-
-        if (size == 5) {
-
-            while (getline(ss, value, '|'))
-            {
-              try {
-                  v.push_back(stod(value));
-              }
-
-              catch (std::invalid_argument& e)
-              {}
-            }
-        } else {
-
-            std::getline(ss,value);
-            try {
-                v.push_back(stod(value));
-            }
-            catch (std::invalid_argument& e)
-            {}
-        }
-
-    }
-
-    return v;
-
-
+	return value;
 }
 
-Input Data:: resolveInput (std::string input)
-{
+std::vector<double> Data::extractVec(string line) const {
+    string key, strValue;
+    
+    vector<double> values;
 
+	stringstream ss(line);
+	getline(ss, key, '=');
+
+	while (getline(ss, strValue, '|')) {
+		try {
+			values.push_back(stod(strValue));
+		} catch (std::invalid_argument& e) {
+			cerr << e.what() << endl;
+		}
+	}
+
+    return values;
+}
+
+Input Data::resolveInput(std::string input) {
     if( input == "GEN" ) return Generation;
     if( input == "REP" ) return Replicas;
     if( input == "SITES")return Sites;
     if( input == "MUT" ) return Mutations;
 
     return NoInput ;
-
 }
-void Data::setMutations(std::vector<double> list)
-{
-    for(auto mig  : list )
-    {
+
+void Data::setMutations(std::vector<double>& list) {
+    for (auto mig : list) {
         mutations.push_back(mig);
     }
 }
 
-std::vector<double> Data::getAllelesFq() const {
+const std::vector<double>& Data::getAllelesFq() const {
 	return alleleFq;
 }

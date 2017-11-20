@@ -40,7 +40,7 @@ TEST(DataReading, NumberAlleles) {
 TEST(DataReading, MarkerSites) {
 	Data data("../data/input.txt","../data/test.fa");
 	
-	vector <double> knownMS = {1,2,3,4};
+	vector <double> knownMS = {1, 2, 3, 4};
 	
 	data.collectAll();
 	
