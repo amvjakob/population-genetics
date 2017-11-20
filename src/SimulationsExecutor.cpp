@@ -1,15 +1,17 @@
 #include "SimulationsExecutor.hpp"
+#include <algorithm>
 
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
 	int simulationSteps, std::vector<double> fqs)
 	: nSimulations(n), N(populationSize), T(simulationSteps), alleleFqs(fqs),
-	  bufferLowestStep(0), bufferHighestStep(0)
+	  bufferLowestStep(0), bufferHighestStep(0), randomDist(1.0, 1.0, 1)
 {
 	// open result file
 	results.open("results.txt");
 	
 	// add first empty buffer data
 	outputBuffer.push_back( std::vector<std::string>(n) );
+	
 }
 
 
@@ -39,7 +41,7 @@ void SimulationsExecutor::runSimulation(int id) {
 	int t = 0;
 	while (t < T) {
 		// update simulation
-		simul.update();
+		simul.update(randomDist);
 		
 		// increment clock
 		++t;
@@ -72,9 +74,13 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	outputBuffer[step - bufferLowestStep][threadId] = data;
 	
 	// check for data completeness for the lowest step
-	for (auto const& dt : outputBuffer.front()) {
-		if (dt.empty()) return;
-	}
+	if (std::any_of(
+			std::begin(outputBuffer.front()),
+			std::end(outputBuffer.front()),
+			[](std::string elem) {
+				return elem.empty();
+			})
+		) return;
 	
 	// write data from buffer to file, since the buffer for the
 	// lowest step is full

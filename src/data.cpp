@@ -1,10 +1,11 @@
-#include "data.hpp"
+#include "Data.hpp"
 
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 
 using namespace std;
 
@@ -69,44 +70,31 @@ void Data::collectUserFile(ifstream& file) {
 		stringstream ss(line);
 		getline(ss, key, '=');
 
-        switch (resolveInput(key))
-        {
+        switch (resolveInput(key)) {
+			case Generation:
+                numberGenerations=comparison(3,"GEN", line);
+                break;
+                
+			case Replicas:
+				replicates=comparison(3,"REP", line);
+				break;
 
-               case Generation :
-               {
+            case Sites:
+				markerSites=compar_son(5,"SITES", line);
+				break;
 
-                numberGenerations=comparison(3,"GEN",line);
+			case Mutations:
+				setMutations(compar_son(3,"MUT",line));
+                break;
 
-            }
-
-                case Replicas :
-                {
-                    replicates=comparison(3,"REP",line);
-                }
-
-                case Sites :
-                {
-                    markerSites=compar_son(5,"SITES",line);
-                }
-
-
-                case Mutations :
-                {
-                    setMutations(compar_son(3,"MUT",line));
-                }
-
-                 case NoInput :
-                 {
-                     break;
-
-                 }
-
-
+            case NoInput:
+            default:
+				break;
         }
 
         }
 
-	}
+}
 
 
 

@@ -1,8 +1,8 @@
-#include <iostream>
-#include "random.hpp"
+#include "Random.hpp"
 #include <algorithm>
 
-Randomdist::Randomdist(double m, double s, int ns, bool n, unsigned long int seed) 
+
+RandomDist::RandomDist(double m, double s, int ns, bool n, unsigned long int seed) 
     : mean(m), sd(s), nsample(ns), normdist(n) {
     if (s <= 0) {
         throw(1);
@@ -17,7 +17,7 @@ Randomdist::Randomdist(double m, double s, int ns, bool n, unsigned long int see
     rng = std::mt19937(seed);
 }
 
-std::vector< double > Randomdist::generate_numbers() {
+std::vector< double > RandomDist::generate_numbers() {
     std::vector< double > result(nsample);
     if (normdist) {
         normal(result);
@@ -28,7 +28,12 @@ std::vector< double > Randomdist::generate_numbers() {
     return result;
 }
 
-void Randomdist::uniform(std::vector< double > &res) {
+int RandomDist::binomial(int n, double p) {
+	std::binomial_distribution<int> dbinom(n, p);
+	return dbinom(rng);
+}
+
+void RandomDist::uniform(std::vector< double > &res) {
     
     double delta = sd*sqrt(3.0);
     double lower = mean-delta, upper = mean+delta;
@@ -39,7 +44,7 @@ void Randomdist::uniform(std::vector< double > &res) {
     }
 }
 
-void Randomdist::normal(std::vector< double > &res) {
+void RandomDist::normal(std::vector< double > &res) {
    
     std::normal_distribution<> norm(mean, sd);
    

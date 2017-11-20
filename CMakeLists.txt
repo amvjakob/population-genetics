@@ -4,29 +4,21 @@ project (Genetics)
 set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pthread -pedantic -std=c++11")
 
 
-set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/random.cpp) 
+set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
 
+# Main executable
 add_executable (Genetics src/main.cpp ${SOURCE_FILES})
 
-
+# Test
 enable_testing()
 add_subdirectory(test/googletest)
 include_directories(test/googletest/include test/googletest)
+include_directories(src/tclap/include)
 
-add_executable(testGenetics src/test_main.cpp src/random.cpp)
-add_executable(testData test/dataTest.cpp src/data.cpp)
+add_executable(testGenetics test/main.cpp ${SOURCE_FILES})
 
 target_link_libraries(testGenetics gtest gtest_main)
 add_test(testGenetics test)
-
-target_link_libraries(testData gtest gtest_main)
-add_test(testData testData)
-
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-include_directories(src/tclap/include)
-add_executable(tclap src/random_main.cpp src/random.cpp)
-
 
 
 ###### Doxygen generation ######

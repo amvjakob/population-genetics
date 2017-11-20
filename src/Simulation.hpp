@@ -3,9 +3,8 @@
 
 #include <vector>
 #include <map>
-//#include <random>
 #include "Allele.hpp"
-//#include "Random.hpp"
+#include "Random.hpp"
 
 /** \brief Class representing a Simulation
  *
@@ -22,6 +21,7 @@ public:
 	 *
 	 * Initialises a new population genetics simulation.
 	 *
+	 * \param randomDist			A random number utility 
 	 * \param populationSize		N, the number of individuals in the population
 	 * \param simulationSteps		T, the number of generations in the simulation
 	 * \param alleleFq				A vector of initial allele frequenciess
@@ -66,7 +66,7 @@ public:
 	 * from the parent generation using a multinomial distribution.
 	 *
 	 * */
-	void update();
+	void update(RandomDist&);
 
 
 private:

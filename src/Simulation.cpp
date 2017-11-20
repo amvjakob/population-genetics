@@ -1,10 +1,8 @@
 #include <cassert>
-// #include <numeric>
 #include <iostream>
 #include <sstream>
 #include <iomanip> 
 #include "Simulation.hpp"
-#include "random.hpp"
 
 Simulation::Simulation(int N, int T, std::vector<double> alleleFq)
 	: populationSize(N), simulationSteps(T)
@@ -40,8 +38,9 @@ const std::map<int, int>& Simulation::getAlleles() const {
 std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
 	
-	for (auto const& allele : alleles) {
-		ss << std::setprecision(2) << std::fixed << allele.second * 1.0 / populationSize << '|';
+	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
+		ss << std::setprecision(2) << std::fixed << (*allele).second * 1.0 / populationSize;
+		if (allele != alleles.end()) ss << '|';
 	}
 	
 	return ss.str();
@@ -57,7 +56,7 @@ std::string Simulation::getAlleleStrings() const {
 	return ss.str();
 }
 
-void Simulation::update() {
+void Simulation::update(RandomDist& randomDist) {
 	int nParent = populationSize;
 	int nOffspring = 0;
 	
@@ -81,7 +80,7 @@ void Simulation::update() {
 		nParent -= allele.second;
 		
 		// generate new number of allele copies in population
-        int newAlleleCount = Randomdist::binomial(populationSize - nOffspring, p);
+        int newAlleleCount = randomDist.binomial(populationSize - nOffspring, p);
 		allele.second = newAlleleCount;
 		
 		// reduce residual population size

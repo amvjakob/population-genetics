@@ -8,6 +8,7 @@
 #include <mutex>
 #include <thread>
 #include "Simulation.hpp"
+#include "Random.hpp"
 
 /** \brief Class representing a SimulationsExecutor
  * 
@@ -105,6 +106,9 @@ private:
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
+	
+	//!< Random number generator
+	RandomDist randomDist;
 };
 
 #endif
