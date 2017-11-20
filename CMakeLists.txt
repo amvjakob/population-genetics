@@ -13,11 +13,11 @@ enable_testing()
 add_subdirectory(test/googletest)
 include_directories(test/googletest/include test/googletest)
 
-add_executable(test src/test_main.cpp src/random.cpp)
+add_executable(testGenetics src/test_main.cpp src/random.cpp)
 add_executable(testData test/dataTest.cpp src/data.cpp)
 
-target_link_libraries(test gtest gtest_main)
-add_test(test test)
+target_link_libraries(testGenetics gtest gtest_main)
+add_test(testGenetics test)
 
 target_link_libraries(testData gtest gtest_main)
 add_test(testData testData)
