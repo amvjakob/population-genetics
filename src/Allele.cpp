@@ -33,6 +33,14 @@ void Allele::setIdentifier(const std::string& id) {
 	identifier = id;
 }
 
+std::size_t Allele::size() const {
+	return identifier.size();
+}
+
+const std::vector<Nucleotide>& Allele::getSequence() const {
+	return sequence;
+}
+
 bool Allele::operator<(const Allele& other) const {
 	return identifier < other.identifier;
 }

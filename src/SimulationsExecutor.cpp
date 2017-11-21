@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include "SimulationsExecutor.hpp"
 
 
@@ -38,7 +40,7 @@ SimulationsExecutor::SimulationsExecutor(Data& data)
 		// number should be an int, e.g. frequency should be realistic and tied to population size
 		assert(alleleNb - ((int) alleleNb) < 1E-4);
 		
-		Allele idx = Allele(*it, *it);
+		std::string idx = *it;
 		alleles[idx] = (int) alleleNb;
 		
 		++i;
@@ -81,8 +83,11 @@ void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
 	Simulation simul = isFullMode ? Simulation(alleles) : Simulation(N, alleleFqs);
 	
+	std::vector<std::string> states(T + 2);
+	
 	// write initial allele frequencies
-	writeData(simul.getAlleleFqsForOutput(), id, 0);
+	states[0] = simul.getAlleleFqsForOutput();
+	// writeData(simul.getAlleleFqsForOutput(), id, 0);
 	
 	int t = 0;
 	while (t < T) {
@@ -93,12 +98,32 @@ void SimulationsExecutor::runSimulation(int id) {
 		++t;
 		
 		// write allele frequencies
-		writeData(simul.getAlleleFqsForOutput(), id, t);
+		states[t] = simul.getAlleleFqsForOutput();
+		// writeData(simul.getAlleleFqsForOutput(), id, t);
 	}
 	
 	// write final line: allele identifiers
-	writeData(simul.getAlleleStrings(), id, t + 1);
+	states[t + 1] = simul.getAlleleStrings();
+	// writeData(simul.getAlleleStrings(), id, t + 1);
 	
+	
+	std::size_t lineLength = states.back().size();
+	std::size_t precision = simul.getPrecision();
+	
+	for (auto& state : states) {
+		if (state.size() < lineLength) {
+			std::stringstream ss;
+			ss << state;
+			
+			while (ss.tellp() < (int) lineLength) {
+				ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
+			}
+		}
+	}
+	
+	for (int i = 0; i < (int) states.size(); ++i) {
+		writeData(states[i], id, i);
+	}
 }
 
 void SimulationsExecutor::writeData(std::string data, int threadId, int step) {

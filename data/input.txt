@@ -1,12 +1,12 @@
 # DATA INPUTS FILE
 
 # Number of generations
-GEN = 50
+GEN = 3000
 # Number of replicas
-REP = 500
+REP = 1
 
 # Marker Sites
-SITES = 1|2|3|4
+SITES = 1|3|5
 
 # Mutation probabilities for each site
-MUT = 10E-8|10E-8|10E-8|10E-8
+MUT = 10E-8|10E-8|10E-8

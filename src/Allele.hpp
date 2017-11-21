@@ -24,6 +24,14 @@ public:
 	*/
 	void setIdentifier(const std::string&);
 	
+	/**
+	 * 
+	 * \return The size of the identifier
+	 * */
+	std::size_t size() const;
+	
+	const std::vector<Nucleotide>& getSequence() const;
+	
 	
 	bool operator<(const Allele&) const;
 	

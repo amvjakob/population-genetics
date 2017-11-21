@@ -3,7 +3,10 @@
 
 #include <vector>
 #include <map>
+#include <array>
+#include <unordered_map>
 #include "Allele.hpp"
+#include "Globals.hpp"
 
 /** \brief Class representing a Simulation
  *
@@ -31,7 +34,7 @@ public:
 	 *
 	 * \param alleles				A map of alleles vs number in the population
 	 * */
-	Simulation(const std::map<Allele, int>& alleles);
+	Simulation(const std::unordered_map<std::string, int>& alleles);
 
 	/** \brief Get the allele distribution in the population
 	 *
@@ -42,7 +45,7 @@ public:
 	 * \return A constant reference on the alleles in the population
 	 *
 	 * */
-	const std::map<Allele, int>& getAlleles() const;
+	const std::unordered_map<std::string, int>& getAlleles() const;
 
 	/** \brief Utility function to format the allele numbers to frequencies for the output
 	 *
@@ -66,15 +69,39 @@ public:
 	 *
 	 * */
 	void update();
+	
+	/** \brief Get the output precision for the frequencies 
+	 * */
+	std::size_t getPrecision() const;
 
 
 private:
+
+	/** \brief Calculate ouput constants
+	 * 
+	 * Caculates the needed precision and additional spaces for the output to be aligned
+	 * 
+	 * */
+	void calcOutputConstants();
+	
+	
+	static std::array< std::array<double, N >, N > mutationTable;
+
 
 	//!< Size of the population
 	int populationSize;
 
 	//!< List of alleles of the current simulation
-	std::map<Allele, int> alleles;
+	std::unordered_map<std::string, int> alleles;
+	
+	//!< Execution mode
+	const int executionMode = _PARAM_MUTATIONS_;
+	
+	//!< Precision for output
+	std::size_t precision;
+	
+	//!< Additional spaces for correct output format
+	std::size_t additionalSpaces;
 };
 
 

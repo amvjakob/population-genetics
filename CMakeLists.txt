@@ -4,7 +4,7 @@ project (Genetics)
 set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pthread -pedantic -std=c++11")
 
 
-set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
+set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp src/Globals.hpp) 
 
 # Main executable
 add_executable (Genetics src/main.cpp ${SOURCE_FILES})

@@ -6,6 +6,7 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <unordered_map>
 #include <mutex>
 #include <thread>
 #include "Simulation.hpp"
@@ -117,7 +118,7 @@ private:
 	std::vector<double> mutations;
 	
 	//!< Map of alleles vs number of them in the population
-	std::map<Allele, int> alleles;
+	std::unordered_map<std::string, int> alleles;
 	
 	
 	//!< Result file
