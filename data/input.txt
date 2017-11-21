@@ -1,7 +1,7 @@
 # DATA INPUTS FILE
 
 # Number of generations
-GEN = 3000
+GEN = 50
 # Number of replicas
 REP = 500
 

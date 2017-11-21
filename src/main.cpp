@@ -1,38 +1,27 @@
 #include "SimulationsExecutor.hpp"
-#include "Random.hpp"
-
-#include <thread>
+#include "Data.hpp"
 #include <iostream>
-
-void hello(int i) {
-	
-	std::cout << "Hello world my guy " << i << std::endl;
-}
-
 
 int main() {
 	
+	int n = 400;
+	int N = 4000;
+	int T = 2000;
+	
 	/*
-	std::thread threads[100];
+	std::cout << "Executing first simulationsExecutor" << std::endl;
 	
-	for (int i = 0; i < 100; i++) {
-		threads[i] = std::thread(hello, i);
-	}
-	
-	for (int i = 0; i < 100; i++) {
-		threads[i].join();
-	}
-	* */
-
-	
-	int n = 500;
-	int N = 5000;
-	int T = 3000;
-	
-	
-	SimulationsExecutor simulationsExecutor(n, N, T, {0.4, 0.3, 0.3});
+	SimulationsExecutor simulationsExecutor(n, N, T, {0.4, 0.3, 0.2, 0.1});
 	simulationsExecutor.execute();
+	* */
 	
+	std::cout << "Executing second simulationsExecutor" << std::endl;
+	
+	Data data = Data();
+	data.collectAll();
+	
+	SimulationsExecutor simulationsExecutorFull(data);
+	simulationsExecutorFull.execute();
 	
 	return 0;
 }

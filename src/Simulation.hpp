@@ -4,7 +4,6 @@
 #include <vector>
 #include <map>
 #include "Allele.hpp"
-#include "Random.hpp"
 
 /** \brief Class representing a Simulation
  *
@@ -21,18 +20,18 @@ public:
 	 *
 	 * Initialises a new population genetics simulation.
 	 *
-	 * \param randomDist			A random number utility 
 	 * \param populationSize		N, the number of individuals in the population
-	 * \param simulationSteps		T, the number of generations in the simulation
-	 * \param alleleFq				A vector of initial allele frequenciess
+	 * \param alleleFq				A vector of initial allele frequencies
 	 * */
-	Simulation(int populationSize, int simulationSteps, std::vector<double> alleleFq);
+	Simulation(int populationSize, std::vector<double> alleleFq);
 
-	/** \brief Get a number following a binomial distribution
+	/** \brief Simulation constructor
 	 *
-	 * Uses a mt19937 mersenne twister.
+	 * Initialises a new population genetics simulation.
 	 *
+	 * \param alleles				A map of alleles vs number in the population
 	 * */
+	Simulation(const std::map<Allele, int>& alleles);
 
 	/** \brief Get the allele distribution in the population
 	 *
@@ -43,7 +42,7 @@ public:
 	 * \return A constant reference on the alleles in the population
 	 *
 	 * */
-	const std::map<int, int>& getAlleles() const;
+	const std::map<Allele, int>& getAlleles() const;
 
 	/** \brief Utility function to format the allele numbers to frequencies for the output
 	 *
@@ -66,7 +65,7 @@ public:
 	 * from the parent generation using a multinomial distribution.
 	 *
 	 * */
-	void update(RandomDist&);
+	void update();
 
 
 private:
@@ -74,11 +73,8 @@ private:
 	//!< Size of the population
 	int populationSize;
 
-	//!< Number of simulation steps
-	int simulationSteps;
-
 	//!< List of alleles of the current simulation
-	std::map<int, int> alleles; // note: will change to map<Allele, int> in the future
+	std::map<Allele, int> alleles;
 };
 
 

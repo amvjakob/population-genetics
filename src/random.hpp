@@ -15,21 +15,33 @@ public:
 	  Must provide mean *m*, standard deviation *sd* and sample size *ns*, 
 	  set whether to use normal distribution (default uniform) and can provide a seed *s*.
 	 */
-    RandomDist(double m, double sd, int ns, bool n = false, unsigned long int s = 0);
+    RandomDist(double m, double sd, int ns, bool n = false);
     
 	/*!
 	  Returns a vector of random doubles corresponding to the parameters set in the constructor.
 	*/
     std::vector<double> generate_numbers();
 
-
-    int binomial(int n, double p);
+	/** \brief Get a number following a binomial distribution
+	 *
+	 * Uses a mt19937 mersenne twister.
+	 *
+	 * */
+    static int binomial(int n, double p);
+    
+    static int uniformIntSingle(int min, int max);
+    static double uniformDoubleSingle(double min, double max);
+    
+    static void uniformIntVector(std::vector<int>& toFill, int min, int max);
+    static void uniformDoubleVector(std::vector<double>& toFill, double min, double max);
      
 private:
+	static std::random_device rd;
+	static std::mt19937 rng;
+
     void uniform(std::vector< double >&);
     void normal(std::vector< double >&);
     
-    std::mt19937 rng;
     double mean, sd;
     int nsample;
     bool normdist;

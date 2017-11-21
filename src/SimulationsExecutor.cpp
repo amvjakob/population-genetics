@@ -1,17 +1,63 @@
-#include "SimulationsExecutor.hpp"
 #include <algorithm>
+#include <cassert>
+#include <iostream>
+#include "SimulationsExecutor.hpp"
+
 
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
 	int simulationSteps, std::vector<double> fqs)
-	: nSimulations(n), N(populationSize), T(simulationSteps), alleleFqs(fqs),
-	  bufferLowestStep(0), bufferHighestStep(0), randomDist(1.0, 1.0, 1)
+  : isFullMode(false), nSimulations(n), N(populationSize),
+	  T(simulationSteps), alleleFqs(fqs)
 {
+	prepare();
+}
+
+SimulationsExecutor::SimulationsExecutor(Data& data)
+  : isFullMode(true)
+{
+	nSimulations = data.getReplicates();
+	N = data.getPopSize();
+	T = data.getGenerations();
+	
+	alleleFqs = data.getAlleleFqs();
+	
+	markerSites = data.getMarkerSites();
+	
+	sequences = data.getSequences();
+	sequences.sort();
+	sequences.unique();
+	
+	mutations = data.getMutations();
+	
+	// generate allele map
+	int i = 0;
+	for (auto it = sequences.begin(); it != sequences.end(); ++it) {
+		// get initial number of allele in population
+		double alleleNb = alleleFqs[i] * N;
+		
+		// number should be an int, e.g. frequency should be realistic and tied to population size
+		assert(alleleNb - ((int) alleleNb) < 1E-4);
+		
+		Allele idx = Allele(*it, *it);
+		alleles[idx] = (int) alleleNb;
+		
+		++i;
+	}
+	
+	prepare();
+}
+
+
+void SimulationsExecutor::prepare() {
 	// open result file
 	results.open("results.txt");
 	
-	// add first empty buffer data
-	outputBuffer.push_back( std::vector<std::string>(n) );
+	// init buffer access values
+	bufferLowestStep = 0;
+	bufferHighestStep = 0;
 	
+	// add first empty buffer data
+	outputBuffer.push_back( std::vector<std::string>(nSimulations) );
 }
 
 
@@ -33,7 +79,7 @@ void SimulationsExecutor::execute() {
 
 void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
-	Simulation simul(N, T, alleleFqs);
+	Simulation simul = isFullMode ? Simulation(alleles) : Simulation(N, alleleFqs);
 	
 	// write initial allele frequencies
 	writeData(simul.getAlleleFqsForOutput(), id, 0);
@@ -41,7 +87,7 @@ void SimulationsExecutor::runSimulation(int id) {
 	int t = 0;
 	while (t < T) {
 		// update simulation
-		simul.update(randomDist);
+		simul.update();
 		
 		// increment clock
 		++t;
@@ -57,7 +103,11 @@ void SimulationsExecutor::runSimulation(int id) {
 
 void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	// check that step is valid
-	if (step < bufferLowestStep) throw "Error: trying to add data of a step that has already been written to the result file.";
+	if (step < bufferLowestStep) { 
+		std::string msg = "Error: trying to add data of a step that has already been written to the result file.";
+		std::cerr << msg << std::endl;
+		throw msg;
+	}
 	
 	// start lock here to restrict the execution of this function to a single thread 
 	std::lock_guard<std::mutex> lock(writerMutex);

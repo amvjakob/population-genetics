@@ -5,10 +5,12 @@
 #include <fstream>
 #include <vector>
 #include <deque>
+#include <map>
 #include <mutex>
 #include <thread>
 #include "Simulation.hpp"
-#include "Random.hpp"
+#include "Data.hpp"
+#include "Allele.hpp"
 
 /** \brief Class representing a SimulationsExecutor
  * 
@@ -31,6 +33,15 @@ public:
 	 * \param alleleFqs				A vector of initial allele frequenciess
 	 * */
 	SimulationsExecutor(int n, int populationSize, int simulationSteps, std::vector<double> alleleFqs);
+	
+	/** \brief SimulationsExecutor constructor
+	 * 
+	 * Initialises a new series of Simulations with a given Data object
+	 * 
+	 * \param data					Data file
+	 * */
+	SimulationsExecutor(Data& data);
+	
 	
 	//!< Because of the threads, we do not allow any copies
 	SimulationsExecutor(const SimulationsExecutor& other) = delete;
@@ -77,6 +88,12 @@ protected:
 	
 
 private:
+
+	//!< Prepare SimulationExecutor
+	void prepare();
+	
+	//!< Execution mode
+	bool isFullMode;
 	
 	//!< Number of simulations to be executed simultaneously
 	int nSimulations;
@@ -89,6 +106,18 @@ private:
 	
 	//!< Initial allele frequencies for a Simulation
 	std::vector<double> alleleFqs;
+
+	//!< Vector of double containing the user marker sites
+	std::vector<double> markerSites;
+
+	//!< List of strings containing the allele sequences of all the individuals of the simulation
+	std::list<std::string> sequences;
+
+	//!< Vector of double containing the mutations probabilities of the marker sites
+	std::vector<double> mutations;
+	
+	//!< Map of alleles vs number of them in the population
+	std::map<Allele, int> alleles;
 	
 	
 	//!< Result file
@@ -106,9 +135,6 @@ private:
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
-	
-	//!< Random number generator
-	RandomDist randomDist;
 };
 
 #endif

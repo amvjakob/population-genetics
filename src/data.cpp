@@ -8,43 +8,63 @@
 
 using namespace std;
 
-Data::Data(string input, string fasta)
-  : inputName(input), fastaName(fasta), populationSize(0), 
-  numberGenerations(0), replicates(0), numberAlleles(0)
-{
-	assert(alleleFq.empty());
-	assert(markerSites.empty());
-	assert(sequences.empty());
-	assert(mutations.empty());
+Data::Data(string input, string fasta) {
+	construct(input, fasta);	
 }
 
 Data::Data() {
 	string input;
 	string fasta;
 	
+	input = "../data/input.txt";
+	fasta = "../data/test.fa";
+	
+	/*
 	cout << "Please enter the path of your input file: " << endl;
 	cin >> input;
 
 	cout << "Please enter the path of your fasta file: " << endl;
 	cin >> fasta;
+	* */
 	
-	Data(input, fasta);
+	construct(input, fasta);
 }
 
-void Data::collectAll() {
-	ifstream dataFile(inputName, ios::in);
-	ifstream fastaFile(fastaName, ios::in);
+void Data::construct(string input, string fasta) {
+	inputName = input;
+	fastaName = fasta;
+	
+	populationSize = 0;
+	numberGenerations = 0;
+	replicates = 0;
+	numberAlleles = 0;
+	
+	assert(alleleFq.empty());
+	assert(markerSites.empty());
+	assert(sequences.empty());
+	assert(mutations.empty());
+}
+
+void Data::collectAll() {	
+	ifstream dataFile;
+	dataFile.open(inputName, ifstream::in);
+	
+	ifstream fastaFile;
+	fastaFile.open(fastaName, ifstream::in);
 
 	if (dataFile.is_open()) {
 		collectUserFile(dataFile);
 	} else {
 		cerr << "Ouverture de l'input impossible" << endl;
+		throw 10;
 	}
 
 	if (fastaFile.is_open()) {
 		collectFastaFile(fastaFile);
 	} else {
 		cerr << "Ouverture  du fasta impossible" << endl;
+		cerr << fastaName << endl;
+		throw 11;
 	}
 }
 
@@ -67,11 +87,11 @@ void Data::collectUserFile(ifstream& file) {
 
         switch (resolveInput(key)) {
 			case Generation:
-                numberGenerations = extractDouble(line);
+                numberGenerations = extractInt(line);
                 break;
                 
 			case Replicas:
-				replicates = extractDouble(line);
+				replicates = extractInt(line);
 				break;
 
             case Sites:
@@ -117,7 +137,7 @@ int Data::getPopSize() const {
 	return populationSize;
 }
 
-double Data::getGenerations() const {
+int Data::getGenerations() const {
 	return numberGenerations;
 }
 
@@ -125,7 +145,7 @@ int Data::getNumberAlleles() const {
 	return numberAlleles;
 }
 
-double Data::getReplicates() const {
+int Data::getReplicates() const {
 	return replicates;
 }
 
@@ -141,15 +161,12 @@ void Data::countAlleles() {
 	
 	numberAlleles = sequencesSorted.size();
 
-	double count(0);
-	
-	
 	for (auto& seqS : sequencesSorted) {
-		count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
+		int count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
 				return allele == seqS;
 		});
 
-		alleleFq.push_back(count / populationSize);
+		alleleFq.push_back(count * 1.0 / populationSize);
 	}
 }
 
@@ -157,10 +174,10 @@ const vector<double>& Data::getMutations() const {
 	return mutations;
 }
 
-double Data::extractDouble(string line) const {
+int Data::extractInt(string line) const {
 	string key, strValue;
 	
-	double value(0);
+	int value = 0;
     
     stringstream ss(line);
     getline(ss, key, '=');
@@ -209,6 +226,10 @@ void Data::setMutations(std::vector<double>& list) {
     }
 }
 
-const std::vector<double>& Data::getAllelesFq() const {
+const std::vector<double>& Data::getAlleleFqs() const {
 	return alleleFq;
+}
+
+const std::list<std::string>& Data::getSequences() const {
+	return sequences;
 }

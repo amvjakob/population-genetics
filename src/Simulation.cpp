@@ -1,15 +1,16 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
-#include <iomanip> 
+#include <iomanip>
+#include <string>
 #include "Simulation.hpp"
+#include "Random.hpp"
 
-Simulation::Simulation(int N, int T, std::vector<double> alleleFq)
-	: populationSize(N), simulationSteps(T)
+Simulation::Simulation(int N, std::vector<double> alleleFq)
+	: populationSize(N)
 {
 	// make sure sensible parameters were used
 	assert(N > 0);
-	assert(T > 0);
 	
 	for (int i = 0; i < (int) alleleFq.size(); ++i) {
 		// get initial number of allele in population
@@ -18,7 +19,8 @@ Simulation::Simulation(int N, int T, std::vector<double> alleleFq)
 		// number should be an int, e.g. frequency should be realistic and tied to population size
 		assert(alleleNb - ((int) alleleNb) < 1E-4);
 		
-		alleles[i] = (int) alleleNb;
+		Allele idx = Allele(std::to_string(i));
+		alleles[idx] = (int) alleleNb;
 	}
 	
 	
@@ -31,7 +33,17 @@ Simulation::Simulation(int N, int T, std::vector<double> alleleFq)
 	assert(alleleCount == populationSize);
 }
 
-const std::map<int, int>& Simulation::getAlleles() const {
+Simulation::Simulation(const std::map<Allele, int>& als) {
+	alleles = als;
+	
+	int alleleCount = 0;
+	for (auto const& allele : alleles)
+		alleleCount += allele.second;
+		
+	populationSize = alleleCount;
+}
+
+const std::map<Allele, int>& Simulation::getAlleles() const {
 	return alleles;
 }
 
@@ -39,8 +51,8 @@ std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
 	
 	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
+		if (allele != alleles.begin()) ss << '|';
 		ss << std::setprecision(2) << std::fixed << (*allele).second * 1.0 / populationSize;
-		if (allele != alleles.end()) ss << '|';
 	}
 	
 	return ss.str();
@@ -49,14 +61,15 @@ std::string Simulation::getAlleleFqsForOutput() const {
 std::string Simulation::getAlleleStrings() const {
 	std::stringstream ss;
 	
-	for (auto const& allele : alleles) {
-		ss << allele.first << "   |";
+	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
+		if (allele != alleles.begin()) ss << '|';
+		ss << (*allele).first.getIdentifier();
 	}
 	
 	return ss.str();
 }
 
-void Simulation::update(RandomDist& randomDist) {
+void Simulation::update() {
 	int nParent = populationSize;
 	int nOffspring = 0;
 	
@@ -80,7 +93,7 @@ void Simulation::update(RandomDist& randomDist) {
 		nParent -= allele.second;
 		
 		// generate new number of allele copies in population
-        int newAlleleCount = randomDist.binomial(populationSize - nOffspring, p);
+        int newAlleleCount = RandomDist::binomial(populationSize - nOffspring, p);
 		allele.second = newAlleleCount;
 		
 		// reduce residual population size

@@ -56,7 +56,7 @@ TEST(DataReading, InitialFrequencies) {
 	data.collectAll();
 	
 	for (size_t i(0); i < data.getNumberAlleles(); ++i) {
-		EXPECT_NEAR(data.getAllelesFq()[i], knownFq[i], 1E-3);
+		EXPECT_NEAR(data.getAlleleFqs()[i], knownFq[i], 1E-3);
 	}
 }
 
@@ -83,7 +83,7 @@ TEST(DataReading, NucleotidesMutations) {
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
 	
-	RandomDist rng_unif(input_mean, input_sd, 10000, false, 12345);
+	RandomDist rng_unif(input_mean, input_sd, 10000, false);
 	for (auto I : rng_unif.generate_numbers()) {
 		EXPECT_GE(I, -3.5);
 		EXPECT_LT(I, 6.2);
@@ -96,7 +96,7 @@ TEST(RandomTest, UniformDistribution) {
 TEST(RandomTest, NormalDistribution) {
 	double mean_normal(0), input_mean(1.35), input_sd(2.8);
 	
-	RandomDist rng_norm(input_mean, input_sd, 10000, true, 12345);
+	RandomDist rng_norm(input_mean, input_sd, 10000, true);
 	for (auto I : rng_norm.generate_numbers()) {
 		mean_normal += I * 1e-4;
 	}

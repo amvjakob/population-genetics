@@ -42,6 +42,11 @@ public:
 	 * */
 	Data();
 	
+	
+	/** \brief Construct a new Data object
+	 * */
+	void construct(std::string input, std::string fasta);
+	
 	/** \brief Collects all the data required for the program
 	 *
 	 * Collects inputs from the user and the fasta files
@@ -75,7 +80,7 @@ public:
 	 *
 	 * 	\return numberGenerations, an int
 	 * */
-	double getGenerations() const;
+	int getGenerations() const;
 
 	/** \brief Getter of the number of alleles
 	 *
@@ -87,7 +92,7 @@ public:
 	 *
 	 * 	\return replicates, an int
 	 * */
-	double getReplicates() const;
+	int getReplicates() const;
 
 	/** \brief Getter of the marker sites
 	 *
@@ -110,19 +115,15 @@ public:
 
 	/** \brief Utility function to read data from the user input file
 	 *
-	 * 	\param the size of the string to read, an int
 	 * 	\param the string to read from
-	 * 	\param the string of the data wanted/to be read
 	 * 
-	 * 	\return the data read, a double
+	 * 	\return the data read, an int
 	 * */
-	double extractDouble(std::string) const;
+	int extractInt(std::string) const;
 	
 	/** \brief Utility function to read data from the user input file
 	 *
-	 * 	\param the size of the string to read, an int
 	 * 	\param the string to read from
-	 * 	\param the string of the data wanted/to be read
 	 * 
 	 * 	\return the data read, a vector of double
 	 * */
@@ -146,7 +147,13 @@ public:
 	 * 
 	 * 	\return a vector of double, the allele frequencies
 	 * */
-	const std::vector<double>& getAllelesFq() const;
+	const std::vector<double>& getAlleleFqs() const;
+	
+	/** \brief Getter of the list of allele sequences
+	 * 
+	 * 	\return a list of strings, the allele sequences
+	 * */
+	const std::list<std::string>& getSequences() const;
 	
 	
 private:
@@ -161,10 +168,10 @@ private:
 	int populationSize;
 
 	//!< Number of generations (number of simulation steps), an int
-	double numberGenerations;
+	int numberGenerations;
 	
 	//!< Number of replicates of the simulation, an int
-	double replicates;
+	int replicates;
 	
 	//!< Number of alleles, an int
 	int numberAlleles;
@@ -178,7 +185,7 @@ private:
 	//!< List of strings containing the allele sequences of all the individuals of the simulation
 	std::list<std::string> sequences;
 
-	//!< Vector of double containing the mutations probabilities of respectively nucleotides A, T, C, G
+	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
 
 };
