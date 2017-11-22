@@ -81,7 +81,7 @@ void SimulationsExecutor::execute() {
 
 void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
-	Simulation simul = isFullMode ? Simulation(alleles) : Simulation(N, alleleFqs);
+	Simulation simul = isFullMode ? Simulation(alleles, mutations) : Simulation(N, alleleFqs);
 	
 	std::vector<std::string> states(T + 2);
 	
@@ -118,6 +118,8 @@ void SimulationsExecutor::runSimulation(int id) {
 			while (ss.tellp() < (int) lineLength) {
 				ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
 			}
+			
+			state = ss.str();
 		}
 	}
 	

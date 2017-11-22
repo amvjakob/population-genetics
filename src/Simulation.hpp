@@ -32,20 +32,30 @@ public:
 	 *
 	 * Initialises a new population genetics simulation.
 	 *
-	 * \param alleles				A map of alleles vs number in the population
+	 * \param alleles				Map of alleles in the population, the mapped value represents the number of said allele in the population
+	 * \param mutationFqs			Marker-specific mutation rates, in order
 	 * */
-	Simulation(const std::unordered_map<std::string, int>& alleles);
+	Simulation(const std::unordered_map<std::string, int>& alleles, const std::vector<double>& mutationFqs);
 
-	/** \brief Get the allele distribution in the population
+	/** \brief Get the alleles in the population
 	 *
 	 * Get the allele distribution in the population at any given simulation step.
-	 * The returned map's indices indicate the index of the allele,
-	 * the map's values represent the number of this allele in the population.
+	 * The values represent the id's of the alleles in the population.
 	 *
 	 * \return A constant reference on the alleles in the population
 	 *
 	 * */
-	const std::unordered_map<std::string, int>& getAlleles() const;
+	const std::vector<std::string>& getAlleles() const;
+	
+	/** \brief Get the number of alleles in the population
+	 *
+	 * Get the allele distribution in the population at any given simulation step.
+	 * The values represent the number of alleles in the population.
+	 *
+	 * \return A constant reference on the list of number alleles in the population
+	 *
+	 * */
+	const std::vector<unsigned int>& getAllelesCount() const;
 
 	/** \brief Utility function to format the allele numbers to frequencies for the output
 	 *
@@ -92,7 +102,13 @@ private:
 	int populationSize;
 
 	//!< List of alleles of the current simulation
-	std::unordered_map<std::string, int> alleles;
+	std::vector<std::string> alleles;
+	
+	//!< Count of the alleles in the current simulation
+	std::vector<unsigned int> allelesCount;
+	
+	//!< List of marker-specifix mutation frequencies
+	std::vector<double> mutationFqs;
 	
 	//!< Execution mode
 	const int executionMode = _PARAM_MUTATIONS_;

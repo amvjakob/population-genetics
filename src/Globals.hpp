@@ -8,4 +8,6 @@
 #define _PARAM_SELECTION_ 4
 #define _PARAM_BOTTLENECK_ 8
 
+#define _DEFAULT_MUTATION_RATE_ 1E-4
+
 #endif

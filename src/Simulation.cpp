@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <algorithm>
 #include "Simulation.hpp"
 #include "Random.hpp"
 
@@ -28,13 +29,15 @@ Simulation::Simulation(int N, std::vector<double> alleleFq)
 		assert(alleleNb - ((int) alleleNb) < 1E-4);
 		
 		std::string idx = std::to_string(i);
-		alleles[idx] = (int) alleleNb;
+		
+		alleles.push_back(idx);
+		allelesCount.push_back((int) alleleNb);
 	}
 	
 	
 	int alleleCount = 0;
-	for (auto const& allele : alleles)
-		alleleCount += allele.second;
+	for (auto const& allele : allelesCount)
+		alleleCount += allele;
 
 
 	// population size should equal total allele number
@@ -43,36 +46,50 @@ Simulation::Simulation(int N, std::vector<double> alleleFq)
 	calcOutputConstants();
 }
 
-Simulation::Simulation(const std::unordered_map<std::string, int>& als) {
-	alleles = als;
+Simulation::Simulation(const std::unordered_map<std::string, int>& als, const std::vector<double>& mutationRates)
+  : mutationFqs(mutationRates)
+{
+	for (auto const& allele : als) {
+		alleles.push_back(allele.first);
+		allelesCount.push_back(allele.second);
+	}
 	
 	int alleleCount = 0;
-	for (auto const& allele : alleles)
-		alleleCount += allele.second;
+	for (auto const& allele : allelesCount)
+		alleleCount += allele;
 		
 	populationSize = alleleCount;
+	
+	// mutation rates - sanitize input
+	while (mutationFqs.size() < alleles.front().size()) {
+		mutationFqs.push_back(_DEFAULT_MUTATION_RATE_);
+	}
 	
 	calcOutputConstants();
 }
 
 void Simulation::calcOutputConstants() {
-	std::size_t alleleIdSize = (*(alleles.begin())).first.size();
+	std::size_t alleleIdSize = alleles.front().size();
 	
 	// the recurring 2 is the size of '0.', the part before the precision
 	precision = alleleIdSize <= 2 + _MIN_OUTPUT_PRECISION_ ? _MIN_OUTPUT_PRECISION_ : alleleIdSize - 2;
 	additionalSpaces = std::max(precision + 2 - alleleIdSize, (size_t) 0);
 }
 
-const std::unordered_map<std::string, int>& Simulation::getAlleles() const {
+const std::vector<std::string>& Simulation::getAlleles() const {
 	return alleles;
+}
+
+const std::vector<unsigned int>& Simulation::getAllelesCount() const {
+	return allelesCount;
 }
 
 std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
 	
-	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
-		if (allele != alleles.begin()) ss << '|';
-		ss << std::setprecision(precision) << std::fixed << (*allele).second * 1.0 / populationSize;
+	for (auto allele = allelesCount.begin(); allele != allelesCount.end(); ++allele) {
+		if (allele != allelesCount.begin()) ss << '|';
+		ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
 	}
 	
 	return ss.str();
@@ -83,7 +100,7 @@ std::string Simulation::getAlleleStrings() const {
 	
 	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
 		if (allele != alleles.begin()) ss << '|';
-		ss << (*allele).first << std::string(additionalSpaces, ' ');
+		ss << (*allele) << std::string(additionalSpaces, ' ');
 	}
 	
 	return ss.str();
@@ -98,49 +115,34 @@ void Simulation::update() {
 	int nParent = populationSize;
 	int nOffspring = 0;
 	
-	std::cout << "Update" << std::endl;
+	assert(alleles.size() == allelesCount.size());
 	
-	int alleleCount = 0;
-	for (auto const& allele : alleles)
-		alleleCount += allele.second;
-		
-	std::cout << "Pop size: " << alleleCount << std::endl;
-	std::cout << "Number of alleles: " << alleles.size() << std::endl;
-	
-	std::cout << "Alleles" << std::endl;
-				for (auto& allele : alleles)
-					std::cout << allele.first << ": " << allele.second << std::endl;
-	
-	for (auto& allele : alleles) {
+	for (auto& allele : allelesCount) {
 		// remaining parent population size should be 0 or more	
 		assert(nParent >= 0);
-		
-		std::cout << nParent << std::endl;
 		
 		double p;
 		
 		if (nParent == 0) {
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
-			assert(allele.second == 0);
+			assert(allele == 0);
 			p = 0;
 		} else {
 			// generate new allele copy number
-			p = allele.second * 1.0 / nParent;
+			p = allele * 1.0 / nParent;
 		}
 		
-		// reduce residual "parent population size" / "gene pool"
-		nParent -= allele.second;
+		// reduce residual "gene pool"
+		nParent -= allele;
 		
 		// generate new number of allele copies in population
         int newAlleleCount = RandomDist::binomial(populationSize - nOffspring, p);
-		allele.second = newAlleleCount;
+		allele = newAlleleCount;
 		
 		// reduce residual population size
 		nOffspring += newAlleleCount;
 	}
-	
-	std::cout << nParent << std::endl;
 	
 	// after new population generation, residual population size should be 0
 	assert(nParent == 0);
@@ -149,24 +151,19 @@ void Simulation::update() {
 	// additional params here!
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			{
-				// todo use specific values for marker sites
-				double PROBABILITY = 0.5;
+			{							
+				std::size_t nbMarkers = alleles.front().size();
 				
+				for (std::size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
 					
-				std::vector< std::map<Nucleotide, size_t> > markerCount((*(alleles.begin())).first.size());
-				std::map<std::string, int> mutatedAlleles;
-				
-				for (auto& allele : alleles) {
-					for (size_t i = 0; i < allele.first.size(); ++i) {
-						markerCount[i][Allele::charToNucl.at(allele.first[i])] += allele.second;
+					std::map<Nucleotide, std::size_t> markerCount;
+					
+					for (std::size_t i= 0; i < alleles.size(); ++i) {
+						markerCount[Allele::charToNucl.at(alleles[i][markerIdx])] += allelesCount[i];
 					}
-				}
-				
-				for (int markerIdx = 0; markerIdx < (int) markerCount.size(); ++markerIdx) {
 					
-					for (auto& nuclCount : markerCount[markerIdx]) {
-						int mutX = RandomDist::binomial(nuclCount.second, PROBABILITY * 1.0 / nuclCount.second);
+					for (auto& nuclCount : markerCount) {						
+						int mutX = nuclCount.second > 0 ? RandomDist::binomial(nuclCount.second, mutationFqs[markerIdx] * 1.0 / nuclCount.second) : 0;
 						
 						if (mutX > 0) {
 							
@@ -188,44 +185,46 @@ void Simulation::update() {
 								int source = RandomDist::uniformIntSingle(0, nuclCount.second);
 								
 								int sourceCount = 0.0;
-								for (auto& allele : alleles) {
-									if (Allele::charToNucl.at(allele.first[markerIdx]) == nuclCount.first) {
-										sourceCount += allele.second;
+								for (std::size_t i = 0; i < alleles.size(); ++i) {
+									if (Allele::charToNucl.at(alleles[i][markerIdx]) == nuclCount.first) {
+										sourceCount += allelesCount[i];
 										
 										if (source < sourceCount) {
 											// we got our source
 											
 											// create new mutated allele
-											std::string newAllele = std::string(allele.first);
+											std::string newAllele = std::string(alleles[i]);
 											newAllele[markerIdx] = Allele::nuclToChar[(int) target];
 											
 											// remove original allele
-											if (mutatedAlleles.find(allele.first) != mutatedAlleles.end()) {
-												mutatedAlleles[allele.first]--;
-											} else {
-												mutatedAlleles[allele.first] = -1;
-											}
+											allelesCount[i]--;
 											
 											// add mutated allele
-											if (mutatedAlleles.find(newAllele) != mutatedAlleles.end()) {
-												mutatedAlleles[newAllele]++;
+											std::size_t newAlleleIdx = std::distance(
+												alleles.begin(), 
+												std::find(
+													alleles.begin(),
+													alleles.end(),
+													newAllele)
+												);
+											 
+											if (newAlleleIdx < alleles.size()) {
+												allelesCount[newAlleleIdx]++;
 											} else {
-												mutatedAlleles[newAllele] = 1;
+												alleles.push_back(newAllele);
+												allelesCount.push_back(1);
 											}
+											
+											std::cout << "Mutated a " << alleles[i] << " to a " << newAllele << std::endl;
+											
+											break;
 										}
 									}								
 								}
 							}
 						}
 					}
-				}
-				
-				// merge alleles and mutated alleles
-				for (auto mutatedAllele : mutatedAlleles) {
-					alleles[mutatedAllele.first];
-					alleles[mutatedAllele.first] += mutatedAllele.second;
-				}
-				
+				}				
 			}
 			
 			break;
