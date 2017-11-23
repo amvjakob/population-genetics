@@ -46,8 +46,10 @@ Simulation::Simulation(int N, std::vector<double> alleleFq)
 	calcOutputConstants();
 }
 
-Simulation::Simulation(const std::unordered_map<std::string, int>& als, const std::vector<double>& mutationRates)
-  : mutationFqs(mutationRates)
+Simulation::Simulation(const std::unordered_map<std::string, int>& als,
+			const int execMode,
+			const std::vector<double>& mutationRates, const std::array< std::array<double, N>, N >& nuclMutationProbs)
+  : executionMode(execMode), mutationFqs(mutationRates), mutationTable(nuclMutationProbs)
 {
 	for (auto const& allele : als) {
 		alleles.push_back(allele.first);

@@ -46,6 +46,10 @@ SimulationsExecutor::SimulationsExecutor(Data& data)
 		++i;
 	}
 	
+	// generate nucleotide mutation porbabilites according to model
+	if (executionMode == _PARAM_MUTATIONS_)
+		generateMutationRates(_MUTATION_MODEL_SIMPLE_);
+	
 	prepare();
 }
 
@@ -81,13 +85,12 @@ void SimulationsExecutor::execute() {
 
 void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
-	Simulation simul = isFullMode ? Simulation(alleles, mutations) : Simulation(N, alleleFqs);
+	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs) : Simulation(N, alleleFqs);
 	
 	std::vector<std::string> states(T + 2);
 	
 	// write initial allele frequencies
 	states[0] = simul.getAlleleFqsForOutput();
-	// writeData(simul.getAlleleFqsForOutput(), id, 0);
 	
 	int t = 0;
 	while (t < T) {
@@ -99,12 +102,10 @@ void SimulationsExecutor::runSimulation(int id) {
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
-		// writeData(simul.getAlleleFqsForOutput(), id, t);
 	}
 	
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
-	// writeData(simul.getAlleleStrings(), id, t + 1);
 	
 	
 	std::size_t lineLength = states.back().size();
@@ -172,4 +173,39 @@ void SimulationsExecutor::writeAlleleFqs(const std::vector<std::string>& alleleF
 	}
 	
 	results << '\n';
+}
+
+void SimulationsExecutor::generateMutationRates(int mutationModel) {
+	switch (mutationModel) {
+		case _MUTATION_MODEL_SIMPLE_:
+			// simplest model with prob 1/3 to mutate to any other nucleotide
+			nuclMutationProbs = { {
+				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
+			} };
+			break;
+			
+		case _MUTATION_MODEL_MEDIUM_:
+			nuclMutationProbs = { {
+				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
+			} };
+			break;
+			
+		case _MUTATION_MODEL_COMPLEX_:
+			nuclMutationProbs = { {
+				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
+				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
+			} };
+			break;
+			
+		default:
+			break;
+	}
 }

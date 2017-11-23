@@ -33,9 +33,13 @@ public:
 	 * Initialises a new population genetics simulation.
 	 *
 	 * \param alleles				Map of alleles in the population, the mapped value represents the number of said allele in the population
+	 * \param executionMode			The param to use for this simulation (mutation, migration, ...)
 	 * \param mutationFqs			Marker-specific mutation rates, in order
+	 * \param nuclMutationProbs		Array of nucleotide mutation probabilities, according to one of the 3 models
 	 * */
-	Simulation(const std::unordered_map<std::string, int>& alleles, const std::vector<double>& mutationFqs);
+	Simulation(const std::unordered_map<std::string, int>& alleles,
+			const int executionMode,
+			const std::vector<double>& mutationFqs, const std::array< std::array<double, N>, N >& nuclMutationProbs);
 
 	/** \brief Get the alleles in the population
 	 *
@@ -95,9 +99,6 @@ private:
 	void calcOutputConstants();
 	
 	
-	static std::array< std::array<double, N >, N > mutationTable;
-
-
 	//!< Size of the population
 	int populationSize;
 
@@ -110,8 +111,11 @@ private:
 	//!< List of marker-specifix mutation frequencies
 	std::vector<double> mutationFqs;
 	
+	//!< Mutation rates for every nucleotide to every nucleotide
+	std::array< std::array<double, N>, N > mutationTable;
+	
 	//!< Execution mode
-	const int executionMode = _PARAM_MUTATIONS_;
+	const int executionMode;
 	
 	//!< Precision for output
 	std::size_t precision;

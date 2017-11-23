@@ -87,6 +87,12 @@ protected:
 	 * */
 	void writeAlleleFqs(const std::vector<std::string>& alleleFqs);
 	
+	/** \brief Generate table for nucleotide mutation rates based on certain model
+	 * 
+	 * 
+	 * */
+	 void generateMutationRates(int mutationModel);
+	
 
 private:
 
@@ -119,6 +125,12 @@ private:
 	
 	//!< Map of alleles vs number of them in the population
 	std::unordered_map<std::string, int> alleles;
+	
+	//!< Table of mutation probabilities
+	std::array< std::array<double, N >, N > nuclMutationProbs;
+	
+	//!< Execution mode of simulation
+	const int executionMode = _PARAM_MUTATIONS_;
 	
 	
 	//!< Result file
