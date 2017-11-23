@@ -7,14 +7,6 @@
 #include "Simulation.hpp"
 #include "Random.hpp"
 
-
-std::array< std::array<double, N >, N > Simulation::mutationTable = { {
-	{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
-	{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
-	{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
-	{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
-} };
-
 Simulation::Simulation(int N, std::vector<double> alleleFq)
 	: populationSize(N)
 {
