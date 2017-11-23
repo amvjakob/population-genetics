@@ -39,7 +39,7 @@ public:
 	 * */
 	Simulation(const std::unordered_map<std::string, int>& alleles,
 			const int executionMode,
-			const std::vector<double>& mutationFqs, const std::array< std::array<double, N>, N >& nuclMutationProbs);
+			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs);
 
 	/** \brief Get the alleles in the population
 	 *
@@ -108,14 +108,15 @@ private:
 	//!< Count of the alleles in the current simulation
 	std::vector<unsigned int> allelesCount;
 	
+	//!< Execution mode
+	const int executionMode;
+	
 	//!< List of marker-specifix mutation frequencies
 	std::vector<double> mutationFqs;
 	
 	//!< Mutation rates for every nucleotide to every nucleotide
 	std::array< std::array<double, N>, N > mutationTable;
 	
-	//!< Execution mode
-	const int executionMode;
 	
 	//!< Precision for output
 	std::size_t precision;

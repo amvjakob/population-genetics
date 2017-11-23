@@ -127,7 +127,7 @@ private:
 	std::unordered_map<std::string, int> alleles;
 	
 	//!< Table of mutation probabilities
-	std::array< std::array<double, N >, N > nuclMutationProbs;
+	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
 	
 	//!< Execution mode of simulation
 	const int executionMode = _PARAM_MUTATIONS_;

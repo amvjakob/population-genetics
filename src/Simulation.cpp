@@ -8,8 +8,9 @@
 #include "Random.hpp"
 
 Simulation::Simulation(int N, std::vector<double> alleleFq)
-	: populationSize(N)
+	: populationSize(N), executionMode(_PARAM_NONE_)
 {
+	
 	// make sure sensible parameters were used
 	assert(N > 0);
 	
