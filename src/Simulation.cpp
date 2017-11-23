@@ -151,7 +151,7 @@ void Simulation::update() {
 	// additional params here!
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			{							
+			if (!mutationFqs.empty()) {							
 				std::size_t nbMarkers = alleles.front().size();
 				
 				for (std::size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
@@ -182,7 +182,7 @@ void Simulation::update() {
 								}
 								
 								// find source
-								int source = RandomDist::uniformIntSingle(0, nuclCount.second);
+								int source = RandomDist::uniformIntSingle(0, nuclCount.second - 1);
 								
 								int sourceCount = 0.0;
 								for (std::size_t i = 0; i < alleles.size(); ++i) {
