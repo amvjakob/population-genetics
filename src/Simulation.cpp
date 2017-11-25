@@ -177,14 +177,14 @@ void Simulation::mutatePopulation() {
 			
 			if (mutX > 0) {
 				
+				// calc the sum of the mutation table row
+				double mutationTableSum = 0.0;
+				for (auto& p : mutationTable[nuclCount.first])
+					mutationTableSum += p;
+				
 				// iterate over all mutations
 				for (int mutation = 0; mutation < mutX; ++mutation) {
-					
-					// calc the sum of the mutation table row
-					double mutationTableSum = 0.0;
-					for (auto& p : mutationTable[nuclCount.first])
-						mutationTableSum += p;
-						
+											
 					// generate the target mutation
 					double mut = RandomDist::uniformDoubleSingle(0, mutationTableSum);
 					Nucleotide target = N;
@@ -228,8 +228,8 @@ void Simulation::mutatePopulation() {
 									std::find(
 										alleles.begin(),
 										alleles.end(),
-										newAllele)
-									);
+										newAllele
+									));
 								 
 								if (newAlleleIdx < alleles.size()) {
 									allelesCount[newAlleleIdx]++;
