@@ -146,86 +146,108 @@ void Simulation::update() {
 	// additional params here!
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			if (!mutationFqs.empty()) {							
-				std::size_t nbMarkers = alleles.front().size();
-				
-				for (std::size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
-					
-					std::map<Nucleotide, std::size_t> markerCount;
-					
-					for (std::size_t i= 0; i < alleles.size(); ++i) {
-						markerCount[Allele::charToNucl.at(alleles[i][markerIdx])] += allelesCount[i];
-					}
-					
-					for (auto& nuclCount : markerCount) {						
-						int mutX = nuclCount.second > 0 ? RandomDist::binomial(nuclCount.second, mutationFqs[markerIdx] * 1.0 / nuclCount.second) : 0;
-						
-						if (mutX > 0) {
-							
-							for (int mutation = 0; mutation < mutX; ++mutation) {
-								// right now, simplest model with p = 1/3 for each transition
-								double mut = RandomDist::uniformDoubleSingle(0, 1);
-								Nucleotide target = N;
-								
-								double pCount = 0.0;
-								for (int i = 0; i < (int) N; ++i) {
-									pCount += Simulation::mutationTable[(int) nuclCount.first][i];
-									if (mut <= pCount) {
-										target = (Nucleotide) i;
-										break;
-									}							
-								}
-								
-								// find source
-								int source = RandomDist::uniformIntSingle(0, nuclCount.second - 1);
-								
-								int sourceCount = 0.0;
-								for (std::size_t i = 0; i < alleles.size(); ++i) {
-									if (Allele::charToNucl.at(alleles[i][markerIdx]) == nuclCount.first) {
-										sourceCount += allelesCount[i];
-										
-										if (source < sourceCount) {
-											// we got our source
-											
-											// create new mutated allele
-											std::string newAllele = std::string(alleles[i]);
-											newAllele[markerIdx] = Allele::nuclToChar[(int) target];
-											
-											// remove original allele
-											allelesCount[i]--;
-											
-											// add mutated allele
-											std::size_t newAlleleIdx = std::distance(
-												alleles.begin(), 
-												std::find(
-													alleles.begin(),
-													alleles.end(),
-													newAllele)
-												);
-											 
-											if (newAlleleIdx < alleles.size()) {
-												allelesCount[newAlleleIdx]++;
-											} else {
-												alleles.push_back(newAllele);
-												allelesCount.push_back(1);
-											}
-											
-											std::cout << "Mutated a " << alleles[i] << " to a " << newAllele << std::endl;
-											
-											break;
-										}
-									}								
-								}
-							}
-						}
-					}
-				}				
-			}
-			
+			mutatePopulation();			
 			break;
 			
 		default:
 			break;		
+	}
+}
+
+void Simulation::mutatePopulation() {
+	assert(!mutationFqs.empty());
+		
+	// get number of marker sites					
+	std::size_t nbMarkers = alleles.front().size();
+	
+	// iterate over all marker sites
+	for (std::size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
+		
+		// count the number of each nucleotide for the current marker site
+		std::map<Nucleotide, std::size_t> markerCount;
+		for (std::size_t i= 0; i < alleles.size(); ++i) {
+			markerCount[Allele::charToNucl.at(alleles[i][markerIdx])] += allelesCount[i];
+		}
+		
+		// iterate over all nucleotide counts of the current marker site
+		for (auto& nuclCount : markerCount) {	
+			
+			// generate number of mutations for nucleotide X				
+			int mutX = nuclCount.second > 0 ? RandomDist::binomial(nuclCount.second, mutationFqs[markerIdx] * 1.0 / nuclCount.second) : 0;
+			
+			if (mutX > 0) {
+				
+				// iterate over all mutations
+				for (int mutation = 0; mutation < mutX; ++mutation) {
+					
+					// calc the sum of the mutation table row
+					double mutationTableSum = 0.0;
+					for (auto& p : mutationTable[nuclCount.first])
+						mutationTableSum += p;
+						
+					// generate the target mutation
+					double mut = RandomDist::uniformDoubleSingle(0, mutationTableSum);
+					Nucleotide target = N;
+					
+					double pCount = 0.0;
+					for (int i = 0; i < (int) Nucleotide::N; ++i) {
+						pCount += mutationTable[(int) nuclCount.first][i];
+						if (mut <= pCount) {
+							target = (Nucleotide) i;
+							break;
+						}							
+					}
+					
+					if (target == Nucleotide::N) {
+						std::string msg = "Did not find target";
+						std::cerr << msg << std::endl;
+						throw msg;
+					}
+				
+					// find source
+					int source = RandomDist::uniformIntSingle(0, nuclCount.second - 1);
+					
+					int sourceCount = 0.0;
+					for (std::size_t i = 0; i < alleles.size(); ++i) {
+						if (Allele::charToNucl.at(alleles[i][markerIdx]) == nuclCount.first) {
+							sourceCount += allelesCount[i];
+							
+							if (source < sourceCount) {
+								// we got our source
+								
+								// create new mutated allele
+								std::string newAllele = std::string(alleles[i]);
+								newAllele[markerIdx] = Allele::nuclToChar[(int) target];
+								
+								// remove original allele
+								allelesCount[i]--;
+								
+								// add mutated allele
+								std::size_t newAlleleIdx = std::distance(
+									alleles.begin(), 
+									std::find(
+										alleles.begin(),
+										alleles.end(),
+										newAllele)
+									);
+								 
+								if (newAlleleIdx < alleles.size()) {
+									allelesCount[newAlleleIdx]++;
+								} else {
+									alleles.push_back(newAllele);
+									allelesCount.push_back(1);
+								}
+								
+								// some user info
+								std::cout << "Mutated a " << alleles[i] << " to a " << newAllele << std::endl;
+								
+								break;
+							}
+						}								
+					}
+				}
+			}
+		}
 	}
 }
 

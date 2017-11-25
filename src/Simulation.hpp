@@ -99,6 +99,14 @@ private:
 	void calcOutputConstants();
 	
 	
+	/** \brief Generates mutations in the current population
+	 * 
+	 * Mutates nucleotides from the marker sequences depending on model
+	 * 
+	 * */
+	void mutatePopulation();
+	
+	
 	//!< Size of the population
 	int populationSize;
 

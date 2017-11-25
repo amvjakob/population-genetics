@@ -5,6 +5,8 @@
 #include <cassert>
 #include <algorithm>
 #include "Data.hpp"
+#include "Allele.hpp"
+#include "Globals.hpp"
 
 using namespace std;
 
@@ -38,6 +40,12 @@ void Data::construct(string input, string fasta) {
 	numberGenerations = 0;
 	replicates = 0;
 	numberAlleles = 0;
+	
+	executionMode = _PARAM_NONE_;
+	
+	// mutation
+	mutationModel = _MUTATION_MODEL_NONE_;
+	kimuraDelta = 0.0;
 	
 	assert(alleleFq.empty());
 	assert(markerSites.empty());
@@ -85,27 +93,70 @@ void Data::collectUserFile(ifstream& file) {
 		stringstream ss(line);
 		getline(ss, key, '=');
 
-        switch (resolveInput(key)) {
-			case Generation:
+        switch (str2int(key.c_str())) {
+			case str2int(_INPUT_KEY_GENERATIONS_):
                 numberGenerations = extractInt(line);
                 break;
                 
-			case Replicas:
+			case str2int(_INPUT_KEY_REPLICAS_):
 				replicates = extractInt(line);
 				break;
 
-            case Sites:
+            case str2int(_INPUT_KEY_MARKER_SITES_):
 				markerSites = extractVec(line);
 				break;
+				
+			case str2int(_INPUT_KEY_MODE_):
+				executionMode = extractInt(line);
+				break;
 
-			case Mutations:
+			case str2int(_INPUT_KEY_MUTATION_RATES_):
 				mutations = extractVec(line);
                 break;
+                
+            case str2int(_INPUT_KEY_MUTATION_KIMURA_):
+				kimuraDelta = extractDouble(line);
+				break;
+				
+			case str2int(_INPUT_KEY_MUTATION_FELSENSTEIN_):
+				felsensteinConstants = extractVec(line);
+				break;
 
-            case NoInput:
             default:
 				break;
         }
+	}
+	
+	// the whole file has been read
+	
+	// set mutation model, if mutation_mode
+	if (executionMode == _PARAM_MUTATIONS_) {
+		// default is cantor
+		mutationModel = _MUTATION_MODEL_CANTOR_;
+		
+		if (kimuraDelta >= 1.0/3.0 && kimuraDelta <= 1.0) {
+			mutationModel = _MUTATION_MODEL_KIMURA_;
+		} else if (!felsensteinConstants.empty() && felsensteinConstants.size() == (int) Nucleotide::N) {
+			// check for correct constants
+			double sum = 0.0;
+			for (auto& c : felsensteinConstants) {				
+				// c can not be negative
+				c = std::abs(c);
+				
+				// c can not be equal to 1
+				sum += c;
+			}
+			
+			// adjust terms
+			if (sum < 1.0) {
+				for (auto& c : felsensteinConstants) c += (1.0 - sum) / (Nucleotide::N);
+			}
+			
+			// set mutation model
+			if (!(sum > 1.0)) {
+				mutationModel = _MUTATION_MODEL_FELSENSTEIN_;
+			}
+		} 
 	}
 }
 
@@ -192,6 +243,24 @@ int Data::extractInt(string line) const {
 	return value;
 }
 
+double Data::extractDouble(string line) const {
+	string key, strValue;
+	
+	double value = 0;
+    
+    stringstream ss(line);
+    getline(ss, key, '=');
+	getline(ss, strValue);
+	
+	try {
+		value = stod(strValue);
+	} catch (std::invalid_argument& e) {	
+		cerr << e.what() << endl;
+	}
+
+	return value;
+}
+
 std::vector<double> Data::extractVec(string line) const {
     string key, strValue;
     
@@ -211,15 +280,6 @@ std::vector<double> Data::extractVec(string line) const {
     return values;
 }
 
-Input Data::resolveInput(std::string input) {
-    if( input == "GEN" ) return Generation;
-    if( input == "REP" ) return Replicas;
-    if( input == "SITES")return Sites;
-    if( input == "MUT" ) return Mutations;
-
-    return NoInput ;
-}
-
 void Data::setMutations(std::vector<double>& list) {
     for (auto mig : list) {
         mutations.push_back(mig);
@@ -232,4 +292,20 @@ const std::vector<double>& Data::getAlleleFqs() const {
 
 const std::list<std::string>& Data::getSequences() const {
 	return sequences;
+}
+
+int Data::getExecutionMode() const {
+	return executionMode;
+}
+
+int Data::getMutationModel() const {
+	return mutationModel;
+}
+
+double Data::getKimuraDelta() const {
+	return kimuraDelta;
+}
+
+const std::vector<double>& Data::getFelsensteinConstants() const {
+	return felsensteinConstants;
 }

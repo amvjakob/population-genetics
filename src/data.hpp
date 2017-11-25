@@ -5,13 +5,6 @@
 #include <vector>
 #include <list>
 
-/** Input enum 
- *  Handles the different types of data that are read 
- */
-enum Input {
-	Generation, Replicas, Sites, Mutations, NoInput
-};
-
 
 /** \brief Class regrouping the data necessary to run a simulation
  *
@@ -125,17 +118,17 @@ public:
 	 *
 	 * 	\param the string to read from
 	 * 
+	 * 	\return the data read, a double
+	 * */
+	double extractDouble(std::string) const;
+	
+	/** \brief Utility function to read data from the user input file
+	 *
+	 * 	\param the string to read from
+	 * 
 	 * 	\return the data read, a vector of double
 	 * */
     std::vector<double> extractVec(std::string) const;
-	
-	/** \brief Utility function to convert a string into the input enum type
-	 *
-	 * 	\param the string to be converted
-	 * 
-	 * 	\return the enum value corresponding to a given string, an Input
-	 * */
-    Input resolveInput(std::string);
 	
 	/** \brief Setter of the vector of mutations
 	 * 
@@ -154,6 +147,36 @@ public:
 	 * 	\return a list of strings, the allele sequences
 	 * */
 	const std::list<std::string>& getSequences() const;
+	
+	/** \brief Utility function to transfrom strings to ints for use in switch statements
+	 * 
+	 * */
+	static constexpr unsigned int str2int(const char* str, int h = 0) {
+		return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
+	} 
+	
+	/** \brief Get the execution mode of a sSmulation (mutation, migration, ...)
+	 * 
+	 * \return An int whose meaning is defined in Globals.hpp
+	 * */
+	int getExecutionMode() const;
+	
+	/** \brief Get the mutation model to use for a Simulation (Cantor, Kimura, ...)
+	 * 
+	 * */
+	int getMutationModel() const;
+	
+	/** \brief Get the value necessary to create a Kimura mutation model
+	 * 
+	 * \return The value of delta for a Kimura mutation model
+	 * */
+	double getKimuraDelta() const;
+	
+	/** \brief Get the values necessary to create a Felsenstein mutation model
+	 * 
+	 * \return The values of the constants for a Felsenstein model
+	 * */
+	const std::vector<double>& getFelsensteinConstants() const;
 	
 	
 private:
@@ -187,6 +210,18 @@ private:
 
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
+	
+	//!< Execution mode (param to use)
+	int executionMode;
+	
+	//!< Mutation model (simple, kimura, felsenstein)
+	int mutationModel;
+	
+	//!> Kimura model
+	double kimuraDelta;
+	
+	//!< Felsenstein model
+	std::vector<double> felsensteinConstants;
 
 };
 

@@ -41,7 +41,7 @@ public:
 	 * 
 	 * \param data					Data file
 	 * */
-	SimulationsExecutor(Data& data);
+	SimulationsExecutor(const Data& data);
 	
 	
 	//!< Because of the threads, we do not allow any copies
@@ -83,15 +83,16 @@ protected:
 	 * 
 	 * Wrties the data passed as argument in the result file.
 	 * 
+	 * \param step			the step number of the simulation to be written
 	 * \param alleleFqs		a vector of strings (each being a formatted list of allele frequencies)
 	 * */
-	void writeAlleleFqs(const std::vector<std::string>& alleleFqs);
+	void writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs);
 	
-	/** \brief Generate table for nucleotide mutation rates based on certain model
+	/** \brief Generate table for nucleotide mutation rates based on user input data
 	 * 
-	 * 
+	 * Automatically selects the correct model based on user data
 	 * */
-	 void generateMutationRates(int mutationModel);
+	 void generateMutationRates(const Data& data);
 	
 
 private:
@@ -130,7 +131,7 @@ private:
 	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
 	
 	//!< Execution mode of simulation
-	const int executionMode = _PARAM_MUTATIONS_;
+	int executionMode;
 	
 	
 	//!< Result file

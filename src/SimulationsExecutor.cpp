@@ -9,12 +9,12 @@
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
 	int simulationSteps, std::vector<double> fqs)
   : isFullMode(false), nSimulations(n), N(populationSize),
-	  T(simulationSteps), alleleFqs(fqs)
+	  T(simulationSteps), alleleFqs(fqs), executionMode(_PARAM_NONE_)
 {
 	prepare();
 }
 
-SimulationsExecutor::SimulationsExecutor(Data& data)
+SimulationsExecutor::SimulationsExecutor(const Data& data)
   : isFullMode(true)
 {
 	nSimulations = data.getReplicates();
@@ -28,6 +28,8 @@ SimulationsExecutor::SimulationsExecutor(Data& data)
 	sequences = data.getSequences();
 	sequences.sort();
 	sequences.unique();
+	
+	executionMode = data.getExecutionMode();
 	
 	mutations = data.getMutations();
 	
@@ -46,9 +48,11 @@ SimulationsExecutor::SimulationsExecutor(Data& data)
 		++i;
 	}
 	
-	// generate nucleotide mutation porbabilites according to model
-	if (executionMode == _PARAM_MUTATIONS_)
-		generateMutationRates(_MUTATION_MODEL_SIMPLE_);
+	// generate nucleotide mutation probabilities according to model
+	if (executionMode == _PARAM_MUTATIONS_) {
+		std::cout << "Running with param mutations" << std::endl;
+		generateMutationRates(data);
+	}
 	
 	prepare();
 }
@@ -162,12 +166,14 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	
 	// write data from buffer to file, since the buffer for the
 	// lowest step is full
-	writeAlleleFqs(outputBuffer.front());
+	writeAlleleFqs(bufferLowestStep, outputBuffer.front());
 	outputBuffer.pop_front();
 	++bufferLowestStep;
 }
 
-void SimulationsExecutor::writeAlleleFqs(const std::vector<std::string>& alleleFqs) {
+void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
+	results << step << '\t';
+	
 	for (auto const& data : alleleFqs) {
 		results << data << '\t';
 	}
@@ -175,37 +181,74 @@ void SimulationsExecutor::writeAlleleFqs(const std::vector<std::string>& alleleF
 	results << '\n';
 }
 
-void SimulationsExecutor::generateMutationRates(int mutationModel) {
-	switch (mutationModel) {
-		case _MUTATION_MODEL_SIMPLE_:
-			// simplest model with prob 1/3 to mutate to any other nucleotide
-			nuclMutationProbs = { {
-				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
-			} };
+void SimulationsExecutor::generateMutationRates(const Data& data) {
+	switch (data.getMutationModel()) {
+		case _MUTATION_MODEL_CANTOR_:
+			{
+				std::cout << "Cantor model" << std::endl;
+				
+				double p = 1.0 / 3.0;
+			
+				nuclMutationProbs = { {
+					{ { 0.0, p, p, p } },
+					{ { p, 0.0, p, p } },
+					{ { p, p, 0.0, p } },
+					{ { p, p, p, 0.0 } }
+				} };
+			}
 			break;
 			
-		case _MUTATION_MODEL_MEDIUM_:
-			nuclMutationProbs = { {
-				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
-			} };
+		case _MUTATION_MODEL_KIMURA_:
+			{
+				std::cout << "Kimura model" << std::endl;
+			
+				double transition = data.getKimuraDelta();
+				double transversion = (1.0 - transition) / 2.0;
+				
+				nuclMutationProbs = { {
+					//  A    C			   G		   T
+					{ { 0.0, transversion, transition, transversion } },
+					{ { transversion, 0.0, transversion, transition } },
+					{ { transition, transversion, 0.0, transversion } },
+					{ { transversion, transition, transversion, 0.0 } }
+				} };
+			}
 			break;
 			
-		case _MUTATION_MODEL_COMPLEX_:
-			nuclMutationProbs = { {
-				{ {0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 0.0, 1.0/3.0} },
-				{ {1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0} }
-			} };
+		case _MUTATION_MODEL_FELSENSTEIN_:
+			{
+				std::cout << "Felsenstein model" << std::endl;
+			
+				std::vector<double> consts = data.getFelsensteinConstants();
+				
+				for (auto& c : consts) {
+					assert(c != 1.0);
+				}
+				
+				double pA = consts[Nucleotide::A] / (1.0 - consts[Nucleotide::A]);
+				double pC = consts[Nucleotide::C] / (1.0 - consts[Nucleotide::C]);
+				double pG = consts[Nucleotide::G] / (1.0 - consts[Nucleotide::G]);
+				double pT = consts[Nucleotide::T] / (1.0 - consts[Nucleotide::T]);
+				
+				nuclMutationProbs = { {
+					{ { 0.0, pC, pG, pT } },
+					{ { pA, 0.0, pG, pT } },
+					{ { pA, pC, 0.0, pT } },
+					{ { pA, pC, pG, 0.0 } }
+				} };
+			}
 			break;
 			
 		default:
+			std::cout << "No model" << std::endl;
 			break;
+	}
+	
+	// cout the prob matrix
+	for (auto& pX : nuclMutationProbs) {
+		for (auto& p : pX) {
+			std::cout << p << '\t';
+		}
+		std::cout << std::endl;
 	}
 }
