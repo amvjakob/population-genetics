@@ -11,7 +11,7 @@ int main() {
 	simulationsExecutor.execute();
 	*/
 	
-	Data data = Data();
+	Data data("../data/input.txt", "../data/test.fa");
 	data.collectAll();
 	
 	SimulationsExecutor simulationsExecutorFull(data);

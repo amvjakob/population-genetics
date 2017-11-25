@@ -1,0 +1,22 @@
+# DATA INPUTS FILE
+
+# Number of generations
+GEN = 3000
+
+# Number of replicas
+REP = 500
+
+# Marker Sites
+SITES = 1|2|3|4
+
+# Execution mode: vars are
+# 0 - none
+# 1 - mutation
+# 2 - migration
+# 4 - selection
+# 8 - variable population size
+MODE = 1
+
+# Mutation probabilities for each site
+MUT = 1E-8|1E-8|1E-8|1E-8
+MUT_FELSENSTEIN = 0.25|0.25|0.25|0.25

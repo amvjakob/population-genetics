@@ -18,16 +18,12 @@ Data::Data() {
 	string input;
 	string fasta;
 	
-	input = "../data/input.txt";
-	fasta = "../data/test.fa";
 	
-	/*
 	cout << "Please enter the path of your input file: " << endl;
 	cin >> input;
 
 	cout << "Please enter the path of your fasta file: " << endl;
 	cin >> fasta;
-	* */
 	
 	construct(input, fasta);
 }

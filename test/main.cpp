@@ -14,7 +14,7 @@ TEST(ArithmeticTest, CorrectAddition) {
 // We test that each data has been well read and collected
 
 TEST(DataReading, PopulationSize) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt","../data/test.fa");
 
 	data.collectAll();
 
@@ -22,7 +22,7 @@ TEST(DataReading, PopulationSize) {
 }
 
 TEST(DataReading, NumberGenerations) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt","../data/test.fa");
 
 	data.collectAll();
 
@@ -30,7 +30,7 @@ TEST(DataReading, NumberGenerations) {
 }
 
 TEST(DataReading, NumberAlleles) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt", "../data/test.fa");
 
 	data.collectAll();
 
@@ -38,7 +38,7 @@ TEST(DataReading, NumberAlleles) {
 }
 
 TEST(DataReading, MarkerSites) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt", "../data/test.fa");
 
 	vector <double> knownMS = {1, 2, 3, 4};
 
@@ -49,19 +49,19 @@ TEST(DataReading, MarkerSites) {
 
 
 TEST(DataReading, InitialFrequencies) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt","../data/test.fa");
 
 	vector <double> knownFq = {0.428571, 0.571429};
 
 	data.collectAll();
 
-	for (size_t i(0); i < data.getNumberAlleles(); ++i) {
+	for (size_t i(0); i < (size_t) data.getNumberAlleles(); ++i) {
 		EXPECT_NEAR(data.getAlleleFqs()[i], knownFq[i], 1E-3);
 	}
 }
 
 TEST(DataReading, NumberReplicates) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt","../data/test.fa");
 
 	data.collectAll();
 
@@ -69,7 +69,7 @@ TEST(DataReading, NumberReplicates) {
 }
 
 TEST(DataReading, NucleotidesMutations) {
-	Data data("../data/input.txt","../data/test.fa");
+	Data data("../data/test_input.txt","../data/test.fa");
 
 	vector <double> knownMut = {10E-8, 10E-8, 10E-8, 10E-8};
 
