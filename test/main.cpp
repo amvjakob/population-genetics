@@ -15,46 +15,46 @@ TEST(ArithmeticTest, CorrectAddition) {
 
 TEST(DataReading, PopulationSize) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	data.collectAll();
-	
+
 	EXPECT_EQ(data.getPopSize(), 21);
 }
 
 TEST(DataReading, NumberGenerations) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	data.collectAll();
-	
+
 	EXPECT_EQ(data.getGenerations(), 3000);
 }
 
 TEST(DataReading, NumberAlleles) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	data.collectAll();
-	
+
 	EXPECT_EQ(data.getNumberAlleles(), 2);
 }
 
 TEST(DataReading, MarkerSites) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	vector <double> knownMS = {1, 2, 3, 4};
-	
+
 	data.collectAll();
-	
+
 	EXPECT_EQ(data.getMarkerSites(), knownMS);
 }
 
 
 TEST(DataReading, InitialFrequencies) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	vector <double> knownFq = {0.428571, 0.571429};
-	
+
 	data.collectAll();
-	
+
 	for (size_t i(0); i < data.getNumberAlleles(); ++i) {
 		EXPECT_NEAR(data.getAlleleFqs()[i], knownFq[i], 1E-3);
 	}
@@ -62,19 +62,19 @@ TEST(DataReading, InitialFrequencies) {
 
 TEST(DataReading, NumberReplicates) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	data.collectAll();
-	
+
 	EXPECT_EQ(data.getReplicates(), 500);
 }
 
 TEST(DataReading, NucleotidesMutations) {
 	Data data("../data/input.txt","../data/test.fa");
-	
+
 	vector <double> knownMut = {10E-8, 10E-8, 10E-8, 10E-8};
-	
+
 	data.collectAll();
-	
+
 	for (size_t i(0); i < data.getMutations().size() ; ++i) {
 		EXPECT_NEAR(data.getMutations()[i], knownMut[i], 1E-3);
 	}
@@ -82,7 +82,7 @@ TEST(DataReading, NucleotidesMutations) {
 
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
-	
+
 	RandomDist rng_unif(input_mean, input_sd, 10000, false);
 	for (auto I : rng_unif.generate_numbers()) {
 		EXPECT_GE(I, -3.5);
@@ -95,12 +95,12 @@ TEST(RandomTest, UniformDistribution) {
 
 TEST(RandomTest, NormalDistribution) {
 	double mean_normal(0), input_mean(1.35), input_sd(2.8);
-	
+
 	RandomDist rng_norm(input_mean, input_sd, 10000, true);
 	for (auto I : rng_norm.generate_numbers()) {
 		mean_normal += I * 1e-4;
 	}
-	
+
 	EXPECT_NEAR(input_mean, mean_normal, 2 * input_sd / sqrt(1e4));
 }
 
