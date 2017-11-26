@@ -251,4 +251,10 @@ void Simulation::mutatePopulation() {
 	}
 }
 
+void Simulation::bottleneck (int simulationTime) {
+	
+	if (simulationTime == simulationTime/_BOTTLENECK_TIME_) {
+		populationSize = populationSize/_BOTTLENECK_POPULATION_REDUCTION_;
+	}
 
+}

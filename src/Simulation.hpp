@@ -87,8 +87,15 @@ public:
 	/** \brief Get the output precision for the frequencies 
 	 * */
 	std::size_t getPrecision() const;
-
-
+	
+	/** \brief Bottleneck effet
+	 *
+	 * Creates a time-dependent population size
+	 * 
+	 * \param the time of the simulation, an int
+	 * */
+	void bottleneck (int simulationTime);
+	
 private:
 
 	/** \brief Calculate ouput constants

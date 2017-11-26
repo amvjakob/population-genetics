@@ -101,6 +101,9 @@ void SimulationsExecutor::runSimulation(int id) {
 		// update simulation
 		simul.update();
 		
+		//bottleneck effect
+		simul.bottleneck(t);
+		
 		// increment clock
 		++t;
 		
