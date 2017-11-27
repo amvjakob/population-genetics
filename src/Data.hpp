@@ -136,11 +136,11 @@ public:
 	 * */
     void setMutations(std::vector<double>&);
 	
-	/** \brief Getter of the vector of the allele frequencies
+	/** \brief Getter of the vector of the allele counts
 	 * 
-	 * 	\return a vector of double, the allele frequencies
+	 * 	\return a vector of int, the allele counts
 	 * */
-	const std::vector<double>& getAlleleFqs() const;
+	const std::vector<int>& getAllelesCount() const;
 	
 	/** \brief Getter of the list of allele sequences
 	 * 
@@ -196,11 +196,8 @@ private:
 	//!< Number of replicates of the simulation, an int
 	int replicates;
 	
-	//!< Number of alleles, an int
-	int numberAlleles;
-	
 	//!< Vector of double containing the allele frequencies of the fasta file
-	std::vector<double> alleleFq;
+	std::vector<int> allelesCount;
 
 	//!< Vector of double containing the user marker sites
 	std::vector<double> markerSites;

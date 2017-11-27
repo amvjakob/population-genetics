@@ -1,6 +1,18 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#define _INPUT_COMMENT_ '#'
+#define _INPUT_DECLARATION_ '='
+
+#define _FASTA_COMMENT_ '>'
+
+#define _INPUT_SEPARATOR_ '|'
+#define _OUTPUT_SEPARATOR_ '|'
+
+#define _ERROR_INPUT_UNREADABLE_ "Input file impossible to open"
+#define _ERROR_FASTA_UNREADABLE_ "Fasta file impossible to open"
+#define _ERROR_MUTATION_TARGET_UNFINDABLE_ "Did not find mutation target"
+
 #define _MIN_OUTPUT_PRECISION_ 2
 
 #define _INPUT_KEY_GENERATIONS_ "GEN"

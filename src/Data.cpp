@@ -35,7 +35,6 @@ void Data::construct(string input, string fasta) {
 	populationSize = 0;
 	numberGenerations = 0;
 	replicates = 0;
-	numberAlleles = 0;
 	
 	executionMode = _PARAM_NONE_;
 	
@@ -43,7 +42,7 @@ void Data::construct(string input, string fasta) {
 	mutationModel = _MUTATION_MODEL_NONE_;
 	kimuraDelta = 0.0;
 	
-	assert(alleleFq.empty());
+	assert(allelesCount.empty());
 	assert(markerSites.empty());
 	assert(sequences.empty());
 	assert(mutations.empty());
@@ -59,16 +58,15 @@ void Data::collectAll() {
 	if (dataFile.is_open()) {
 		collectUserFile(dataFile);
 	} else {
-		cerr << "Ouverture de l'input impossible" << endl;
-		throw 10;
+		cerr << _ERROR_INPUT_UNREADABLE_ << endl;
+		throw _ERROR_INPUT_UNREADABLE_;
 	}
 
 	if (fastaFile.is_open()) {
 		collectFastaFile(fastaFile);
 	} else {
-		cerr << "Ouverture  du fasta impossible" << endl;
-		cerr << fastaName << endl;
-		throw 11;
+		cerr << _ERROR_FASTA_UNREADABLE_ << endl;
+		throw _ERROR_FASTA_UNREADABLE_;
 	}
 }
 
@@ -84,10 +82,10 @@ void Data::collectUserFile(ifstream& file) {
 		);
 		
 		// lines starting with # are comments
-		if (line[0] == '#') continue;
+		if (line[0] == _INPUT_COMMENT_) continue;
 		
 		stringstream ss(line);
-		getline(ss, key, '=');
+		getline(ss, key, _INPUT_DECLARATION_);
 
         switch (str2int(key.c_str())) {
 			case str2int(_INPUT_KEY_GENERATIONS_):
@@ -163,7 +161,7 @@ void Data::collectFastaFile(ifstream& file) {
 
 	while (getline(file, line)) {
 		
-		if (line[0] == '>') {
+		if (line[0] == _FASTA_COMMENT_) {
 			++populationSize;
 			continue;
 		}
@@ -188,10 +186,6 @@ int Data::getGenerations() const {
 	return numberGenerations;
 }
 
-int Data::getNumberAlleles() const {
-	return numberAlleles;
-}
-
 int Data::getReplicates() const {
 	return replicates;
 }
@@ -205,15 +199,13 @@ void Data::countAlleles() {
 	
 	sequencesSorted.sort();
 	sequencesSorted.unique();
-	
-	numberAlleles = sequencesSorted.size();
 
 	for (auto& seqS : sequencesSorted) {
 		int count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
 				return allele == seqS;
 		});
 
-		alleleFq.push_back(count * 1.0 / populationSize);
+		allelesCount.push_back(count);
 	}
 }
 
@@ -227,7 +219,7 @@ int Data::extractInt(string line) const {
 	int value = 0;
     
     stringstream ss(line);
-    getline(ss, key, '=');
+    getline(ss, key, _INPUT_DECLARATION_);
 	getline(ss, strValue);
 	
 	try {
@@ -245,7 +237,7 @@ double Data::extractDouble(string line) const {
 	double value = 0;
     
     stringstream ss(line);
-    getline(ss, key, '=');
+    getline(ss, key, _INPUT_DECLARATION_);
 	getline(ss, strValue);
 	
 	try {
@@ -263,9 +255,9 @@ std::vector<double> Data::extractVec(string line) const {
     vector<double> values;
 
 	stringstream ss(line);
-	getline(ss, key, '=');
+	getline(ss, key, _INPUT_DECLARATION_);
 
-	while (getline(ss, strValue, '|')) {
+	while (getline(ss, strValue, _INPUT_SEPARATOR_)) {
 		try {
 			values.push_back(stod(strValue));
 		} catch (std::invalid_argument& e) {
@@ -282,8 +274,8 @@ void Data::setMutations(std::vector<double>& list) {
     }
 }
 
-const std::vector<double>& Data::getAlleleFqs() const {
-	return alleleFq;
+const std::vector<int>& Data::getAllelesCount() const {
+	return allelesCount;
 }
 
 const std::list<std::string>& Data::getSequences() const {

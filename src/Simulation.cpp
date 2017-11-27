@@ -7,31 +7,22 @@
 #include "Simulation.hpp"
 #include "Random.hpp"
 
-Simulation::Simulation(int N, std::vector<double> alleleFq)
+Simulation::Simulation(int N, std::vector<int> counts)
 	: populationSize(N), executionMode(_PARAM_NONE_)
 {
-	
 	// make sure sensible parameters were used
-	assert(N > 0);
+	assert(populationSize > 0);
 	
-	for (int i = 0; i < (int) alleleFq.size(); ++i) {
-		// get initial number of allele in population
-		double alleleNb = alleleFq[i] * populationSize;
-		
-		// number should be an int, e.g. frequency should be realistic and tied to population size
-		assert(alleleNb - ((int) alleleNb) < 1E-4);
-		
+	for (std::size_t i = 0; i < counts.size(); ++i) {
 		std::string idx = std::to_string(i);
 		
 		alleles.push_back(idx);
-		allelesCount.push_back((int) alleleNb);
+		allelesCount.push_back(counts[i]);
 	}
-	
 	
 	int alleleCount = 0;
 	for (auto const& allele : allelesCount)
 		alleleCount += allele;
-
 
 	// population size should equal total allele number
 	assert(alleleCount == populationSize);
@@ -83,7 +74,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
 	
 	for (auto allele = allelesCount.begin(); allele != allelesCount.end(); ++allele) {
-		if (allele != allelesCount.begin()) ss << '|';
+		if (allele != allelesCount.begin()) ss << _OUTPUT_SEPARATOR_;
 		ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
 	}
 	
@@ -94,7 +85,7 @@ std::string Simulation::getAlleleStrings() const {
 	std::stringstream ss;
 	
 	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
-		if (allele != alleles.begin()) ss << '|';
+		if (allele != alleles.begin()) ss << _OUTPUT_SEPARATOR_;
 		ss << (*allele) << std::string(additionalSpaces, ' ');
 	}
 	
@@ -107,50 +98,20 @@ std::size_t Simulation::getPrecision() const {
 
 void Simulation::update() {
 	// genetic drift
-	int nParent = populationSize;
-	int nOffspring = 0;
-	
 	assert(alleles.size() == allelesCount.size());
 	
-	for (auto& allele : allelesCount) {
-		// remaining parent population size should be 0 or more	
-		assert(nParent >= 0);
-		
-		double p;
-		
-		if (nParent == 0) {
-			// the only way for the parent population to be 0 is if the 
-			// current allele is not present anymore (wiped out)
-			assert(allele == 0);
-			p = 0;
-		} else {
-			// generate new allele copy number
-			p = allele * 1.0 / nParent;
-		}
-		
-		// reduce residual "gene pool"
-		nParent -= allele;
-		
-		// generate new number of allele copies in population
-        int newAlleleCount = RandomDist::binomial(populationSize - nOffspring, p);
-		allele = newAlleleCount;
-		
-		// reduce residual population size
-		nOffspring += newAlleleCount;
-	}
-	
-	// after new population generation, residual population size should be 0
-	assert(nParent == 0);
-	assert(nOffspring == populationSize);
-	
-	// additional params here!
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			mutatePopulation();			
+			RandomDist::multinomial(allelesCount, populationSize);
+			
+			mutatePopulation();
+			
 			break;
 			
+		case _PARAM_NONE_:
 		default:
-			break;		
+			RandomDist::multinomial(allelesCount, populationSize);
+			
 	}
 }
 
@@ -175,18 +136,12 @@ void Simulation::mutatePopulation() {
 			// generate number of mutations for nucleotide X				
 			int mutX = nuclCount.second > 0 ? RandomDist::binomial(nuclCount.second, mutationFqs[markerIdx] * 1.0 / nuclCount.second) : 0;
 			
-			if (mutX > 0) {
-				
-				// calc the sum of the mutation table row
-				double mutationTableSum = 0.0;
-				for (auto& p : mutationTable[nuclCount.first])
-					mutationTableSum += p;
-				
+			if (mutX > 0) {				
 				// iterate over all mutations
 				for (int mutation = 0; mutation < mutX; ++mutation) {
 											
 					// generate the target mutation
-					double mut = RandomDist::uniformDoubleSingle(0, mutationTableSum);
+					double mut = RandomDist::uniformDoubleSingle(0.0, 1.0);
 					Nucleotide target = N;
 					
 					double pCount = 0.0;
@@ -199,9 +154,8 @@ void Simulation::mutatePopulation() {
 					}
 					
 					if (target == Nucleotide::N) {
-						std::string msg = "Did not find target";
-						std::cerr << msg << std::endl;
-						throw msg;
+						std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
+						throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
 					}
 				
 					// find source

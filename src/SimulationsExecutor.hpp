@@ -31,9 +31,9 @@ public:
 	 * \param n						n, the number of "identical" simulations to be run
 	 * \param populationSize		N, the number of individuals in the population
 	 * \param simulationSteps		T, the number of generations in the simulation
-	 * \param alleleFqs				A vector of initial allele frequenciess
+	 * \param allelesCount			A vector of initial allele counts
 	 * */
-	SimulationsExecutor(int n, int populationSize, int simulationSteps, std::vector<double> alleleFqs);
+	SimulationsExecutor(int n, int populationSize, int simulationSteps, std::vector<int> allelesCount);
 	
 	/** \brief SimulationsExecutor constructor
 	 * 
@@ -112,8 +112,8 @@ private:
 	//!< Length of a Simulation in steps
 	int T;
 	
-	//!< Initial allele frequencies for a Simulation
-	std::vector<double> alleleFqs;
+	//!< Initial allele count for a Simulation
+	std::vector<int> allelesCount;
 
 	//!< Vector of double containing the user marker sites
 	std::vector<double> markerSites;

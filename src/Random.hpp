@@ -34,6 +34,8 @@ public:
     
     static void uniformIntVector(std::vector<int>& toFill, int min, int max);
     static void uniformDoubleVector(std::vector<double>& toFill, double min, double max);
+    
+    static void multinomial(std::vector<unsigned int>& pop, int n);
      
 private:
 	static std::random_device rd;

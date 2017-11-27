@@ -24,9 +24,9 @@ public:
 	 * Initialises a new population genetics simulation.
 	 *
 	 * \param populationSize		N, the number of individuals in the population
-	 * \param alleleFq				A vector of initial allele frequencies
+	 * \param allelesCount			A vector of initial allele counts
 	 * */
-	Simulation(int populationSize, std::vector<double> alleleFq);
+	Simulation(int populationSize, std::vector<int> allelesCount);
 
 	/** \brief Simulation constructor
 	 *

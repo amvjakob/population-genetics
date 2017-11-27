@@ -7,9 +7,9 @@
 
 
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
-	int simulationSteps, std::vector<double> fqs)
+	int simulationSteps, std::vector<int> counts)
   : isFullMode(false), nSimulations(n), N(populationSize),
-	  T(simulationSteps), alleleFqs(fqs), executionMode(_PARAM_NONE_)
+	  T(simulationSteps), allelesCount(counts), executionMode(_PARAM_NONE_)
 {
 	prepare();
 }
@@ -21,7 +21,12 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	N = data.getPopSize();
 	T = data.getGenerations();
 	
-	alleleFqs = data.getAlleleFqs();
+	allelesCount = data.getAllelesCount();
+	int allelesCountSum = 0;
+	for (auto& alleleCount : allelesCount)
+		allelesCountSum += alleleCount;
+		
+	assert(N == allelesCountSum);	
 	
 	markerSites = data.getMarkerSites();
 	
@@ -36,14 +41,8 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	// generate allele map
 	int i = 0;
 	for (auto it = sequences.begin(); it != sequences.end(); ++it) {
-		// get initial number of allele in population
-		double alleleNb = alleleFqs[i] * N;
-		
-		// number should be an int, e.g. frequency should be realistic and tied to population size
-		assert(alleleNb - ((int) alleleNb) < 1E-4);
-		
 		std::string idx = *it;
-		alleles[idx] = (int) alleleNb;
+		alleles[idx] = allelesCount[i];
 		
 		++i;
 	}
@@ -89,7 +88,7 @@ void SimulationsExecutor::execute() {
 
 void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
-	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs) : Simulation(N, alleleFqs);
+	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs) : Simulation(N, allelesCount);
 	
 	std::vector<std::string> states(T + 2);
 	
@@ -236,6 +235,20 @@ void SimulationsExecutor::generateMutationRates(const Data& data) {
 					{ { pA, pC, 0.0, pT } },
 					{ { pA, pC, pG, 0.0 } }
 				} };
+				
+				// normalize table rows
+				for (std::size_t i = 0; i < nuclMutationProbs.size(); ++i) {
+					double sum = 0.0;
+					for (std::size_t j = 0; j < nuclMutationProbs[i].size(); ++j) {
+						sum += nuclMutationProbs[i][j];
+					}
+					
+					assert(sum > 0.0);
+					
+					for (std::size_t j = 0; j < nuclMutationProbs[i].size(); ++j) {
+						nuclMutationProbs[i][j] /= sum;
+					}
+				}
 			}
 			break;
 			
