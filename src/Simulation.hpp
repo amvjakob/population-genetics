@@ -73,6 +73,11 @@ public:
 	 * \return A string containing the allele identifiers with the following
 	 * format: id1|id2|..|idn-1|idn|
 	 * */
+    
+    
+    std::string getMigAlleleFqsForOutput() ;
+
+    
 	std::string getAlleleStrings() const;
 
 
@@ -95,7 +100,50 @@ public:
 	 * \param the time of the simulation, an int
 	 * */
 	void bottleneck (int simulationTime);
+    
+    /** \brief Assign each allele to a sub group
+     *
+     * Implementation of the sub group table using the alleleCount list
+     *
+     *Each subgroup takes a certain number of each alleles
+     *
+     * */
+    void subPopCreation () ;
+    
+    /** \brief Creates migration rate to between each subgroup
+     *
+     * Implementation of the migration matrix
+     *
+     *checking that there is no negative rate
+     *
+     * */
+    void migrationRatesCreation();
+
 	
+    /** \brief Migration effect
+     *
+     * Creates a migrations between subGroups
+     *
+     *alleles exchanges
+     *
+     * */
+    void migrationUpdate();
+    
+    /** \brief Calculate subgroup size
+     *
+     *
+     *make sure population size stays constant
+     *
+     * */
+    double subgroupSize(std::vector< double >);
+    
+    /** \brief prepare migrations vectors
+     *
+     *intialize their size
+     *
+     * */
+    void prepareMigrationVectors ();
+
 private:
 
 	/** \brief Calculate ouput constants
@@ -138,6 +186,17 @@ private:
 	
 	//!< Additional spaces for correct output format
 	std::size_t additionalSpaces;
+    
+    
+    
+    
+    
+    //!< Table containing the sub populations
+    std::vector<std::vector<double>> subPops;
+    
+    //! < Table containing migration rates for each sub group
+    std::vector<std::vector<double>> migrationTable;
+
 };
 
 

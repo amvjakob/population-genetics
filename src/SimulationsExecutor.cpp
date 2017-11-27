@@ -59,15 +59,21 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 
 
 void SimulationsExecutor::prepare() {
-	// open result file
-	results.open("results.txt");
-	
-	// init buffer access values
-	bufferLowestStep = 0;
-	bufferHighestStep = 0;
+    // open result file
+    results.open("results.txt");
+    migrationResults.open("migrationResults.txt");
+    
+    // init buffer access values
+    bufferLowestStep = 0;
+    bufferHighestStep = 0;
+    
+    buffer2LowestStep = 0;
+    buffer2HighestStep = 0;
 	
 	// add first empty buffer data
 	outputBuffer.push_back( std::vector<std::string>(nSimulations) );
+    outputBufferMigs.push_back( std::vector<std::string>(nSimulations) );
+
 }
 
 
@@ -92,9 +98,13 @@ void SimulationsExecutor::runSimulation(int id) {
 	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs) : Simulation(N, alleleFqs);
 	
 	std::vector<std::string> states(T + 2);
+    std::vector<std::string> states2(T + 2);
+
 	
 	// write initial allele frequencies
 	states[0] = simul.getAlleleFqsForOutput();
+    states2[0] = simul.getMigAlleleFqsForOutput();
+
 	
 	int t = 0;
 	while (t < T) {
@@ -109,10 +119,14 @@ void SimulationsExecutor::runSimulation(int id) {
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
+        states2[t] = simul.getMigAlleleFqsForOutput();
+
 	}
 	
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
+    states2[t + 2] = simul.getAlleleStrings();
+
 	
 	
 	std::size_t lineLength = states.back().size();
@@ -130,10 +144,29 @@ void SimulationsExecutor::runSimulation(int id) {
 			state = ss.str();
 		}
 	}
+    
+    
+    for (auto& state : states2) {
+        if (state.size() < lineLength) {
+            std::stringstream ss;
+            ss << state;
+            
+            while (ss.tellp() < (int) lineLength) {
+                ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
+            }
+            
+            state = ss.str();
+        }
+    }
 	
 	for (int i = 0; i < (int) states.size(); ++i) {
 		writeData(states[i], id, i);
 	}
+    
+    for (int i = 0; i < (int) states2.size(); ++i) {
+        writeDataMigs(states2[i], id, i);
+    }
+
 }
 
 void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
@@ -174,6 +207,52 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	++bufferLowestStep;
 }
 
+
+
+
+void SimulationsExecutor:: writeDataMigs(std::string data, int threadId, int step){
+    
+    
+    // check that step is valid
+    if (step < buffer2LowestStep) {
+        std::string msg = "Error: trying to add data of a step that has already been written to the result file.";
+        std::cerr << msg << std::endl;
+        throw msg;
+    }
+    
+    // start lock here to restrict the execution of this function to a single thread
+    std::lock_guard<std::mutex> lock(writerMutex2);
+    
+    if (step > buffer2HighestStep) {
+        // assign new highest step
+        buffer2HighestStep = step;
+        
+        // insert new empty vector
+        outputBufferMigs.push_back(std::vector<std::string>(nSimulations));
+    }
+    
+    // add data to buffer
+    outputBufferMigs[step - buffer2LowestStep][threadId] = data;
+    
+    // check for data completeness for the lowest step
+    if (std::any_of(
+                    std::begin(outputBufferMigs.front()),
+                    std::end(outputBufferMigs.front()),
+                    [](std::string elem) {
+                        return elem.empty();
+                    })
+        ) return;
+    
+    // write data from buffer to file, since the buffer for the
+    // lowest step is full
+    writeAlleleMigFqs(outputBufferMigs.front());
+    outputBufferMigs.pop_front();
+    ++buffer2LowestStep;
+    
+}
+
+
+
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
 	results << step << '\t';
 	
@@ -183,6 +262,19 @@ void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string
 	
 	results << '\n';
 }
+
+
+
+
+void SimulationsExecutor:: writeAlleleMigFqs(const std::vector<std::string>& alleleFqs){
+    for (auto const& data : alleleFqs) {
+        migrationResults << data << '\t';
+    }
+    
+    migrationResults << '\n';
+    
+}
+
 
 void SimulationsExecutor::generateMutationRates(const Data& data) {
 	switch (data.getMutationModel()) {
