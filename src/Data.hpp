@@ -106,12 +106,20 @@ public:
 	 * */
 	const std::vector<double>& getMutations() const;
 
+	/** \brief Getter of the alleles selections probabilities
+	 *
+	 *  \return selections, a vector of double
+	 * */ 
+	const std::vector<double>& getSelections() const;
+
 	/** \brief Utility function to read data from the user input file
 	 *
 	 * 	\param the string to read from
 	 * 
 	 * 	\return the data read, an int
 	 * */
+	const std::vector<double>& getSelections() const;
+
 	int extractInt(std::string) const;
 	
 	/** \brief Utility function to read data from the user input file
@@ -222,6 +230,12 @@ private:
 	
 	//!< Felsenstein model
 	std::vector<double> felsensteinConstants;
+
+	//!< vector of unsigned int containing the number of each specific alleles in the population
+	//std::vector<unsigned int> allelesNum;
+
+	//!> vector of double containing the selection probabilities of the alleles
+	std::vector<double> selections;
 
 };
 

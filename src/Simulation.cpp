@@ -42,8 +42,9 @@ Simulation::Simulation(int N, std::vector<double> alleleFq)
 
 Simulation::Simulation(const std::unordered_map<std::string, int>& als,
 			const int execMode,
-			const std::vector<double>& mutationRates, const std::array< std::array<double, N>, N >& nuclMutationProbs)
-  : executionMode(execMode), mutationFqs(mutationRates), mutationTable(nuclMutationProbs)
+			const std::vector<double>& mutationRates, const std::array< std::array<double, N>, 
+			N >& nuclMutationProbs, std::vector<double>& selectionRates)
+  : executionMode(execMode), mutationFqs(mutationRates), mutationTable(nuclMutationProbs), selectionFqs(selectionRates)
 {
 	for (auto const& allele : als) {
 		alleles.push_back(allele.first);
@@ -112,7 +113,7 @@ std::string Simulation::getAlleleStrings() const {
 
 
 
-std::string Simulation:: getMigAlleleFqsForOutput() {
+std::string Simulation::getMigAlleleFqsForOutput() {
     
     //subPopFrequenciesUpdate();
     
@@ -182,6 +183,8 @@ void Simulation::update() {
             break;
             
         }
+        case _PARAM_SELECTION_:
+        	updateWithSelection();
 		default:
 			break;		
 	}
@@ -468,5 +471,58 @@ void Simulation :: prepareMigrationVectors ()
     
 }
 
+void Simulation::updateWithSelection() {
+	// genetic drift
+	int nParent = populationSize;
+	int nOffspring = 0;
+	double total = 0;
+
+	assert(alleles.size() == allelesCount.size());
+	assert(alleles.size() == selectionFqs.size());
+
+	// Calculation of the "corrective factor" needed to ajust the 
+	// allele's frequency with the selection factor
+	for(size_t i(0); i < allelesCount.size(); ++i) {
+		double allWithSelec = allelesCount[i]*selectionFqs[i];
+		total += allWithSelec;
+	}
+	
+	for (size_t i(0); i < allelesCount.size(); ++i) {
+
+		auto& allele = allelesCount[i];
+		// remaining parent population size should be 0 or more	
+		assert(nParent >= 0);
+		
+		double p;
+		
+		if (nParent == 0) {
+			// the only way for the parent population to be 0 is if the 
+			// current allele is not present anymore (wiped out)
+			assert(allele == 0);
+			p = 0;
+		} else {
+			// generate new allele copy number including selection frequency
+			double selectionAllele = allele*selectionFqs[i];
+			double ajustedPopulation = nParent + total;
+
+			p = selectionAllele / ajustedPopulation;
+		}
+		// If we have an allele that is lethal for the population, the selection
+		// frequency is -1 and the allele will be wipe out (=> p = 0)
+		if(p == 0) {
+			// the allele disappear
+			allelesCount[i] = 0;
+		}
+		// reduce residual "gene pool"
+		nParent -= allele;
+		
+		// generate new number of allele copies in population
+        int newAlleleCount = RandomDist::binomial(populationSize - nOffspring, p);
+		allele = newAlleleCount;
+		
+		// reduce residual population size
+		nOffspring += newAlleleCount;
+	}
+}
 
 

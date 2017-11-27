@@ -39,7 +39,8 @@ public:
 	 * */
 	Simulation(const std::unordered_map<std::string, int>& alleles,
 			const int executionMode,
-			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs);
+			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, 
+			Nucleotide::N >& nuclMutationProbs, , std::vector<double>& selectionRates);
 
 	/** \brief Get the alleles in the population
 	 *
@@ -144,6 +145,15 @@ public:
      * */
     void prepareMigrationVectors ();
 
+    /** \brief Update the Simulation by one step
+	 *
+	 * "Creates" a new population of N individuals, choosing the alleles
+	 * from the parent generation using a multinomial distribution.
+	 * Add the selection frequency to each allele.
+	 *
+	 * */
+	void updateWithSelection();
+
 private:
 
 	/** \brief Calculate ouput constants
@@ -197,6 +207,10 @@ private:
     //! < Table containing migration rates for each sub group
     std::vector<std::vector<double>> migrationTable;
 
+
+
+    	//!< list of selections frequencies of each alleles
+	std::vector<double> selectionFqs;
 };
 
 
