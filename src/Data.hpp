@@ -106,12 +106,6 @@ public:
 	 * */
 	const std::vector<double>& getMutations() const;
 
-	/** \brief Getter of the alleles selections probabilities
-	 *
-	 *  \return selections, a vector of double
-	 * */ 
-	const std::vector<double>& getSelections() const;
-
 	/** \brief Utility function to read data from the user input file
 	 *
 	 * 	\param the string to read from

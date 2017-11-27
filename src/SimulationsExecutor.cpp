@@ -95,7 +95,7 @@ void SimulationsExecutor::execute() {
 
 void SimulationsExecutor::runSimulation(int id) {
 	// create new simulation
-	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs) : Simulation(N, alleleFqs);
+	Simulation simul = isFullMode ? Simulation(alleles, executionMode, mutations, nuclMutationProbs, selections) : Simulation(N, alleleFqs);
 	
 	std::vector<std::string> states(T + 2);
     std::vector<std::string> states2(T + 2);

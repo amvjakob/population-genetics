@@ -40,7 +40,7 @@ public:
 	Simulation(const std::unordered_map<std::string, int>& alleles,
 			const int executionMode,
 			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, 
-			Nucleotide::N >& nuclMutationProbs, , std::vector<double>& selectionRates);
+			Nucleotide::N >& nuclMutationProbs, std::vector<double>& selectionRates);
 
 	/** \brief Get the alleles in the population
 	 *

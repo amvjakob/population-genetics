@@ -175,6 +175,9 @@ private:
     int buffer2LowestStep;
     //!< Highest step that is already in the buffer
     int buffer2HighestStep;
+
+    //!< Vector of double containing the selection probabilities of the alleles 
+	std::vector<double> selections;
 };
 
 #endif
