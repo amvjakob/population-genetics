@@ -1,5 +1,5 @@
-#include "googletest/include/gtest/gtest.h"
-#include "../src/tclap/include/tclap/CmdLine.h"
+#include <gtest/gtest.h>
+#include <tclap/CmdLine.h>
 #include "../src/Random.hpp"
 #include "../src/Data.hpp"
 
