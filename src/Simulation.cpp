@@ -28,12 +28,14 @@ Simulation::Simulation(int N, std::vector<int> counts)
 	assert(alleleCount == populationSize);
 	
 	calcOutputConstants();
+    
 }
 
 Simulation::Simulation(const std::unordered_map<std::string, int>& als,
 			const int execMode,
-			const std::vector<double>& mutationRates, const std::array< std::array<double, N>, N >& nuclMutationProbs)
-  : executionMode(execMode), mutationFqs(mutationRates), mutationTable(nuclMutationProbs)
+			const std::vector<double>& mutationRates, const std::array< std::array<double, N>, 
+			N >& nuclMutationProbs, std::vector<double>& selectionRates)
+  : executionMode(execMode), mutationFqs(mutationRates), mutationTable(nuclMutationProbs), selectionFqs(selectionRates)
 {
 	for (auto const& allele : als) {
 		alleles.push_back(allele.first);
@@ -52,6 +54,14 @@ Simulation::Simulation(const std::unordered_map<std::string, int>& als,
 	}
 	
 	calcOutputConstants();
+    
+    
+    
+    prepareMigrationVectors();
+    
+    subPopCreation();
+    
+    migrationRatesCreation();
 }
 
 void Simulation::calcOutputConstants() {
@@ -92,6 +102,24 @@ std::string Simulation::getAlleleStrings() const {
 	return ss.str();
 }
 
+
+
+std::string Simulation::getMigAlleleFqsForOutput() {
+    
+    //subPopFrequenciesUpdate();
+    
+    std::stringstream ss;
+    for (auto subPop =subPops.begin(); subPop!=subPops.end();++subPop){
+        
+        for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
+            if (allele != subPop->begin()) ss << '|';
+            ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
+        }
+        
+    }
+    return ss.str();
+    
+}
 std::size_t Simulation::getPrecision() const {
 	return precision;
 }
@@ -107,11 +135,14 @@ void Simulation::update() {
 			mutatePopulation();
 			
 			break;
-			
-		case _PARAM_NONE_:
+
+        case _PARAM_SELECTION_:
+        	updateWithSelection();
+        	break;
+        	
 		default:
 			RandomDist::multinomial(allelesCount, populationSize);
-			
+			break;
 	}
 }
 
@@ -202,6 +233,244 @@ void Simulation::mutatePopulation() {
 				}
 			}
 		}
+	}
+}
+
+    
+
+
+void Simulation::bottleneck (int simulationTime) {
+	
+	if (simulationTime == simulationTime/_BOTTLENECK_TIME_) {
+		populationSize = populationSize/_BOTTLENECK_POPULATION_REDUCTION_;
+	}
+
+}
+
+
+
+
+
+
+void Simulation:: subPopCreation() {
+    
+    long int  i(0) ;
+    
+    for (auto it = allelesCount.begin(); it != allelesCount.end(); ++it) {
+        
+        
+        i = it - allelesCount.begin();
+        
+        subPops[i][i] += rint(*it) ;
+        
+        assert(subPops[i][i]>0);
+    }
+    
+}
+
+void Simulation:: migrationRatesCreation(){
+    
+    double rate (0);
+    
+    double randNum (0);
+    
+    
+    for (size_t i(0);i<migrationTable.size();++i){
+        
+        for (size_t j(i);j<migrationTable[i].size();++j){
+            
+            if (i==j){
+                
+                migrationTable[i][j]=0;
+            }
+            
+            else {
+                
+                randNum = std::rand()%((allelesCount[i]/2)-1 + 1)+1;
+                
+                assert(randNum>0);
+                assert(allelesCount[i]>0);
+                
+                rate=(randNum/allelesCount[i]);
+                
+                assert(rate>0);
+                
+                migrationTable[i][j] = rate;
+                
+                migrationTable[j][i] = rate;
+                
+                
+                
+            }
+            
+            // checking that there is no negative migration rate
+            
+        }
+    }
+    
+    
+}
+
+
+
+
+void Simulation::  migrationUpdate() {
+    
+    double moving(0);
+    
+    long int i, j(0);
+    
+    
+    for (auto row = migrationTable.begin(); row != migrationTable.end(); row++) {
+        
+        // index of the first iterator
+        i = row - migrationTable.begin();
+        
+        for (auto col = row->begin(); col != row->end(); col++) {
+            
+            // index of the second iterator
+            j = col - row->begin();
+            
+            if (i!=j) {
+                
+                
+                moving = migrationTable[i][j]*subgroupSize(subPops[i])/2;
+                
+                
+                //amount of migrants
+                assert(migrationTable[j][i] > 0);
+                
+                
+               /* for (auto i1 = begin(subPops[i]), i2 = begin (subPops[j]); i1 <subPops[i].end()  &&  i2<subPops[j].end() ;  ++i1, ++i2) {
+                    
+                    if (*i1 >= moving) {
+                        
+                        //leaving
+                        *i1 -= moving;
+                        
+                        *i2 += moving;
+                        
+                        
+                    }
+                    
+                    
+                    
+                    */
+                     
+                     if (subPops[i][i] > moving ) {
+                     
+                     
+                     subPops[i][i] -= moving;
+                     
+                     subPops[j][i] += moving;
+                     
+                     break;
+                     
+                     
+                     } else {
+                     
+                     assert(subPops[i][j] >= moving);
+                     
+                     subPops[i][j] -= moving;
+                     
+                     subPops[j][i] += moving;
+                     
+                     
+                     
+                     }
+                    
+                    
+                    
+                    
+                    
+                
+                
+            }
+        }
+    }
+    
+}
+
+
+
+
+double  Simulation:: subgroupSize(std::vector<double > subgroup) {
+    
+    double count(0);
+    
+    for (auto elt : subgroup) {
+        
+        count += elt ;
+    }
+    
+    return count;
+}
+
+
+void Simulation :: prepareMigrationVectors ()
+{
+    
+    
+    
+    subPops = std::vector<std::vector<double> >(allelesCount.size(), std::vector<double>(allelesCount.size(), 0));
+    
+    migrationTable = std::vector<std::vector<double> >(allelesCount.size(), std::vector<double>(allelesCount.size(), 0));
+    
+    
+    
+}
+
+void Simulation::updateWithSelection() {
+	// genetic drift
+	int nParent = populationSize;
+	int nOffspring = 0;
+	double total = 0;
+
+	assert(alleles.size() == allelesCount.size());
+	assert(alleles.size() == selectionFqs.size());
+
+	// Calculation of the "corrective factor" needed to ajust the 
+	// allele's frequency with the selection factor
+	for(size_t i(0); i < allelesCount.size(); ++i) {
+		double allWithSelec = allelesCount[i]*selectionFqs[i];
+		total += allWithSelec;
+	}
+	
+	for (size_t i(0); i < allelesCount.size(); ++i) {
+
+		auto& allele = allelesCount[i];
+		// remaining parent population size should be 0 or more	
+		assert(nParent >= 0);
+		
+		double p;
+		
+		if (nParent == 0) {
+			// the only way for the parent population to be 0 is if the 
+			// current allele is not present anymore (wiped out)
+			assert(allele == 0);
+			p = 0;
+		} else {
+			// generate new allele copy number including selection frequency
+			double selectionAllele = allele*selectionFqs[i];
+			double ajustedPopulation = nParent + total;
+
+			p = selectionAllele / ajustedPopulation;
+		}
+		// If we have an allele that is lethal for the population, the selection
+		// frequency is -1 and the allele will be wipe out (=> p = 0)
+		if(p == 0) {
+			// the allele disappear
+			allelesCount[i] = 0;
+		}
+		// reduce residual "gene pool"
+		nParent -= allele;
+		
+		// generate new number of allele copies in population
+        int newAlleleCount = RandomDist::binomial(populationSize - nOffspring, p);
+		allele = newAlleleCount;
+		
+		// reduce residual population size
+		nOffspring += newAlleleCount;
 	}
 }
 

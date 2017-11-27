@@ -15,7 +15,7 @@ SITES = 1|3|5
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-MODE = 1
+MODE = 2
 
 # Mutation probabilities for each site
 MUT = 1E-2|1E-2|1E-2

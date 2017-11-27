@@ -46,6 +46,7 @@ void Data::construct(string input, string fasta) {
 	assert(markerSites.empty());
 	assert(sequences.empty());
 	assert(mutations.empty());
+	assert(selections.empty());
 }
 
 void Data::collectAll() {	
@@ -114,6 +115,10 @@ void Data::collectUserFile(ifstream& file) {
 				
 			case str2int(_INPUT_KEY_MUTATION_FELSENSTEIN_):
 				felsensteinConstants = extractVec(line);
+				break;
+
+			case str2int(_INPUT_KEY_SELECTION_RATES_):
+				selections = extractVec(line);
 				break;
 
             default:
@@ -209,8 +214,28 @@ void Data::countAlleles() {
 	}
 }
 
+/*void Data::setSelectionsToAlleles() {
+	
+	for(size_t i(0); i < selections.size(); ++i) {
+		double allWithSelec = allelesNum[i]*selections[i];
+		total += allWithSelec;
+	}
+
+	double ajustedPopulation = populationSize + total;
+
+	for (size_t i(0); i < selections.size(); ++i) {
+		double selectionAllele = allelesNum[i]*selections[i];
+
+		alleleFq.push_back(selectionAllele / ajustedPopulation);
+	}
+}*/
+
 const vector<double>& Data::getMutations() const {
 	return mutations;
+}
+
+const std::vector<double>& Data::getSelections() const {
+	return selections;
 }
 
 int Data::extractInt(string line) const {

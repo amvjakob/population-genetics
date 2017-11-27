@@ -1,47 +1,56 @@
-# Build files
-build
-
-# Doc files
-doc
-
-# Googletest files
-# test/googletest
-
-# TCLAP files
-# src/tclap
-
-# DS_Store files
-*.DS_Store
-
-# Prerequisites
+# Compiled source #
+###################
+*.a
+*.app
+*.class
+*.com
 *.d
-
-# Compiled Object files
-*.slo
+*.dll
+*.dylib
+*.exe
+*.gch
 *.lo
+*.la
+*.lai
+*.lib
+*.mod
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
 *.out
-*.app
+*.pch
+*.slo
+*.smod
+*.so
+
+# OSX generated files #
+#######################
+.DS_Store*
+._*
+.Spotlight*
+.Trashes
+.idea
+*.db
+
+# backups #
+###########
+*~
+*.~
+*.backup
+
+# generated files #
+##################
+build
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+doc
+googletest
+gtest
+Gtest
+html
+res
+results
+share
+tclap*

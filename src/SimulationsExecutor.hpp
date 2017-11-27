@@ -87,12 +87,20 @@ protected:
 	 * \param alleleFqs		a vector of strings (each being a formatted list of allele frequencies)
 	 * */
 	void writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs);
+    
+    
+    void writeDataMigs(std::string data, int threadId, int step);
+
 	
 	/** \brief Generate table for nucleotide mutation rates based on user input data
 	 * 
 	 * Automatically selects the correct model based on user data
 	 * */
 	 void generateMutationRates(const Data& data);
+    
+    
+    void writeAlleleMigFqs(const std::vector<std::string>& alleleFqs);
+
 	
 
 private:
@@ -136,19 +144,40 @@ private:
 	
 	//!< Result file
 	std::ofstream results;
+    
+    std::ofstream migrationResults;
+
 	
 	//!< Mutex for lock guarding
 	std::mutex writerMutex;
 	
+    
+    //!< Mutex for lock guarding
+    std::mutex writerMutex2;
+    
 	//!< List of all threads to be executed
 	std::vector<std::thread> threads;
 	
 	//!< Output buffer for result data
 	std::deque< std::vector<std::string> > outputBuffer;
+    
+    std::deque< std::vector<std::string> > outputBufferMigs;
+
 	//!< Lowest step that is still in the buffer
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
+    
+    
+    
+    
+    //!< Lowest step that is still in the buffer
+    int buffer2LowestStep;
+    //!< Highest step that is already in the buffer
+    int buffer2HighestStep;
+
+    //!< Vector of double containing the selection probabilities of the alleles 
+	std::vector<double> selections;
 };
 
 #endif

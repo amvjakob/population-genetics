@@ -1,0 +1,1 @@
+/usr/bin/c++   -O3 -W -Wall -pthread -pedantic -std=c++11   CMakeFiles/Genetics.dir/src/main.cpp.o CMakeFiles/Genetics.dir/src/Allele.cpp.o CMakeFiles/Genetics.dir/src/Simulation.cpp.o CMakeFiles/Genetics.dir/src/SimulationsExecutor.cpp.o CMakeFiles/Genetics.dir/src/Random.cpp.o CMakeFiles/Genetics.dir/src/Data.cpp.o  -o Genetics -rdynamic 

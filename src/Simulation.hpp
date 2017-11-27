@@ -39,7 +39,8 @@ public:
 	 * */
 	Simulation(const std::unordered_map<std::string, int>& alleles,
 			const int executionMode,
-			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs);
+			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, 
+			Nucleotide::N >& nuclMutationProbs, std::vector<double>& selectionRates);
 
 	/** \brief Get the alleles in the population
 	 *
@@ -73,6 +74,11 @@ public:
 	 * \return A string containing the allele identifiers with the following
 	 * format: id1|id2|..|idn-1|idn|
 	 * */
+    
+    
+    std::string getMigAlleleFqsForOutput() ;
+
+    
 	std::string getAlleleStrings() const;
 
 
@@ -87,7 +93,66 @@ public:
 	/** \brief Get the output precision for the frequencies 
 	 * */
 	std::size_t getPrecision() const;
+	
+	/** \brief Bottleneck effet
+	 *
+	 * Creates a time-dependent population size
+	 * 
+	 * \param the time of the simulation, an int
+	 * */
+	void bottleneck (int simulationTime);
+    
+    /** \brief Assign each allele to a sub group
+     *
+     * Implementation of the sub group table using the alleleCount list
+     *
+     *Each subgroup takes a certain number of each alleles
+     *
+     * */
+    void subPopCreation () ;
+    
+    /** \brief Creates migration rate to between each subgroup
+     *
+     * Implementation of the migration matrix
+     *
+     *checking that there is no negative rate
+     *
+     * */
+    void migrationRatesCreation();
 
+	
+    /** \brief Migration effect
+     *
+     * Creates a migrations between subGroups
+     *
+     *alleles exchanges
+     *
+     * */
+    void migrationUpdate();
+    
+    /** \brief Calculate subgroup size
+     *
+     *
+     *make sure population size stays constant
+     *
+     * */
+    double subgroupSize(std::vector< double >);
+    
+    /** \brief prepare migrations vectors
+     *
+     *intialize their size
+     *
+     * */
+    void prepareMigrationVectors ();
+
+    /** \brief Update the Simulation by one step
+	 *
+	 * "Creates" a new population of N individuals, choosing the alleles
+	 * from the parent generation using a multinomial distribution.
+	 * Add the selection frequency to each allele.
+	 *
+	 * */
+	void updateWithSelection();
 
 private:
 
@@ -131,6 +196,21 @@ private:
 	
 	//!< Additional spaces for correct output format
 	std::size_t additionalSpaces;
+    
+    
+    
+    
+    
+    //!< Table containing the sub populations
+    std::vector<std::vector<double>> subPops;
+    
+    //! < Table containing migration rates for each sub group
+    std::vector<std::vector<double>> migrationTable;
+
+
+
+    	//!< list of selections frequencies of each alleles
+	std::vector<double> selectionFqs;
 };
 
 
