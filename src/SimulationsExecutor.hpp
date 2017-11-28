@@ -33,7 +33,7 @@ public:
 	 * \param simulationSteps		T, the number of generations in the simulation
 	 * \param allelesCount			A vector of initial allele counts
 	 * */
-	SimulationsExecutor(int n, int populationSize, int simulationSteps, std::vector<int> allelesCount);
+	SimulationsExecutor(int n, int populationSize, int simulationSteps, std::vector<unsigned int> allelesCount);
 	
 	/** \brief SimulationsExecutor constructor
 	 * 
@@ -97,6 +97,10 @@ protected:
 	 * Automatically selects the correct model based on user data
 	 * */
 	 void generateMutationRates(const Data& data);
+	 
+	 /** \brief Generate the subpopulations for a Simulation with migration
+	  * */
+	 void generateSubPopulations(const Data& data);
     
     
     void writeAlleleMigFqs(const std::vector<std::string>& alleleFqs);
@@ -108,8 +112,9 @@ private:
 	//!< Prepare SimulationExecutor
 	void prepare();
 	
-	//!< Execution mode
-	bool isFullMode;
+	
+	//!< Execution mode of simulation
+	const int executionMode;
 	
 	//!< Number of simulations to be executed simultaneously
 	int nSimulations;
@@ -120,64 +125,62 @@ private:
 	//!< Length of a Simulation in steps
 	int T;
 	
-	//!< Initial allele count for a Simulation
-	std::vector<int> allelesCount;
+	//!< List of alleles int the Simulations
+	std::vector<std::string> alleles;
+	
+	//!< Initial allele counts for a Simulation
+	std::vector<unsigned int> allelesCount;
 
 	//!< Vector of double containing the user marker sites
 	std::vector<double> markerSites;
 
-	//!< List of strings containing the allele sequences of all the individuals of the simulation
-	std::list<std::string> sequences;
-
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
-	
-	//!< Map of alleles vs number of them in the population
-	std::unordered_map<std::string, int> alleles;
 	
 	//!< Table of mutation probabilities
 	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
 	
-	//!< Execution mode of simulation
-	int executionMode;
+	
+	//!< List of selections frequencies of each alleles
+	std::vector<double> selectionFqs;
+	
+	
+	//!< Table containing the sub-populations
+    std::vector< std::vector<unsigned int> > subPopulations;
+    
+    //!< Table containing migration rates for each sub group
+    std::vector< std::vector<unsigned int> > migrationRates;
+	
 	
 	
 	//!< Result file
 	std::ofstream results;
+   
     
-    std::ofstream migrationResults;
-
-	
 	//!< Mutex for lock guarding
 	std::mutex writerMutex;
 	
-    
-    //!< Mutex for lock guarding
-    std::mutex writerMutex2;
-    
 	//!< List of all threads to be executed
 	std::vector<std::thread> threads;
 	
 	//!< Output buffer for result data
 	std::deque< std::vector<std::string> > outputBuffer;
-    
-    std::deque< std::vector<std::string> > outputBufferMigs;
 
 	//!< Lowest step that is still in the buffer
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
+	
+	
+    std::mutex writerMutex2;
+	
+    std::ofstream migrationResults;
     
-    
-    
-    
+    std::deque< std::vector<std::string> > outputBufferMigs;
     //!< Lowest step that is still in the buffer
     int buffer2LowestStep;
     //!< Highest step that is already in the buffer
     int buffer2HighestStep;
-
-    //!< Vector of double containing the selection probabilities of the alleles 
-	std::vector<double> selections;
 };
 
 #endif

@@ -206,29 +206,13 @@ void Data::countAlleles() {
 	sequencesSorted.unique();
 
 	for (auto& seqS : sequencesSorted) {
-		int count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
+		unsigned int count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
 				return allele == seqS;
 		});
 
 		allelesCount.push_back(count);
 	}
 }
-
-/*void Data::setSelectionsToAlleles() {
-	
-	for(size_t i(0); i < selections.size(); ++i) {
-		double allWithSelec = allelesNum[i]*selections[i];
-		total += allWithSelec;
-	}
-
-	double ajustedPopulation = populationSize + total;
-
-	for (size_t i(0); i < selections.size(); ++i) {
-		double selectionAllele = allelesNum[i]*selections[i];
-
-		alleleFq.push_back(selectionAllele / ajustedPopulation);
-	}
-}*/
 
 const vector<double>& Data::getMutations() const {
 	return mutations;
@@ -299,12 +283,26 @@ void Data::setMutations(std::vector<double>& list) {
     }
 }
 
-const std::vector<int>& Data::getAllelesCount() const {
+const std::vector<unsigned int>& Data::getAllelesCount() const {
 	return allelesCount;
 }
 
 const std::list<std::string>& Data::getSequences() const {
 	return sequences;
+}
+
+std::vector<std::string> Data::getUniqueSequences() const {
+	std::list<std::string> uniqueSequences = sequences;
+	
+	uniqueSequences.sort();
+	uniqueSequences.unique();
+	
+	std::vector<std::string> res;
+	
+	for (auto& seq : uniqueSequences)
+		res.push_back(seq);
+	
+	return res;
 }
 
 int Data::getExecutionMode() const {

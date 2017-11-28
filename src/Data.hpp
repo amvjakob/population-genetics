@@ -106,11 +106,7 @@ public:
 	 * */
 	const std::vector<double>& getMutations() const;
 
-	/** \brief Utility function to read data from the user input file
-	 *
-	 * 	\param the string to read from
-	 * 
-	 * 	\return the data read, an int
+	/** \brief Get selection rates
 	 * */
 	const std::vector<double>& getSelections() const;
 
@@ -142,7 +138,7 @@ public:
 	 * 
 	 * 	\return a vector of int, the allele counts
 	 * */
-	const std::vector<int>& getAllelesCount() const;
+	const std::vector<unsigned int>& getAllelesCount() const;
 	
 	/** \brief Getter of the list of allele sequences
 	 * 
@@ -150,11 +146,17 @@ public:
 	 * */
 	const std::list<std::string>& getSequences() const;
 	
+	/** \brief Get the different alleles in the Simulation
+	 * 
+	 * \return a vector of strings, the alleles
+	 * */
+	std::vector<std::string> getUniqueSequences() const;
+	
 	/** \brief Utility function to transfrom strings to ints for use in switch statements
 	 * 
 	 * */
 	static constexpr unsigned int str2int(const char* str, int h = 0) {
-		return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
+		return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
 	} 
 	
 	/** \brief Get the execution mode of a sSmulation (mutation, migration, ...)
@@ -199,7 +201,7 @@ private:
 	int replicates;
 	
 	//!< Vector of double containing the allele frequencies of the fasta file
-	std::vector<int> allelesCount;
+	std::vector<unsigned int> allelesCount;
 
 	//!< Vector of double containing the user marker sites
 	std::vector<double> markerSites;
@@ -216,16 +218,14 @@ private:
 	//!< Mutation model (simple, kimura, felsenstein)
 	int mutationModel;
 	
-	//!> Kimura model
+	//!< Kimura model
 	double kimuraDelta;
 	
 	//!< Felsenstein model
 	std::vector<double> felsensteinConstants;
 
-	//!< vector of unsigned int containing the number of each specific alleles in the population
-	//std::vector<unsigned int> allelesNum;
 
-	//!> vector of double containing the selection probabilities of the alleles
+	//!< Vector of double containing the selection probabilities of the alleles
 	std::vector<double> selections;
 
 };

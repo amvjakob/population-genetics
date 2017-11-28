@@ -104,34 +104,75 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 		total += count;
 	
 	for (auto& count : pop) {
+		
 		// remaining parent population size should be 0 or more	
 		assert(total >= 0);
-		
-		double p;
-		
 		if (total == 0) {
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
 			assert(total == 0);
-			p = 0;
-		} else {
-			// generate new allele copy number
-			p = count * 1.0 / total;
-		}
+			
+			// if the parent population is empty, there are no more 
+			// alleles to be distributed, thus we can exit the loop
+			break;
+		} 
+		
+		// generate new allele copy number
+		double p = count * 1.0 / total;
 		
 		// reduce residual "gene pool"
 		total -= count;
 		
 		// generate new number of allele copies in population
-        int newCount = RandomDist::binomial(n, p);
-		count = newCount;
+        count = RandomDist::binomial(n, p);
 		
-		// reduce residual population size
+		// reduce residual offspring population size to fill
+		n -= count;
+	}
+	
+	assert(n == 0);
+	assert(total == 0);
+}
+
+std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsigned int>& pop, int n) {
+	int total = 0;
+	for (auto& count : pop)
+		total += count;
+		
+	std::vector<unsigned int> res;
+	
+	for (const auto& count : pop) {
+		
+		// remaining parent population size should be 0 or more	
+		assert(total >= 0);
+		if (total == 0) {
+			// the only way for the parent population to be 0 is if the 
+			// current allele is not present anymore (wiped out)
+			assert(total == 0);
+			
+			// if the parent population is empty, there are no more 
+			// alleles to be distributed, thus we can exit the loop
+			break;
+		} 
+		
+		// generate new allele copy number
+		double p = count * 1.0 / total;
+		
+		// reduce residual "gene pool"
+		total -= count;
+		
+		// generate new number of allele copies in population
+		int newCount = RandomDist::binomial(n, p);
+		res.push_back(newCount);
+		
+		// reduce residual offspring population size to fill
 		n -= newCount;
 	}
 	
 	assert(n == 0);
 	assert(total == 0);
+	
+	return res;
 }
 
 /*

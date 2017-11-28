@@ -19,28 +19,69 @@ class Simulation {
 
 public:
 
-	/** \brief Simulation constructor
-	 *
-	 * Initialises a new population genetics simulation.
-	 *
-	 * \param populationSize		N, the number of individuals in the population
-	 * \param allelesCount			A vector of initial allele counts
-	 * */
-	Simulation(int populationSize, std::vector<int> allelesCount);
+	Simulation() = default;
+	
+	Simulation(const Simulation& other);
+	
+	Simulation& operator=(const Simulation& other);
 
 	/** \brief Simulation constructor
 	 *
 	 * Initialises a new population genetics simulation.
 	 *
-	 * \param alleles				Map of alleles in the population, the mapped value represents the number of said allele in the population
-	 * \param executionMode			The param to use for this simulation (mutation, migration, ...)
+	 * \param allelesCount			A vector of initial allele counts
+	 * */
+	Simulation(std::vector<unsigned int> allelesCount);
+
+	/** \brief Simulation constructor
+	 *
+	 * Initialises a new population genetics simulation.
+	 *
+	 * \param alleles				List of alleles in the population
+	 * \param allelesCount			Number of each allele in the population (common index with \p alleles)
 	 * \param mutationFqs			Marker-specific mutation rates, in order
 	 * \param nuclMutationProbs		Array of nucleotide mutation probabilities, according to one of the 3 models
+	 * */			
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector<unsigned int>& allelesCount,
+				const std::vector<double>& mutationFqs,
+				const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs);
+	
+	/** \brief Simulation constructor
+	 *
+	 * Initialises a new population genetics simulation.
+	 *
+	 * \param alleles				List of alleles in the population
+	 * \param allelesCount			Number of each allele in the population (common index with \p alleles)
+	 * \param selectionRates		List of selection rates 
+	 * */			
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector<unsigned int>& allelesCount,
+				const std::vector<double>& selectionRates);
+	
+	/** \brief Simulation constructor
+	 *
+	 * Initialises a new population genetics simulation.
+	 *
+	 * \param alleles				List of alleles in the population
+	 * \param subPopulations		Number of each allele in the subpopulations (common index with \p alleles)
+	 * \param migrationRates		Matrix of migration rates 
+	 * */		
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector< std::vector<unsigned int> >& subPopulations,
+				const std::vector< std::vector<unsigned int> >& migrationRates);
+				
+	/** \brief Simulation constructor
+	 *
+	 * Initialises a new population genetics simulation.
+	 *
+	 * \param alleles				List of alleles in the population
+	 * \param allelesCount			Number of each allele in the population (common index with \p alleles)
 	 * */
-	Simulation(const std::unordered_map<std::string, int>& alleles,
-			const int executionMode,
-			const std::vector<double>& mutationFqs, const std::array< std::array<double, Nucleotide::N>, 
-			Nucleotide::N >& nuclMutationProbs, std::vector<double>& selectionRates);
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector<unsigned int>& allelesCount);
+				
+				
 
 	/** \brief Get the alleles in the population
 	 *
@@ -88,7 +129,7 @@ public:
 	 * from the parent generation using a multinomial distribution.
 	 *
 	 * */
-	void update();
+	void update(int t);
 	
 	/** \brief Get the output precision for the frequencies 
 	 * */
@@ -100,50 +141,7 @@ public:
 	 * 
 	 * \param the time of the simulation, an int
 	 * */
-	void bottleneck (int simulationTime);
-    
-    /** \brief Assign each allele to a sub group
-     *
-     * Implementation of the sub group table using the alleleCount list
-     *
-     *Each subgroup takes a certain number of each alleles
-     *
-     * */
-    void subPopCreation () ;
-    
-    /** \brief Creates migration rate to between each subgroup
-     *
-     * Implementation of the migration matrix
-     *
-     *checking that there is no negative rate
-     *
-     * */
-    void migrationRatesCreation();
-
-	
-    /** \brief Migration effect
-     *
-     * Creates a migrations between subGroups
-     *
-     *alleles exchanges
-     *
-     * */
-    void migrationUpdate();
-    
-    /** \brief Calculate subgroup size
-     *
-     *
-     *make sure population size stays constant
-     *
-     * */
-    double subgroupSize(std::vector< double >);
-    
-    /** \brief prepare migrations vectors
-     *
-     *intialize their size
-     *
-     * */
-    void prepareMigrationVectors ();
+	void bottleneck(int simulationTime);
 
     /** \brief Update the Simulation by one step
 	 *
@@ -153,6 +151,11 @@ public:
 	 *
 	 * */
 	void updateWithSelection();
+	
+	/** \brief Update the Simulation by one step
+	 *
+	 * */
+	void updateWithMigration();
 
 private:
 
@@ -172,6 +175,10 @@ private:
 	void mutatePopulation();
 	
 	
+	//!< Execution mode
+	int executionMode;
+	
+	
 	//!< Size of the population
 	int populationSize;
 
@@ -181,8 +188,6 @@ private:
 	//!< Count of the alleles in the current simulation
 	std::vector<unsigned int> allelesCount;
 	
-	//!< Execution mode
-	const int executionMode;
 	
 	//!< List of marker-specifix mutation frequencies
 	std::vector<double> mutationFqs;
@@ -191,26 +196,25 @@ private:
 	std::array< std::array<double, N>, N > mutationTable;
 	
 	
+	//!< List of selections frequencies of each alleles
+	std::vector<double> selectionFqs;
+	
+	
+	//!< Table containing the sub-populations
+    std::vector< std::vector<unsigned int> > subPopulations;
+    
+    //!< Table of subpopulation sizes
+    std::vector<std::size_t> subPopulationSizes;
+    
+    //!< Table containing migration rates for each sub group
+    std::vector< std::vector<unsigned int> > migrationRates;
+	
+	
 	//!< Precision for output
 	std::size_t precision;
 	
 	//!< Additional spaces for correct output format
 	std::size_t additionalSpaces;
-    
-    
-    
-    
-    
-    //!< Table containing the sub populations
-    std::vector<std::vector<double>> subPops;
-    
-    //! < Table containing migration rates for each sub group
-    std::vector<std::vector<double>> migrationTable;
-
-
-
-    	//!< list of selections frequencies of each alleles
-	std::vector<double> selectionFqs;
 };
 
 

@@ -1,5 +1,0 @@
-/home/INTRANET/lbruchez/myfiles/GeneticsProject/github/Team_4/CMakeFiles/Genetics.dir
-/home/INTRANET/lbruchez/myfiles/GeneticsProject/github/Team_4/CMakeFiles/doc.dir
-/home/INTRANET/lbruchez/myfiles/GeneticsProject/github/Team_4/test/googletest/CMakeFiles/gtest.dir
-/home/INTRANET/lbruchez/myfiles/GeneticsProject/github/Team_4/CMakeFiles/testGenetics.dir
-/home/INTRANET/lbruchez/myfiles/GeneticsProject/github/Team_4/test/googletest/CMakeFiles/gtest_main.dir
