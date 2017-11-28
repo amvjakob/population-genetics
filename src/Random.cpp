@@ -148,11 +148,11 @@ std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsig
 		if (total == 0) {
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
-			assert(total == 0);
+			assert(count == 0);
+			assert(n == 0);
 			
-			// if the parent population is empty, there are no more 
-			// alleles to be distributed, thus we can exit the loop
-			break;
+			res.push_back(0);
+			continue;
 		} 
 		
 		// generate new allele copy number
@@ -174,59 +174,3 @@ std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsig
 	
 	return res;
 }
-
-/*
-int RandomDist::hypergeometric(int m, int n, int k) {
-	int N = m + n;
-	int res = 0;
-	
-	assert(k <= N);
-	
-	std::uniform_int_distribution<int> distr;
-	
-	for (int i = 0; i < k; ++i) {
-		distr = std::uniform_int_distribution<int>(0, N);
-		
-		if (distr(RandomDist::rng) < m) {
-			++res;
-			--m;
-		}
-		
-		--N;
-	}
-	
-	return res;
-}
-
-std::vector<int> RandomDist::multivariateGeometric(const std::vector<int>& population, int k) {
-	// count population size
-	int N = 0;
-	for (auto& popCount : population)
-		N += popCount;
-		
-	assert(N >= k);
-
-	// count number of different types in population
-	int m = (int) population.size();
-	assert(m > 1);
-
-
-	int nOther = N - population[0];
-	
-	std::vector<int> selected(m, 0);
-	
-	selected[0] = RandomDist::hypergeometric(population.at(0), nOther, k);
-	
-	for (int i = 1; i < m; ++i) {
-		nOther -= population.at(i);
-		
-		k -= selected[i - 1];
-		
-		selected[i] = RandomDist::hypergeometric(population.at(i), nOther, k);
-	}
-	
-	selected[m - 1] = k - selected[m - 2];
-	
-	return selected;
-}
-* */
