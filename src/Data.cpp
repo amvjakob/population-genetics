@@ -109,14 +109,18 @@ void Data::collectUserFile(ifstream& file) {
 				executionMode = extractInt(line);
 				break;
 
-			case str2int(_INPUT_KEY_MIGRATION_MODE_):
+			case str2int(_INPUT_KEY_MIGRATION_MODEL_):
 				migrationModel = extractInt(line);
+				break;
+
+			case str2int(_INPUT_KEY_MIGRATION_MODE_):
+				migrationMode = extractInt(line);
 				break;
 
             case str2int(_INPUT_KEY_MIGRATION_RATES_):
                 migrations = extractVec(line);
-                assert (migrations.size()>0);
                 break;
+
 
             case str2int(_INPUT_KEY_MUTATION_RATES_):
 				mutations = extractVec(line);
@@ -344,6 +348,13 @@ double Data::getKimuraDelta() const {
 const std::vector<double>& Data::getFelsensteinConstants() const {
 	return felsensteinConstants;
 }
+
 int Data:: getMigrationModel() const{
 	return migrationModel;
+}
+
+
+
+int Data:: getMigrationMode() const{
+	return migrationMode;
 }

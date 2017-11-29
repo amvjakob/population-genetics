@@ -9,6 +9,7 @@
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
 	int simulationSteps, std::vector<unsigned int> counts)
   : executionMode(_PARAM_NONE_),
+    executionMigMode(_PARAM_NONE_),
 	migrationModel(_PARAM_NONE_),
 	nSimulations(n),
 	N(populationSize),
@@ -20,6 +21,7 @@ SimulationsExecutor::SimulationsExecutor(int n, int populationSize,
 
 SimulationsExecutor::SimulationsExecutor(const Data& data)
   : executionMode(data.getExecutionMode()),
+    executionMigMode(data.getMigrationMode()),
 	migrationModel(data.getMigrationModel()),
 	nSimulations(data.getReplicates()),
 	N(data.getPopSize()),
@@ -420,55 +422,82 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
     
     // migration rate generation
     migrationRates = std::vector<std::vector<unsigned int> >(subPopulations.size(), std::vector<unsigned int>(subPopulations.size(), 0));
-    for (size_t i(0); i < migrationRates.size(); ++i) {		
+    for (size_t i(0); i < migrationRates.size(); ++i) {
+
+        unsigned int  rate (0) ;
+
+        if (executionMigMode == _INPUT_USER_){
+
+              rate = (unsigned int) migration[i];
+
+        }
+
+        else {
+
+            double minMoving(_DEFAULT_EXCESS_);
+
+            //take the value of the smallest subgroup
+            for (auto elt :allelesCount){
+
+                if (elt<minMoving and elt>0)
+
+                    minMoving=elt;
+
+            }
+
+            // randomly chosen rate
+             rate =  std::rand()%((unsigned int) (minMoving-1)+1)+ 1;
+
+            assert(rate>0);
+
+        }
+
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
 
             std::cout<<migration.size()<<std::endl;
             assert(migration.size() == subPopulations.size());
 
-            auto  rate = (unsigned int) migration[i];
 
 
 
 			switch(migrationModel){
 
-				case _COMPLETE_GRAPH_ : {
+				case _COMPLETE_GRAPH_ :{
+
 
                     //exchanges between all and every subpopulation
-					migrationRates[i][j] = rate;
-					migrationRates[j][i] = rate;
+                    migrationRates[i][j] = rate;
+                    migrationRates[j][i] = rate;
 
-				}
+                }
 
-				case _STAR_ : {
 
-					double starCenter = std::rand() % ((allelesCount.size()+0));
 
-					assert(starCenter<=allelesCount.size());
+				case _STAR_ :{
+
+                    double starCenter = std::rand() % ((allelesCount.size()+0));
+
+                    assert(starCenter<=allelesCount.size());
 
                     assert (starCenter>=0);
 
-					if (size_t (starCenter) == i ){
+                    if (size_t (starCenter) == i ){
 
                         //only the subpopulation in the center exchanges with all the others
-						migrationRates[i][j] = rate;
-						migrationRates[j][i] = rate;
-					}
+                        migrationRates[i][j] = rate;
+                        migrationRates[j][i] = rate;
+                    }
+                }
 
+				case _RING_  :{
 
-				}
-
-				case _RING_  : {
-
-					if ( j == i+1 ){
+                    if ( j == i+1 ){
 
                         //exchanges between "neighbor subpopulations "
-						migrationRates[i][j] = rate;
-						migrationRates[j][i] = rate;
-					}
-
-
-				}
+                        migrationRates[i][j] = rate;
+                        migrationRates[j][i] = rate;
+                    }
+                }
 
 			}
 

@@ -2,6 +2,7 @@
 #define SIMULATIONS_EXECUTOR_H
 
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <vector>
 #include <deque>
@@ -116,6 +117,9 @@ private:
 	//!< Execution mode of simulation
 	const int executionMode;
 
+    //!< Execution mode of migration
+    const int executionMigMode;
+
     //!< Execution model of Migrations
     const int migrationModel;
 	
@@ -157,10 +161,6 @@ private:
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
 
-
-	
-	
-	
 	//!< Result file
 	std::ofstream results;
    

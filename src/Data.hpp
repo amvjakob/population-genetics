@@ -186,7 +186,12 @@ public:
 	 *
 	 * */
     int getMigrationModel() const;
-	
+
+	/** \brief Get the migration mode to use for a Simulation (random, user input , ...)
+	 *
+	 * */
+	int getMigrationMode() const;
+
 	/** \brief Get the value necessary to create a Kimura mutation model
 	 * 
 	 * \return The value of delta for a Kimura mutation model
@@ -235,9 +240,13 @@ private:
 
     //!< Execution mode (param to use)
 	int executionMode;
+
 	
 	//!< Mutation model (simple, kimura, felsenstein)
 	int mutationModel;
+
+	//!< Migration  mode (user input , random )
+	int migrationMode;
 
 
     //!< Migration  model (simple, kimura, felsenstein)

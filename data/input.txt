@@ -23,6 +23,11 @@ MODE = 2
 # 2 - ring
 MIGMODE = 2
 
+#Migration mode : vars are
+# 0 - userInput
+# 1 - random
+MIGMOD = 1
+
 # Migration rates for each allele :
 MIG = 3|5
 
