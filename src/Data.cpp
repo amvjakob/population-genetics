@@ -167,6 +167,7 @@ void Data::collectFastaFile(ifstream& file) {
 	while (getline(file, line)) {
 		
 		if (line[0] == _FASTA_COMMENT_) {
+			//increasing population thanks to the header
 			++populationSize;
 			continue;
 		}
@@ -201,7 +202,8 @@ const std::vector<double>& Data::getMarkerSites() const {
 
 void Data::countAlleles() {
 	list<string> sequencesSorted = sequences;
-	
+
+	//list container functions that allow to sort and remove the duplicates
 	sequencesSorted.sort();
 	sequencesSorted.unique();
 
@@ -268,6 +270,7 @@ std::vector<double> Data::extractVec(string line) const {
 
 	while (getline(ss, strValue, _INPUT_SEPARATOR_)) {
 		try {
+			//add elements found between each separators
 			values.push_back(stod(strValue));
 		} catch (std::invalid_argument& e) {
 			cerr << e.what() << endl;

@@ -129,8 +129,9 @@ void SimulationsExecutor::runSimulation(int id) {
 	}
 	
 	std::vector<std::string> states(T + 2);
-	
-	// write initial allele frequencies
+    std::vector<std::string> states2(T + 2);
+
+    // write initial allele frequencies
 	states[0] = simul.getAlleleFqsForOutput();
 	
 	int t = 0;
@@ -143,11 +144,12 @@ void SimulationsExecutor::runSimulation(int id) {
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
+        
 	}
 	
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
-	
+
 	if (executionMode == _PARAM_MUTATIONS_) {
 		std::size_t lineLength = states.back().size();
 		std::size_t precision = simul.getPrecision();
@@ -373,7 +375,8 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
         long int idx = it - allelesCount.begin();
         
         subPopulations[idx][idx] += rint(*it) ;
-        
+
+
         assert(subPopulations[idx][idx] > 0);
     }
     
