@@ -156,6 +156,11 @@ public:
 	 *
 	 * */
 	void updateWithMigration();
+	
+	/** \brief Update the Simulation by one step
+	 * 
+	 * */
+	void updateWithMutations();
 
 private:
 

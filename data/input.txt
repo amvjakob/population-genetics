@@ -1,7 +1,7 @@
 # DATA INPUT FILE
 
 # Number of generations
-GEN = 10
+GEN = 100
 
 # Number of replicas
 REP = 10
@@ -15,10 +15,10 @@ SITES = 1|3|5
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-MODE = 0
+MODE = 1
 
 # Mutation probabilities for each site
-# MUT = 1E-3|1E-3|1E-3
+MUT = 1E-7|1E-7|1E-7
 # MUT_KIMURA = 0.5
 # MUT_FELSENSTEIN = 0.25|0.25|0.2|0.3
 

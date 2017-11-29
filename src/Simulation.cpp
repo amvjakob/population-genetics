@@ -243,8 +243,7 @@ std::size_t Simulation::getPrecision() const {
 void Simulation::update(int t) {	
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			RandomDist::multinomial(allelesCount, populationSize);
-			mutatePopulation();
+			updateWithMutations();
 			break;
 
         case _PARAM_SELECTION_:
@@ -262,7 +261,7 @@ void Simulation::update(int t) {
         	
         case _PARAM_NONE_:
 		default:
-			RandomDist::multinomial(allelesCount, populationSize);
+			RandomDist::multinomial(allelesCount);
 			break;
 	}
 }
@@ -357,6 +356,106 @@ void Simulation::mutatePopulation() {
 	}
 }
 
+void Simulation::updateWithMutations() {
+	int nParent = populationSize;
+	int nOffspring = 0;
+	
+	assert(alleles.size() == allelesCount.size());
+	
+	size_t nbAlleles = allelesCount.size();
+	for (size_t i = 0; i < nbAlleles; ++i) {
+		auto& count = allelesCount[i];
+		
+		// remaining parent population size should be 0 or more	
+		assert(nParent >= 0);
+		if (nParent == 0) {
+			// the only way for the parent population to be 0 is if the 
+			// current allele is not present anymore (wiped out)
+			assert(count == 0);
+			
+			// if the parent population is empty, there are no more 
+			// alleles to be distributed, thus we can exit the loop
+			break;
+		}
+		
+		// generate new allele copy number
+		double p = count * 1.0 / nParent;
+		
+		// reduce residual "gene pool"
+		nParent -= count;
+		
+		// generate new number of allele copies in population
+        count = RandomDist::binomial(populationSize - nOffspring, p);
+		
+		// increase offspring population size
+		nOffspring += count;
+	}
+	
+	assert(nParent == 0);
+	assert(nOffspring == populationSize);
+	
+	
+	// mutations
+	size_t nbMarkers = alleles.front().size();
+	for (size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
+		
+		size_t nbAlleles = allelesCount.size();
+		for (size_t alleleIdx = 0; alleleIdx < nbAlleles; ++alleleIdx) {
+		
+			// generate certain number of mutations
+			int nbMut = RandomDist::binomial(allelesCount[alleleIdx], mutationFqs[markerIdx]);
+			
+			// iterate over mutations
+			for (int mutation = 0; mutation < nbMut; ++mutation) {
+										
+				// generate the target mutation
+				double mut = RandomDist::uniformDoubleSingle(0.0, 1.0);
+				Nucleotide target = N;
+				
+				double pCount = 0.0;
+				for (int i = 0; i < (int) Nucleotide::N; ++i) {
+					pCount += mutationTable[(int) Allele::charToNucl.at(alleles[alleleIdx][markerIdx])][i];
+					if (mut <= pCount) {
+						target = (Nucleotide) i;
+						break;
+					}							
+				}
+				
+				if (target == Nucleotide::N) {
+					std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
+					throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
+				}
+				
+				// create new mutated allele
+				std::string newAllele = std::string(alleles[alleleIdx]);
+				newAllele[markerIdx] = Allele::nuclToChar[(int) target];
+				
+				// remove original allele
+				allelesCount[alleleIdx]--;
+				
+				// add mutated allele
+				std::size_t newAlleleIdx = std::distance(
+					alleles.begin(), 
+					std::find(
+						alleles.begin(),
+						alleles.end(),
+						newAllele
+					));
+				 
+				if (newAlleleIdx < alleles.size()) {
+					allelesCount[newAlleleIdx]++;
+				} else {
+					alleles.push_back(newAllele);
+					allelesCount.push_back(1);
+				}
+				
+				// some user info
+				std::cout << "Mutated a " << alleles[alleleIdx] << " to a " << newAllele << std::endl;
+			}
+		}
+	}
+}
+
 void Simulation::bottleneck(int simulationTime) {
 	if (simulationTime == _BOTTLENECK_START_TIME_) {
 		populationSize /= _BOTTLENECK_POPULATION_REDUCTION_;
@@ -386,7 +485,6 @@ void Simulation::updateWithSelection() {
 		// remaining parent population size should be 0 or more	
 		assert(nParent >= 0);
 		if (nParent == 0) {
-			
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
 			assert(count == 0);

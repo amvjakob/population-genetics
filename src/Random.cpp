@@ -96,7 +96,13 @@ void RandomDist::normal(std::vector< double > &res) {
     }
 }
 
-
+void RandomDist::multinomial(std::vector<unsigned int>& pop) {
+	int n = 0;
+	for (auto& count : pop)
+		n += count;
+		
+	RandomDist::multinomial(pop, n);
+}
 
 void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 	int total = 0;
@@ -110,7 +116,7 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 		if (total == 0) {
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
-			assert(total == 0);
+			assert(count == 0);
 			
 			// if the parent population is empty, there are no more 
 			// alleles to be distributed, thus we can exit the loop
