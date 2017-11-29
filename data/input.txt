@@ -15,19 +15,17 @@ SITES = 1|3|5
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-<<<<<<< HEAD
 MODE = 2
 
 # Migration models : vars are
 # 0 - completeGraph
 # 1 - star
 # 2 - ring
-MIGMODE = 1
+MIGMODE = 2
 
-=======
-MODE = 0
+# Migration rates for each allele :
+MIG = 3|5
 
->>>>>>> ef60891a390f556ebc52de42387f4dfce4d0af96
 # Mutation probabilities for each site
 # MUT = 1E-7|1E-7|1E-7
 # MUT_KIMURA = 0.5

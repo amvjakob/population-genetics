@@ -113,7 +113,12 @@ void Data::collectUserFile(ifstream& file) {
 				migrationModel = extractInt(line);
 				break;
 
-			case str2int(_INPUT_KEY_MUTATION_RATES_):
+            case str2int(_INPUT_KEY_MIGRATION_RATES_):
+                migrations = extractVec(line);
+                assert (migrations.size()>0);
+                break;
+
+            case str2int(_INPUT_KEY_MUTATION_RATES_):
 				mutations = extractVec(line);
                 break;
                 
@@ -216,7 +221,7 @@ void Data::countAlleles() {
 	sequencesSorted.unique();
 
 	for (auto& seqS : sequencesSorted) {
-		unsigned int count = count_if(sequences.begin(), sequences.end(), [&](string allele) {
+		auto count = (unsigned int) count_if(sequences.begin(), sequences.end(), [&](string allele) {
 				return allele == seqS;
 		});
 
@@ -227,6 +232,12 @@ void Data::countAlleles() {
 const vector<double>& Data::getMutations() const {
 	return mutations;
 }
+
+const std::vector<double>& Data ::  getMigrations() const{
+
+    return migrations;
+}
+
 
 const std::vector<double>& Data::getSelections() const {
 	return selections;
@@ -278,8 +289,10 @@ std::vector<double> Data::extractVec(string line) const {
 
 	while (getline(ss, strValue, _INPUT_SEPARATOR_)) {
 		try {
+
 			//add elements found between each separators
 			values.push_back(stod(strValue));
+
 		} catch (std::invalid_argument& e) {
 			cerr << e.what() << endl;
 		}

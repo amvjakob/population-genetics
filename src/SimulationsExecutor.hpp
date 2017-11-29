@@ -139,7 +139,10 @@ private:
 
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
-	
+
+    //!< Vector of double containing the  migration rates of each allele
+    std::vector<double> migration ;
+
 	//!< Table of mutation probabilities
 	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
 	

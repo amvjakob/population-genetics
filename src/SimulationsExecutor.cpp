@@ -28,6 +28,7 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	allelesCount(data.getAllelesCount()),
 	markerSites(data.getMarkerSites()),
 	mutations(data.getMutations()),
+    migration(data.getMigrations()),
 	selectionFqs(data.getSelections())
 {
 	int allelesCountSum = 0;
@@ -422,14 +423,18 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
     for (size_t i(0); i < migrationRates.size(); ++i) {		
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
 
-			unsigned int rate = 3;
+            std::cout<<migration.size()<<std::endl;
+            assert(migration.size() == subPopulations.size());
+
+            auto  rate = (unsigned int) migration[i];
+
 
 
 			switch(migrationModel){
 
 				case _COMPLETE_GRAPH_ : {
 
-
+                    //exchanges between all and every subpopulation
 					migrationRates[i][j] = rate;
 					migrationRates[j][i] = rate;
 
@@ -441,8 +446,11 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 
 					assert(starCenter<=allelesCount.size());
 
+                    assert (starCenter>=0);
+
 					if (size_t (starCenter) == i ){
 
+                        //only the subpopulation in the center exchanges with all the others
 						migrationRates[i][j] = rate;
 						migrationRates[j][i] = rate;
 					}
@@ -454,16 +462,13 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 
 					if ( j == i+1 ){
 
+                        //exchanges between "neighbor subpopulations "
 						migrationRates[i][j] = rate;
 						migrationRates[j][i] = rate;
 					}
 
 
 				}
-
-
-
-
 
 			}
 

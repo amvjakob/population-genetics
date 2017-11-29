@@ -102,9 +102,21 @@ public:
 
 	/** \brief Getter of the sites mutations probabilities
 	 *
-	 * 	\return migrations, a vector of double
+	 * 	\return mutations , a vector of double
 	 * */
 	const std::vector<double>& getMutations() const;
+
+
+
+    /** \brief Getter of the sites migration rates for each allele
+     *
+     * user supposed to know number of different allele
+     *
+     * each rate correspond to the amount of outgoing people
+     *
+     * 	\return migrations, a vector of double
+     * */
+    const std::vector<double>& getMigrations() const;
 
 	/** \brief Get selection rates
 	 * */
@@ -216,8 +228,12 @@ private:
 
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
-	
-	//!< Execution mode (param to use)
+
+    //!< Vector of double containing the migration rates of each allele
+    std::vector<double> migrations ;
+
+
+    //!< Execution mode (param to use)
 	int executionMode;
 	
 	//!< Mutation model (simple, kimura, felsenstein)
