@@ -1,27 +1,47 @@
 cmake_minimum_required (VERSION 2.6)
-project (Genetics)
+project (Team_4_project)
 
-set(CMAKE_CXX_FLAGS "-O3 -W -Wall -pthread -pedantic -std=c++11")
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+option(test "Build tests." ON)
 
-set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp src/Globals.hpp) 
+set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
+
+include_directories(${CMAKE_SOURCE_DIR}/extra/include)
 
 # Main executable
-add_executable (Genetics src/main.cpp ${SOURCE_FILES})
+add_executable(Genetics src/main.cpp ${SOURCE_FILES})
 
-# Test
-enable_testing()
-add_subdirectory(test/googletest)
-include_directories(test/googletest/include test/googletest)
-include_directories(src/tclap/include)
+# Testing
+if (test)
+	enable_testing()
+	
+	#find_package(GTest)
+	#if (NOT GTEST_FOUND)
+	#	SET(GTEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extra/include/googletest/include)
+	#	SET(GTEST_BOTH_LIBRARIES gtest gtest_main)
+	#endif(NOT GTEST_FOUND)
+	
+	add_subdirectory(${CMAKE_SOURCE_DIR}/extra/include/googletest)
+	
+	include_directories(${CMAKE_SOURCE_DIR}/extra/include/googletest/include ${CMAKE_SOURCE_DIR}/extra/include/googletest ${CMAKE_SOURCE_DIR}/extra/include/tclap)
+	
+	add_executable(testMyProg test/main.cpp ${SOURCE_FILES})
+	target_link_libraries(testMyProg gtest gtest_main pthread)
+	add_test(popgen testMyProg)
+	
 
-add_executable(testGenetics test/main.cpp ${SOURCE_FILES})
 
-target_link_libraries(testGenetics gtest gtest_main)
-add_test(testGenetics test)
+	
+endif(test)
 
 
-###### Doxygen generation ######
+# Doxygen generation
 
 # We first check if Doxygen is present.
 find_package(Doxygen)
@@ -39,7 +59,9 @@ if(DOXYGEN_FOUND)
     add_custom_target(doc
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating API documentation with Doxygen" VERBATIM
     )
 ELSE(DOXYGEN_FOUND)
     message(FATAL_ERROR "Doxygen is needed to build the documentation.")
 ENDIF(DOXYGEN_FOUND)
+

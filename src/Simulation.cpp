@@ -244,7 +244,7 @@ std::size_t Simulation::getPrecision() const {
 void Simulation::update(int t) {	
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			RandomDist::multinomial(allelesCount, populationSize);
+			RandomDist::multinomial(allelesCount);	
 			mutatePopulation();
 			break;
 
@@ -263,7 +263,7 @@ void Simulation::update(int t) {
         	
         case _PARAM_NONE_:
 		default:
-			RandomDist::multinomial(allelesCount, populationSize);
+			RandomDist::multinomial(allelesCount);
 			break;
 	}
 }
@@ -271,88 +271,62 @@ void Simulation::update(int t) {
 void Simulation::mutatePopulation() {
 	assert(!mutationFqs.empty());
 		
-	// get number of marker sites					
-	std::size_t nbMarkers = alleles.front().size();
-	
-	// iterate over all marker sites
-	for (std::size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
+	// mutations
+	size_t nbMarkers = alleles.front().size();
+	for (size_t markerIdx = 0; markerIdx < nbMarkers; ++markerIdx) {
 		
-		// count the number of each nucleotide for the current marker site
-		std::map<Nucleotide, std::size_t> markerCount;
-		for (std::size_t i= 0; i < alleles.size(); ++i) {
-			markerCount[Allele::charToNucl.at(alleles[i][markerIdx])] += allelesCount[i];
-		}
+		size_t nbAlleles = allelesCount.size();
+		for (size_t alleleIdx = 0; alleleIdx < nbAlleles; ++alleleIdx) {
 		
-		// iterate over all nucleotide counts of the current marker site
-		for (auto& nuclCount : markerCount) {	
+			// generate certain number of mutations
+			int nbMut = RandomDist::binomial(allelesCount[alleleIdx], mutationFqs[markerIdx]);
 			
-			// generate number of mutations for nucleotide X				
-			int mutX = nuclCount.second > 0 ? RandomDist::binomial(nuclCount.second, mutationFqs[markerIdx]) : 0;
-			
-			if (mutX > 0) {				
-				// iterate over all mutations
-				for (int mutation = 0; mutation < mutX; ++mutation) {
-											
-					// generate the target mutation
-					double mut = RandomDist::uniformDoubleSingle(0.0, 1.0);
-					Nucleotide target = N;
-					
-					double pCount = 0.0;
-					for (int i = 0; i < (int) Nucleotide::N; ++i) {
-						pCount += mutationTable[(int) nuclCount.first][i];
-						if (mut <= pCount) {
-							target = (Nucleotide) i;
-							break;
-						}							
-					}
-					
-					if (target == Nucleotide::N) {
-						std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
-						throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
-					}
+			// iterate over mutations
+			for (int mutation = 0; mutation < nbMut; ++mutation) {
+										
+				// generate the target mutation
+				double mut = RandomDist::uniformDoubleSingle(0.0, 1.0);
+				Nucleotide target = N;
 				
-					// find source
-					int source = RandomDist::uniformIntSingle(0, nuclCount.second - 1);
-					
-					int sourceCount = 0.0;
-					for (std::size_t i = 0; i < alleles.size(); ++i) {
-						if (Allele::charToNucl.at(alleles[i][markerIdx]) == nuclCount.first) {
-							sourceCount += allelesCount[i];
-							
-							if (source < sourceCount) {
-								// we got our source
-								
-								// create new mutated allele
-								std::string newAllele = std::string(alleles[i]);
-								newAllele[markerIdx] = Allele::nuclToChar[(int) target];
-								
-								// remove original allele
-								allelesCount[i]--;
-								
-								// add mutated allele
-								std::size_t newAlleleIdx = std::distance(
-									alleles.begin(), 
-									std::find(
-										alleles.begin(),
-										alleles.end(),
-										newAllele
-									));
-								 
-								if (newAlleleIdx < alleles.size()) {
-									allelesCount[newAlleleIdx]++;
-								} else {
-									alleles.push_back(newAllele);
-									allelesCount.push_back(1);
-								}
-								
-								// some user info
-								std::cout << "Mutated a " << alleles[i] << " to a " << newAllele << std::endl;
-								
-								break;
-							}
-						}								
-					}
+				double pCount = 0.0;
+				for (int i = 0; i < (int) Nucleotide::N; ++i) {
+					pCount += mutationTable[(int) Allele::charToNucl.at(alleles[alleleIdx][markerIdx])][i];
+					if (mut <= pCount) {
+						target = (Nucleotide) i;
+						break;
+					}							
 				}
+				
+				if (target == Nucleotide::N) {
+					std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
+					throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
+				}
+				
+				// create new mutated allele
+				std::string newAllele = std::string(alleles[alleleIdx]);
+				newAllele[markerIdx] = Allele::nuclToChar[(int) target];
+				
+				// remove original allele
+				allelesCount[alleleIdx]--;
+				
+				// add mutated allele
+				std::size_t newAlleleIdx = std::distance(
+					alleles.begin(), 
+					std::find(
+						alleles.begin(),
+						alleles.end(),
+						newAllele
+					));
+				 
+				if (newAlleleIdx < alleles.size()) {
+					allelesCount[newAlleleIdx]++;
+				} else {
+					alleles.push_back(newAllele);
+					allelesCount.push_back(1);
+				}
+				
+				// some user info
+				std::cout << "Mutated a " << alleles[alleleIdx] << " to a " << newAllele << std::endl;
 			}
 		}
 	}
@@ -387,7 +361,6 @@ void Simulation::updateWithSelection() {
 		// remaining parent population size should be 0 or more	
 		assert(nParent >= 0);
 		if (nParent == 0) {
-			
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
 			assert(count == 0);

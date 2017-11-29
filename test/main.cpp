@@ -34,7 +34,7 @@ TEST(DataReading, NumberAlleles) {
 
 	data.collectAll();
 
-	EXPECT_EQ(data.getNumberAlleles(), 2);
+	EXPECT_EQ((int) data.getAllelesCount().size(), 2);
 }
 
 TEST(DataReading, MarkerSites) {
@@ -51,12 +51,12 @@ TEST(DataReading, MarkerSites) {
 TEST(DataReading, InitialFrequencies) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
-	vector <double> knownFq = {0.428571, 0.571429};
+	vector <double> knownCount = {9, 12};
 
 	data.collectAll();
 
-	for (size_t i(0); i < (size_t) data.getNumberAlleles(); ++i) {
-		EXPECT_NEAR(data.getAlleleFqs()[i], knownFq[i], 1E-3);
+	for (size_t i(0); i < (size_t) data.getAllelesCount().size(); ++i) {
+		EXPECT_NEAR(data.getAllelesCount()[i], knownCount[i], 1E-3);
 	}
 }
 
