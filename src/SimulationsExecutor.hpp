@@ -115,6 +115,9 @@ private:
 	
 	//!< Execution mode of simulation
 	const int executionMode;
+
+    //!< Execution model of Migrations
+    const int migrationModel;
 	
 	//!< Number of simulations to be executed simultaneously
 	int nSimulations;
@@ -150,6 +153,8 @@ private:
     
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
+
+
 	
 	
 	

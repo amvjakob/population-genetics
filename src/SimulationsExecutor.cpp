@@ -9,6 +9,7 @@
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
 	int simulationSteps, std::vector<unsigned int> counts)
   : executionMode(_PARAM_NONE_),
+	migrationModel(_PARAM_NONE_),
 	nSimulations(n),
 	N(populationSize),
 	T(simulationSteps),
@@ -18,7 +19,8 @@ SimulationsExecutor::SimulationsExecutor(int n, int populationSize,
 }
 
 SimulationsExecutor::SimulationsExecutor(const Data& data)
-  : executionMode(data.getExecutionMode()), 
+  : executionMode(data.getExecutionMode()),
+	migrationModel(data.getMigrationModel()),
 	nSimulations(data.getReplicates()),
 	N(data.getPopSize()),
 	T(data.getGenerations()),
@@ -133,7 +135,9 @@ void SimulationsExecutor::runSimulation(int id) {
 
     // write initial allele frequencies
 	states[0] = simul.getAlleleFqsForOutput();
-	
+	states2[0] = simul.getMigAlleleFqsForOutput();
+
+
 	int t = 0;
 	while (t < T) {
 		// update simulation
@@ -144,11 +148,14 @@ void SimulationsExecutor::runSimulation(int id) {
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
-        
+		states2[t] = simul.getMigAlleleFqsForOutput();
+
 	}
 	
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
+	states2[t+1] = simul.getMigAlleleFqsForOutput();
+
 
 	if (executionMode == _PARAM_MUTATIONS_) {
 		std::size_t lineLength = states.back().size();
@@ -166,13 +173,33 @@ void SimulationsExecutor::runSimulation(int id) {
 				state = ss.str();
 			}
 		}
+
+
+		 lineLength = states2.back().size();
+
+		for (auto& state : states2) {
+			if (state.size() < lineLength) {
+				std::stringstream ss;
+				ss << state;
+
+				while (ss.tellp() < (int) lineLength) {
+					ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
+				}
+
+				state = ss.str();
+			}
+		}
 	}
-	
+
 	for (int i = 0; i < (int) states.size(); ++i) {
 		writeData(states[i], id, i);
 	}
-    
+	for (int i = 0; i < (int) states2.size(); ++i) {
+		writeDataMigs(states2[i],id,i);
+	}
+
 }
+
 
 void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	// check that step is valid
@@ -394,7 +421,53 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
     migrationRates = std::vector<std::vector<unsigned int> >(subPopulations.size(), std::vector<unsigned int>(subPopulations.size(), 0));
     for (size_t i(0); i < migrationRates.size(); ++i) {		
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
-                
+
+			unsigned int rate = 3;
+
+
+			switch(migrationModel){
+
+				case _COMPLETE_GRAPH_ : {
+
+
+					migrationRates[i][j] = rate;
+					migrationRates[j][i] = rate;
+
+				}
+
+				case _STAR_ : {
+
+					double starCenter = std::rand() % ((allelesCount.size()+0));
+
+					assert(starCenter<=allelesCount.size());
+
+					if (size_t (starCenter) == i ){
+
+						migrationRates[i][j] = rate;
+						migrationRates[j][i] = rate;
+					}
+
+
+				}
+
+				case _RING_  : {
+
+					if ( j == i+1 ){
+
+						migrationRates[i][j] = rate;
+						migrationRates[j][i] = rate;
+					}
+
+
+				}
+
+
+
+
+
+			}
+
+
 			/*
 			double randNum = std::rand() % ((allelesCount[i]/2)-1 + 1)+1;
 			
@@ -406,10 +479,7 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 			assert(rate>0);
 			*/
 			
-			unsigned int rate = 3;
-						  
-			migrationRates[i][j] = rate;
-			migrationRates[j][i] = rate;
+
 		}
 	}
 	

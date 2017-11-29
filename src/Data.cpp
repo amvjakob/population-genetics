@@ -40,6 +40,10 @@ void Data::construct(string input, string fasta) {
 	
 	// mutation
 	mutationModel = _MUTATION_MODEL_NONE_;
+
+	//migration model
+	migrationModel = _MIGRATION_MODEL_NONE_;
+
 	kimuraDelta = 0.0;
 	
 	assert(allelesCount.empty());
@@ -103,6 +107,10 @@ void Data::collectUserFile(ifstream& file) {
 				
 			case str2int(_INPUT_KEY_MODE_):
 				executionMode = extractInt(line);
+				break;
+
+			case str2int(_INPUT_KEY_MIGRATION_MODE_):
+				migrationModel = extractInt(line);
 				break;
 
 			case str2int(_INPUT_KEY_MUTATION_RATES_):
@@ -322,4 +330,7 @@ double Data::getKimuraDelta() const {
 
 const std::vector<double>& Data::getFelsensteinConstants() const {
 	return felsensteinConstants;
+}
+int Data:: getMigrationModel() const{
+	return migrationModel;
 }

@@ -228,6 +228,7 @@ std::string Simulation::getMigAlleleFqsForOutput() {
 				if (allele != subPop->begin()) ss << _OUTPUT_SEPARATOR_;
 				ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
 			}
+            ss<<"  ";
 		}
 		
 		return ss.str();

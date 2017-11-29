@@ -169,6 +169,11 @@ public:
 	 * 
 	 * */
 	int getMutationModel() const;
+
+    /** \brief Get the migration model to use for a Simulation (comppleteGraph, Star, ...)
+	 *
+	 * */
+    int getMigrationModel() const;
 	
 	/** \brief Get the value necessary to create a Kimura mutation model
 	 * 
@@ -217,8 +222,13 @@ private:
 	
 	//!< Mutation model (simple, kimura, felsenstein)
 	int mutationModel;
-	
-	//!< Kimura model
+
+
+    //!< Migration  model (simple, kimura, felsenstein)
+    int migrationModel;
+
+
+    //!< Kimura model
 	double kimuraDelta;
 	
 	//!< Felsenstein model
