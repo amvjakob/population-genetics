@@ -31,7 +31,10 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	markerSites(data.getMarkerSites()),
 	mutations(data.getMutations()),
     migration(data.getMigrations()),
-	selectionFqs(data.getSelections())
+	selectionFqs(data.getSelections()),
+	popReduction(data.getPopReduction()),
+	bottleneckStart(data.getBottleneckStart()),
+	bottleneckEnd(data.getBottleneckEnd())
 {
 	int allelesCountSum = 0;
 	for (auto& alleleCount : allelesCount)

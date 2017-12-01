@@ -140,8 +140,11 @@ public:
 	 * Creates a time-dependent population size
 	 * 
 	 * \param the time of the simulation, an int
+	 * \param the time of the start of the bottleneck, an int
+	 * \param the time of the end of the bottleneck, an int
+	 * \param the reduction factor of the population size, a double
 	 * */
-	void bottleneck(int simulationTime);
+	void bottleneck(int simulationTime, int startTime, int stopTime, double reductionFactor);
 
     /** \brief Update the Simulation by one step
 	 *

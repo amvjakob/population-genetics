@@ -189,6 +189,15 @@ private:
     int buffer2LowestStep;
     //!< Highest step that is already in the buffer
     int buffer2HighestStep;
+    
+    //!< Bottleneck population reduction factor
+	double popReduction;
+	
+	//!< Bottleneck start time
+	int bottleneckStart;
+	
+	//!< Bottleneck stop time
+	int bottleneckEnd;
 };
 
 #endif

@@ -35,6 +35,9 @@ void Data::construct(string input, string fasta) {
 	populationSize = 0;
 	numberGenerations = 0;
 	replicates = 0;
+	bottleneckStart = 0;
+	bottleneckEnd = 0;
+	popReduction = 1;
 	
 	executionMode = _PARAM_NONE_;
 	
@@ -137,7 +140,19 @@ void Data::collectUserFile(ifstream& file) {
 			case str2int(_INPUT_KEY_SELECTION_RATES_):
 				selections = extractVec(line);
 				break;
-
+				
+			case str2int(_INPUT_KEY_BOTTLENECK_POPULATION_REDUCTION_):
+				popReduction = extractDouble(line);
+				break;
+				
+			case str2int(_INPUT_KEY_BOTTLENECK_START_TIME_):
+				bottleneckStart = extractInt(line);
+				break;
+				
+			case str2int(_INPUT_KEY_BOTTLENECK_END_TIME_):
+				bottleneckEnd = extractInt(line);
+				break;
+			
             default:
 				break;
         }
@@ -357,4 +372,16 @@ int Data:: getMigrationModel() const{
 
 int Data:: getMigrationMode() const{
 	return migrationMode;
+}
+
+double Data::getPopReduction() const{
+	return popReduction;
+}
+
+int Data::getBottleneckStart() const{
+	return bottleneckStart;
+}
+
+int Data::getBottleneckEnd() const{
+	return bottleneckEnd;
 }

@@ -9,6 +9,11 @@ REP = 10
 # Marker Sites
 SITES = 1|3|5
 
+#Bottleneck
+REDUCTION = 2.0
+START = 20
+END = 40
+
 # Execution mode: vars are
 # 0 - none
 # 1 - mutation
