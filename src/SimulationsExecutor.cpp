@@ -29,7 +29,10 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	alleles(data.getUniqueSequences()),
 	allelesCount(data.getAllelesCount()),
 	mutations(data.getMutations()),
-	selectionFqs(data.getSelections())
+	selectionFqs(data.getSelections()),
+	popReduction(data.getPopReduction()),
+	bottleneckStart(data.getBottleneckStart()),
+	bottleneckEnd(data.getBottleneckEnd())
 {
 	int allelesCountSum = 0;
 	for (auto& alleleCount : allelesCount)

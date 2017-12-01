@@ -24,7 +24,7 @@ public:
 	 * 	\param input, the path of the input file to be read
 	 * 	\param fasta, the path of the fasta file to be read
 	 * 
-	 * Initialises populationSize, numberGenerations, replicates, numberAlleles to 0
+	 * Initialises populationSize, numberGenerations, replicates, numberAlleles, bottleneckStart, bottleneckEnd to 0 and popReduction to 1
 	 * Initialises the name of the data files, according to the parameters
 	 * */
 	Data(std::string input, std::string fasta);
@@ -227,7 +227,25 @@ public:
 			}
 		}
 	}
-
+	
+	/** \brief Getter of the reduction of the population size factor during the bottleneck
+	 *
+	 * 	\return popReduction, a double
+	 * */
+	 double getPopReduction() const;
+	 
+	 /** \brief Getter of the start of the bottleneck
+	 *
+	 * 	\return bottleneckStart, an int
+	 * */
+	 int getBottleneckStart() const;
+	 
+	 /** \brief Getter of the end of the bottleneck
+	 *
+	 * 	\return bottleneckEnd, an int
+	 * */
+	 int getBottleneckEnd() const;
+	 
 	
 private:
 
@@ -285,6 +303,16 @@ private:
 
 	//!< Vector of double containing the selection probabilities of the alleles
 	std::vector<double> selections;
+
+	
+	//!< Bottleneck population reduction factor
+	double popReduction;
+	
+	//!< Bottleneck start time
+	int bottleneckStart;
+	
+	//!< Bottleneck stop time
+	int bottleneckEnd;
 };
 
 #endif

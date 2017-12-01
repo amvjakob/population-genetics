@@ -80,6 +80,17 @@ TEST(DataReading, NucleotidesMutations) {
 	}
 }
 
+TEST (DataReading, Bottleneck) {
+	Data data("../data/test_input.txt","../data/test.fa");
+	
+	data.collectAll();
+	
+	EXPECT_EQ(data.getPopReduction(), 2);
+	EXPECT_EQ(data.getBottleneckStart(), 20);
+	EXPECT_EQ(data.getBottleneckEnd(), 40);
+}
+
+
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
 

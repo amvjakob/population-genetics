@@ -258,7 +258,7 @@ void Simulation::update(int t) {
 			break;
 			
 		case _PARAM_BOTTLENECK_:
-			bottleneck(t);
+			//bottleneck(t);
 			RandomDist::multinomial(allelesCount, populationSize);
 			break;
         	
@@ -333,11 +333,11 @@ void Simulation::mutatePopulation() {
 	}
 }
 
-void Simulation::bottleneck(int simulationTime) {
-	if (simulationTime == _BOTTLENECK_START_TIME_) {
-		populationSize /= _BOTTLENECK_POPULATION_REDUCTION_;
-	} else if (simulationTime == _BOTTLENECK_END_TIME_) {
-		populationSize *= _BOTTLENECK_POPULATION_REDUCTION_;
+void Simulation::bottleneck(int simulationTime, int startTime, int stopTime, double reductionFactor) {
+	if (simulationTime == startTime) {
+		populationSize /= reductionFactor;
+	} else if (simulationTime == stopTime) {
+		populationSize *= reductionFactor;
 	}
 }
 

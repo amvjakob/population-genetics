@@ -152,6 +152,17 @@ private:
     
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
+    
+    
+    //!< Bottleneck population reduction factor
+	double popReduction;
+	
+	//!< Bottleneck start time
+	int bottleneckStart;
+	
+	//!< Bottleneck stop time
+	int bottleneckEnd;
+	
 
 
 	//!< Result file
