@@ -114,12 +114,7 @@ public:
 	 *
 	 * \return A string containing the allele identifiers with the following
 	 * format: id1|id2|..|idn-1|idn|
-	 * */
-    
-    
-    std::string getMigAlleleFqsForOutput() ;
-
-    
+	 * */    
 	std::string getAlleleStrings() const;
 
 

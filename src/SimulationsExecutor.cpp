@@ -28,9 +28,7 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 	T(data.getGenerations()),
 	alleles(data.getUniqueSequences()),
 	allelesCount(data.getAllelesCount()),
-	markerSites(data.getMarkerSites()),
 	mutations(data.getMutations()),
-    migration(data.getMigrations()),
 	selectionFqs(data.getSelections())
 {
 	int allelesCountSum = 0;
@@ -73,7 +71,6 @@ SimulationsExecutor::SimulationsExecutor(const Data& data)
 void SimulationsExecutor::prepare() {
     // open result file
     results.open("results.txt");
-    migrationResults.open("migrationResults.txt");
     
     // init buffer access values
     bufferLowestStep = 0;
@@ -81,12 +78,6 @@ void SimulationsExecutor::prepare() {
 	
 	// add first empty buffer data
 	outputBuffer.push_back( std::vector<std::string>(nSimulations) );
-    
-    
-    
-    buffer2LowestStep = 0;
-    buffer2HighestStep = 0;
-    outputBufferMigs.push_back( std::vector<std::string>(nSimulations) );
 }
 
 
@@ -105,41 +96,36 @@ void SimulationsExecutor::execute() {
 	for (auto& th : threads) th.join(); 
 }
 
-
-void SimulationsExecutor::runSimulation(int id) {	
-	// create new simulation
-	Simulation simul;
-	
+Simulation SimulationsExecutor::createSimulation() const {
 	switch (executionMode) {
 		case _PARAM_MUTATIONS_:
-			simul = Simulation(alleles, allelesCount, mutations, nuclMutationProbs);
-			break;
+			return Simulation(alleles, allelesCount, mutations, nuclMutationProbs);
 			
 		case _PARAM_SELECTION_:
-			simul = Simulation(alleles, allelesCount, selectionFqs);
-			break;
+			return Simulation(alleles, allelesCount, selectionFqs);
 			
 		case _PARAM_MIGRATION_:
-			simul = Simulation(alleles, subPopulations, migrationRates);
-			break;
+			return Simulation(alleles, subPopulations, migrationRates);
 			
 		case _PARAM_BOTTLENECK_:
-			simul = Simulation(alleles, allelesCount);
-			break;
+			return Simulation(alleles, allelesCount);
 			
 		case _PARAM_NONE_:
 		default:
-			simul = Simulation(allelesCount);
-			break;
+			return Simulation(allelesCount);
 	}
+}
+
+
+void SimulationsExecutor::runSimulation(int id) {	
+	// create new simulation
+	Simulation simul = createSimulation();
 	
+	// generate container for states of simulation
 	std::vector<std::string> states(T + 2);
-    std::vector<std::string> states2(T + 2);
 
     // write initial allele frequencies
 	states[0] = simul.getAlleleFqsForOutput();
-	states2[0] = simul.getMigAlleleFqsForOutput();
-
 
 	int t = 0;
 	while (t < T) {
@@ -151,45 +137,29 @@ void SimulationsExecutor::runSimulation(int id) {
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
-		states2[t] = simul.getMigAlleleFqsForOutput();
 
 	}
 	
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
-	states2[t+1] = simul.getMigAlleleFqsForOutput();
 
-
+	// properly format output (add blanks if there were new mutations
 	if (executionMode == _PARAM_MUTATIONS_) {
 		std::size_t lineLength = states.back().size();
 		std::size_t precision = simul.getPrecision();
 		
-		for (auto& state : states) {
-			if (state.size() < lineLength) {
-				std::stringstream ss;
-				ss << state;
-				
-				while (ss.tellp() < (int) lineLength) {
-					ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
+		if (states.front().size() != states.back().size()) { // check for any mutations
+			for (auto& state : states) {
+				if (state.size() < lineLength) {
+					std::stringstream ss;
+					ss << state;
+					
+					while (ss.tellp() < (int) lineLength) {
+						ss << _OUTPUT_SEPARATOR_ << std::setprecision(precision) << std::fixed << 0.0;
+					}
+					
+					state = ss.str();
 				}
-				
-				state = ss.str();
-			}
-		}
-
-
-		 lineLength = states2.back().size();
-
-		for (auto& state : states2) {
-			if (state.size() < lineLength) {
-				std::stringstream ss;
-				ss << state;
-
-				while (ss.tellp() < (int) lineLength) {
-					ss << '|' << std::setprecision(precision) << std::fixed << 0.0;
-				}
-
-				state = ss.str();
 			}
 		}
 	}
@@ -197,19 +167,14 @@ void SimulationsExecutor::runSimulation(int id) {
 	for (int i = 0; i < (int) states.size(); ++i) {
 		writeData(states[i], id, i);
 	}
-	for (int i = 0; i < (int) states2.size(); ++i) {
-		writeDataMigs(states2[i],id,i);
-	}
-
 }
 
 
 void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	// check that step is valid
 	if (step < bufferLowestStep) { 
-		std::string msg = "Error: trying to add data of a step that has already been written to the result file.";
-		std::cerr << msg << std::endl;
-		throw msg;
+		std::cerr << _ERROR_OUTPUT_BUFFER_ << std::endl;
+		throw _ERROR_OUTPUT_BUFFER_;
 	}
 	
 	// start lock here to restrict the execution of this function to a single thread 
@@ -242,52 +207,6 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 	++bufferLowestStep;
 }
 
-
-
-
-void SimulationsExecutor:: writeDataMigs(std::string data, int threadId, int step){
-    
-    
-    // check that step is valid
-    if (step < buffer2LowestStep) {
-        std::string msg = "Error: trying to add data of a step that has already been written to the result file.";
-        std::cerr << msg << std::endl;
-        throw msg;
-    }
-    
-    // start lock here to restrict the execution of this function to a single thread
-    std::lock_guard<std::mutex> lock(writerMutex2);
-    
-    if (step > buffer2HighestStep) {
-        // assign new highest step
-        buffer2HighestStep = step;
-        
-        // insert new empty vector
-        outputBufferMigs.push_back(std::vector<std::string>(nSimulations));
-    }
-    
-    // add data to buffer
-    outputBufferMigs[step - buffer2LowestStep][threadId] = data;
-    
-    // check for data completeness for the lowest step
-    if (std::any_of(
-                    std::begin(outputBufferMigs.front()),
-                    std::end(outputBufferMigs.front()),
-                    [](std::string elem) {
-                        return elem.empty();
-                    })
-        ) return;
-    
-    // write data from buffer to file, since the buffer for the
-    // lowest step is full
-    writeAlleleMigFqs(outputBufferMigs.front());
-    outputBufferMigs.pop_front();
-    ++buffer2LowestStep;
-    
-}
-
-
-
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
 	results << step << '\t';
 	
@@ -297,19 +216,6 @@ void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string
 	
 	results << '\n';
 }
-
-
-
-
-void SimulationsExecutor:: writeAlleleMigFqs(const std::vector<std::string>& alleleFqs){
-    for (auto const& data : alleleFqs) {
-        migrationResults << data << '\t';
-    }
-    
-    migrationResults << '\n';
-    
-}
-
 
 void SimulationsExecutor::generateMutationRates(const Data& data) {
 	switch (data.getMutationModel()) {
@@ -404,120 +310,81 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
     for (auto it = allelesCount.begin(); it != allelesCount.end(); ++it) {
         long int idx = it - allelesCount.begin();
         
-        subPopulations[idx][idx] += rint(*it) ;
-
-
+        subPopulations[idx][idx] += rint(*it);
+        
         assert(subPopulations[idx][idx] > 0);
     }
     
     // cout the subpopulations
+    std::cout << "Initial subpopulations" << std::endl;
 	for (auto& pop : subPopulations) {
 		for (auto& count : pop) {
 			std::cout << count << '\t';
 		}
 		std::cout << std::endl;
 	}
-	std::cout << "-------" << std::endl;
+	std::cout << "---------" << std::endl;
     
     
     // migration rate generation
     migrationRates = std::vector<std::vector<unsigned int> >(subPopulations.size(), std::vector<unsigned int>(subPopulations.size(), 0));
+    std::vector<int> migration = data.getMigrations();
+    
+    size_t minMoving(_DEFAULT_EXCESS_);
+	// take the value of the smallest subgroup
+	for (auto& elt : allelesCount) {
+		minMoving = std::min(std::max((int) elt, 0), (int) minMoving);
+	}
+	
+	size_t starCenter = std::rand() % allelesCount.size();
+	assert(starCenter <= allelesCount.size());
+	assert(starCenter >= 0);
+	
     for (size_t i(0); i < migrationRates.size(); ++i) {
-
-        unsigned int  rate (0) ;
-
-        if (executionMigMode == _INPUT_USER_){
-
-              rate = (unsigned int) migration[i];
-
-        }
-
-        else {
-
-            double minMoving(_DEFAULT_EXCESS_);
-
-            //take the value of the smallest subgroup
-            for (auto elt :allelesCount){
-
-                if (elt<minMoving and elt>0)
-
-                    minMoving=elt;
-
-            }
-
+		
+		size_t rate = 0;
+		
+		if (executionMigMode == _INPUT_USER_) {
+			rate = migration[i];
+		} else if (executionMigMode == _RANDOM_) {
             // randomly chosen rate
-             rate =  std::rand()%((unsigned int) (minMoving-1)+1)+ 1;
-
-            assert(rate>0);
-
+            rate = RandomDist::uniformIntSingle(1, minMoving - 1);
         }
 
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
+			switch (migrationModel) {
+				case _COMPLETE_GRAPH_ :
+					{
+						//exchanges between all and every subpopulation
+						migrationRates[i][j] = rate;
+						migrationRates[j][i] = rate;
+					}
+					break;
+					
+				case _STAR_ :
+					{
+						// only the subpopulation in the center exchanges with all the others
+						if (starCenter == i) {
+							migrationRates[i][j] = rate;
+							migrationRates[j][i] = rate;
+						}
+					}
+					break;
 
-            std::cout<<migration.size()<<std::endl;
-            assert(migration.size() == subPopulations.size());
-
-
-
-
-			switch(migrationModel){
-
-				case _COMPLETE_GRAPH_ :{
-
-
-                    //exchanges between all and every subpopulation
-                    migrationRates[i][j] = rate;
-                    migrationRates[j][i] = rate;
-
-                }
-
-
-
-				case _STAR_ :{
-
-                    double starCenter = std::rand() % ((allelesCount.size()+0));
-
-                    assert(starCenter<=allelesCount.size());
-
-                    assert (starCenter>=0);
-
-                    if (size_t (starCenter) == i ){
-
-                        //only the subpopulation in the center exchanges with all the others
-                        migrationRates[i][j] = rate;
-                        migrationRates[j][i] = rate;
-                    }
-                }
-
-				case _RING_  :{
-
-                    if ( j == i+1 ){
-
-                        //exchanges between "neighbor subpopulations "
-                        migrationRates[i][j] = rate;
-                        migrationRates[j][i] = rate;
-                    }
-                }
-
-			}
-
-
-			/*
-			double randNum = std::rand() % ((allelesCount[i]/2)-1 + 1)+1;
-			
-			assert(randNum > 0);
-			assert(allelesCount[i] > 0);
-			
-			rate =(randNum/allelesCount[i]);
-			
-			assert(rate>0);
-			*/
-			
-
+				case _RING_ :
+					{
+						// exchanges between "neighbor subpopulations "
+						if (j == i + 1 || (j == migrationRates[i].size() - 1 && i == 0)) {							
+							migrationRates[i][j] = rate;
+							migrationRates[j][i] = rate;
+						}
+					}
+			}		
 		}
 	}
 	
 	// cout the mutation rates
+	std::cout << "Mutation rate table" << std::endl;
 	for (auto& mig : migrationRates) {
 		for (auto& m : mig) {
 			std::cout << m << '\t';

@@ -12,6 +12,7 @@
 #define _ERROR_INPUT_UNREADABLE_ "Input file impossible to open"
 #define _ERROR_FASTA_UNREADABLE_ "Fasta file impossible to open"
 #define _ERROR_MUTATION_TARGET_UNFINDABLE_ "Did not find mutation target"
+#define _ERROR_OUTPUT_BUFFER_ "Error: trying to add data of a step that has already been written to the result file."
 
 #define _MIN_OUTPUT_PRECISION_ 2
 
@@ -19,9 +20,9 @@
 #define _INPUT_KEY_REPLICAS_ "REP"
 #define _INPUT_KEY_MARKER_SITES_ "SITES"
 #define _INPUT_KEY_MODE_ "MODE"
-#define _INPUT_KEY_MIGRATION_MODEL_ "MIGMODE"
-#define _INPUT_KEY_MIGRATION_MODE_ "MIGMOD"
-#define _INPUT_KEY_MIGRATION_RATES_ "MIG"
+#define _INPUT_KEY_MIGRATION_MODEL_ "MIG_MODEL"
+#define _INPUT_KEY_MIGRATION_MODE_ "MIG_MODE"
+#define _INPUT_KEY_MIGRATION_RATES_ "MIG_RATES"
 #define _INPUT_KEY_MUTATION_RATES_ "MUT"
 #define _INPUT_KEY_MUTATION_KIMURA_ "MUT_KIMURA"
 #define _INPUT_KEY_MUTATION_FELSENSTEIN_ "MUT_FELSENSTEIN"
@@ -52,6 +53,11 @@
 #define _INPUT_USER_ 0
 #define _RANDOM_ 1
 #define _DEFAULT_EXCESS_ 1E6
+#define _MIGRATION_OUTPUT_SEPARATOR_ "  "
 
+#define _MIGRATION_DETAILED_OUTPUT_ true
+
+#define strToInt [](const std::string& s){ return std::stoi(s); }
+#define strToDouble [](const std::string& s){ return std::stod(s); }
 
 #endif

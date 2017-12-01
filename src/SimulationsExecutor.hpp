@@ -88,10 +88,6 @@ protected:
 	 * \param alleleFqs		a vector of strings (each being a formatted list of allele frequencies)
 	 * */
 	void writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs);
-    
-    
-    void writeDataMigs(std::string data, int threadId, int step);
-
 	
 	/** \brief Generate table for nucleotide mutation rates based on user input data
 	 * 
@@ -99,13 +95,14 @@ protected:
 	 * */
 	 void generateMutationRates(const Data& data);
 	 
-	 /** \brief Generate the subpopulations for a Simulation with migration
-	  * */
-	 void generateSubPopulations(const Data& data);
+	/** \brief Generate the subpopulations for a Simulation with migration
+	* */
+	void generateSubPopulations(const Data& data);
     
-    
-    void writeAlleleMigFqs(const std::vector<std::string>& alleleFqs);
 
+	/** \brief Generate a new Simulation based on the given parameters
+	 * */
+	Simulation createSimulation() const;
 	
 
 private:
@@ -137,15 +134,10 @@ private:
 	
 	//!< Initial allele counts for a Simulation
 	std::vector<unsigned int> allelesCount;
-
-	//!< Vector of double containing the user marker sites
-	std::vector<double> markerSites;
+		
 
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
-
-    //!< Vector of double containing the  migration rates of each allele
-    std::vector<double> migration ;
 
 	//!< Table of mutation probabilities
 	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
@@ -160,6 +152,7 @@ private:
     
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
+
 
 	//!< Result file
 	std::ofstream results;
@@ -178,17 +171,6 @@ private:
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
-	
-	
-    std::mutex writerMutex2;
-	
-    std::ofstream migrationResults;
-    
-    std::deque< std::vector<std::string> > outputBufferMigs;
-    //!< Lowest step that is still in the buffer
-    int buffer2LowestStep;
-    //!< Highest step that is already in the buffer
-    int buffer2HighestStep;
 };
 
 #endif

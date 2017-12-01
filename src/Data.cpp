@@ -94,48 +94,47 @@ void Data::collectUserFile(ifstream& file) {
 
         switch (str2int(key.c_str())) {
 			case str2int(_INPUT_KEY_GENERATIONS_):
-                numberGenerations = extractInt(line);
+                extractValue<int>(numberGenerations, line, strToInt);
                 break;
                 
 			case str2int(_INPUT_KEY_REPLICAS_):
-				replicates = extractInt(line);
+				extractValue<int>(replicates, line, strToInt);
 				break;
 
             case str2int(_INPUT_KEY_MARKER_SITES_):
-				markerSites = extractVec(line);
+				extractValues<int>(markerSites, line, strToInt);
 				break;
 				
 			case str2int(_INPUT_KEY_MODE_):
-				executionMode = extractInt(line);
+				extractValue<int>(executionMode, line, strToInt);
 				break;
 
 			case str2int(_INPUT_KEY_MIGRATION_MODEL_):
-				migrationModel = extractInt(line);
+				extractValue<int>(migrationModel, line, strToInt);
 				break;
 
 			case str2int(_INPUT_KEY_MIGRATION_MODE_):
-				migrationMode = extractInt(line);
+				extractValue<int>(migrationMode, line, strToInt);
 				break;
 
             case str2int(_INPUT_KEY_MIGRATION_RATES_):
-                migrations = extractVec(line);
+                extractValues<int>(migrationRates, line, strToInt);
                 break;
 
-
             case str2int(_INPUT_KEY_MUTATION_RATES_):
-				mutations = extractVec(line);
+				extractValues<double>(mutations, line, strToDouble);
                 break;
                 
             case str2int(_INPUT_KEY_MUTATION_KIMURA_):
-				kimuraDelta = extractDouble(line);
+				extractValue<double>(kimuraDelta, line, strToDouble);
 				break;
 				
 			case str2int(_INPUT_KEY_MUTATION_FELSENSTEIN_):
-				felsensteinConstants = extractVec(line);
+				extractValues<double>(felsensteinConstants, line, strToDouble);
 				break;
 
 			case str2int(_INPUT_KEY_SELECTION_RATES_):
-				selections = extractVec(line);
+				extractValues<double>(selections, line, strToDouble);
 				break;
 
             default:
@@ -173,7 +172,10 @@ void Data::collectUserFile(ifstream& file) {
 				mutationModel = _MUTATION_MODEL_FELSENSTEIN_;
 			}
 		} 
-	}
+	} 
+	
+	// additional checks needed!
+	// check for data completeness - right params, enough params
 }
 
 
@@ -192,7 +194,15 @@ void Data::collectFastaFile(ifstream& file) {
 		string seq;
 
 		for (auto& marker : markerSites) {
-			seq += line[marker - 1];
+			char c = line[marker - 1];
+			
+			if (std::string(Allele::nuclToChar).find(c) != string::npos) {
+				seq += line[marker - 1];
+			}
+			else {
+				// if we have an unknown nucleotide, generate a valid one randomly
+				seq += Allele::nuclToChar[RandomDist::uniformIntSingle(0, 3)];
+			}
 		}
 
 		sequences.push_back(seq);
@@ -211,10 +221,6 @@ int Data::getGenerations() const {
 
 int Data::getReplicates() const {
 	return replicates;
-}
-
-const std::vector<double>& Data::getMarkerSites() const {
-	return markerSites;
 }
 
 void Data::countAlleles() {
@@ -237,78 +243,8 @@ const vector<double>& Data::getMutations() const {
 	return mutations;
 }
 
-const std::vector<double>& Data ::  getMigrations() const{
-
-    return migrations;
-}
-
-
 const std::vector<double>& Data::getSelections() const {
 	return selections;
-}
-
-int Data::extractInt(string line) const {
-	string key, strValue;
-	
-	int value = 0;
-    
-    stringstream ss(line);
-    getline(ss, key, _INPUT_DECLARATION_);
-	getline(ss, strValue);
-	
-	try {
-		value = stoi(strValue);
-	} catch (std::invalid_argument& e) {	
-		cerr << e.what() << endl;
-	}
-
-	return value;
-}
-
-double Data::extractDouble(string line) const {
-	string key, strValue;
-	
-	double value = 0;
-    
-    stringstream ss(line);
-    getline(ss, key, _INPUT_DECLARATION_);
-	getline(ss, strValue);
-	
-	try {
-		value = stod(strValue);
-	} catch (std::invalid_argument& e) {	
-		cerr << e.what() << endl;
-	}
-
-	return value;
-}
-
-std::vector<double> Data::extractVec(string line) const {
-    string key, strValue;
-    
-    vector<double> values;
-
-	stringstream ss(line);
-	getline(ss, key, _INPUT_DECLARATION_);
-
-	while (getline(ss, strValue, _INPUT_SEPARATOR_)) {
-		try {
-
-			//add elements found between each separators
-			values.push_back(stod(strValue));
-
-		} catch (std::invalid_argument& e) {
-			cerr << e.what() << endl;
-		}
-	}
-
-    return values;
-}
-
-void Data::setMutations(std::vector<double>& list) {
-    for (auto mig : list) {
-        mutations.push_back(mig);
-    }
 }
 
 const std::vector<unsigned int>& Data::getAllelesCount() const {
@@ -353,8 +289,10 @@ int Data:: getMigrationModel() const{
 	return migrationModel;
 }
 
-
-
 int Data:: getMigrationMode() const{
 	return migrationMode;
+}
+
+const std::vector<int>& Data::getMigrations() const {
+    return migrationRates;
 }

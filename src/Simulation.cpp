@@ -179,62 +179,63 @@ const std::vector<unsigned int>& Simulation::getAllelesCount() const {
 }
 
 std::string Simulation::getAlleleFqsForOutput() const {
+	std::stringstream ss;
+	
 	if (executionMode != _PARAM_MIGRATION_) {
-		std::stringstream ss;
 		
 		for (auto allele = allelesCount.begin(); allele != allelesCount.end(); ++allele) {
 			if (allele != allelesCount.begin()) ss << _OUTPUT_SEPARATOR_;
 			ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
 		}
 		
-		return ss.str();
 	} else {
-		std::stringstream ss;
 		
-		int nAlleles = subPopulations.front().size();
-		for (int i = 0; i < nAlleles; ++i) {
-			int sum = 0;
-			for (int j = 0; j < (int) subPopulations.size(); ++j) {
-				sum += subPopulations[j][i];
+		if (_MIGRATION_DETAILED_OUTPUT_) {
+			for (auto subPop = subPopulations.begin(); subPop != subPopulations.end(); ++subPop) {
+				for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
+					if (allele != subPop->begin()) ss << _OUTPUT_SEPARATOR_;
+					ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
+				}
+				
+				ss << _MIGRATION_OUTPUT_SEPARATOR_;
 			}
-			
-			if (i != 0) ss << _OUTPUT_SEPARATOR_;
-			ss << std::setprecision(precision) << std::fixed << sum * 1.0 / populationSize;
+		} else {
+			int nAlleles = subPopulations.front().size();
+			for (int i = 0; i < nAlleles; ++i) {
+				int sum = 0;
+				for (int j = 0; j < (int) subPopulations.size(); ++j) {
+					sum += subPopulations[j][i];
+				}
+				
+				if (i != 0) ss << _OUTPUT_SEPARATOR_;
+				ss << std::setprecision(precision) << std::fixed << sum * 1.0 / populationSize;
+			}
 		}
-		
-		return ss.str();
-	}
-}
-
-std::string Simulation::getAlleleStrings() const {
-	std::stringstream ss;
-	
-	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
-		if (allele != alleles.begin()) ss << _OUTPUT_SEPARATOR_;
-		ss << (*allele) << std::string(additionalSpaces, ' ');
 	}
 	
 	return ss.str();
 }
 
+std::string Simulation::getAlleleStrings() const {
+	std::stringstream ss;
 
-
-std::string Simulation::getMigAlleleFqsForOutput() {
-	if (executionMode == _PARAM_MIGRATION_) {
-		std::stringstream ss;
-		
-		for (auto subPop = subPopulations.begin(); subPop != subPopulations.end(); ++subPop) {
-			for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
-				if (allele != subPop->begin()) ss << _OUTPUT_SEPARATOR_;
-				ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
-			}
-            ss<<"  ";
-		}
-		
-		return ss.str();
+	for (auto allele = alleles.begin(); allele != alleles.end(); ++allele) {
+		if (allele != alleles.begin()) ss << _OUTPUT_SEPARATOR_;
+		ss << (*allele) << std::string(additionalSpaces, ' ');
 	}
-
-	return "-";
+	
+	// add string identifiers for each subpopulation
+	if (executionMode == _PARAM_MIGRATION_ && _MIGRATION_DETAILED_OUTPUT_) {
+		std::string onePop = ss.str();
+		
+		assert(subPopulations.size() > 0);
+		
+		for (std::size_t i = 0; i < subPopulations.size() - 1; ++i) {
+			ss << _MIGRATION_OUTPUT_SEPARATOR_ << onePop;
+		}
+	}
+	
+	return ss.str();
 }
 
 std::size_t Simulation::getPrecision() const {

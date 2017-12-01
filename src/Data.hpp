@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <functional> 
+#include <iostream>
+#include <sstream>
+#include "Globals.hpp"
 
 
 /** \brief Class regrouping the data necessary to run a simulation
@@ -87,12 +91,6 @@ public:
 	 * */
 	int getReplicates() const;
 
-	/** \brief Getter of the marker sites
-	 *
-	 * 	\return markerSites, a vector of doubles
-	 * */
-	const std::vector<double>& getMarkerSites() const;
-
 	/** \brief Collects information related to the alleles
 	 *
 	 * Calculates the number of alleles and their frequencies
@@ -106,45 +104,9 @@ public:
 	 * */
 	const std::vector<double>& getMutations() const;
 
-
-
-    /** \brief Getter of the sites migration rates for each allele
-     *
-     * user supposed to know number of different allele
-     *
-     * each rate correspond to the amount of outgoing people
-     *
-     * 	\return migrations, a vector of double
-     * */
-    const std::vector<double>& getMigrations() const;
-
 	/** \brief Get selection rates
 	 * */
 	const std::vector<double>& getSelections() const;
-
-	int extractInt(std::string) const;
-	
-	/** \brief Utility function to read data from the user input file
-	 *
-	 * 	\param the string to read from
-	 * 
-	 * 	\return the data read, a double
-	 * */
-	double extractDouble(std::string) const;
-	
-	/** \brief Utility function to read data from the user input file
-	 *
-	 * 	\param the string to read from
-	 * 
-	 * 	\return the data read, a vector of double
-	 * */
-    std::vector<double> extractVec(std::string) const;
-	
-	/** \brief Setter of the vector of mutations
-	 * 
-	 * 	\param a vector of double, the new value of mutations
-	 * */
-    void setMutations(std::vector<double>&);
 	
 	/** \brief Getter of the vector of the allele counts
 	 * 
@@ -181,17 +143,7 @@ public:
 	 * 
 	 * */
 	int getMutationModel() const;
-
-    /** \brief Get the migration model to use for a Simulation (comppleteGraph, Star, ...)
-	 *
-	 * */
-    int getMigrationModel() const;
-
-	/** \brief Get the migration mode to use for a Simulation (random, user input , ...)
-	 *
-	 * */
-	int getMigrationMode() const;
-
+	
 	/** \brief Get the value necessary to create a Kimura mutation model
 	 * 
 	 * \return The value of delta for a Kimura mutation model
@@ -204,6 +156,78 @@ public:
 	 * */
 	const std::vector<double>& getFelsensteinConstants() const;
 	
+
+    /** \brief Get the migration model to use for a Simulation (comppleteGraph, Star, ...)
+	 *
+	 * */
+    int getMigrationModel() const;
+
+	/** \brief Get the migration mode to use for a Simulation (random, user input , ...)
+	 *
+	 * */
+	int getMigrationMode() const;
+	
+	/** \brief Getter of the sites migration rates for each allele
+     *
+     * user supposed to know number of different allele
+     *
+     * each rate correspond to the amount of outgoing people
+     *
+     * 	\return migrations, a vector of double
+     * */
+    const std::vector<int>& getMigrations() const;
+    
+    
+    /** \brief Extracts a value from a line
+	 * 
+	 * \param into			the variable to store the extracted value into
+	 * \param line			the line to read from, a string
+	 * \param extractFn		the function to call to cast the value contained in the string to the corresponding arithmetic type
+	 * */
+    template<typename T>
+	void extractValue(T& into, std::string line, std::function< T (const std::string&) > extractFn) {
+		std::string key, strValue;
+
+		std::stringstream ss(line);
+		std::getline(ss, key, _INPUT_DECLARATION_); // separate key from value
+		std::getline(ss, strValue); // store value in strValue
+		
+		try {
+			// cast value
+			into = extractFn(strValue);
+			
+		} catch (std::invalid_argument& e) {	
+			std::cerr << e.what() << std::endl;
+			throw e.what();
+		}
+	}
+	
+	/** \brief Extracts a vector of values from a line
+	 * 
+	 * \param into			the variable to store the extracted values into
+	 * \param line			the line to read from, a string
+	 * \param extractFn		the function to call to cast the value contained in the string to the corresponding arithmetic type
+	 * */
+	template<typename T>
+	void extractValues(std::vector<T>& into, std::string line, std::function< T (const std::string&) > extractFn) {
+		std::string key, strValue;
+
+		std::stringstream ss(line);
+		std::getline(ss, key, _INPUT_DECLARATION_); // separate key from value
+
+		while (std::getline(ss, strValue, _INPUT_SEPARATOR_)) {
+			try {
+				//add elements found between each separators
+				T extractedValue = extractFn(strValue);
+				into.push_back(extractedValue);
+
+			} catch (std::invalid_argument& e) {
+				std::cerr << e.what() << std::endl;
+				throw e.what();
+			}
+		}
+	}
+
 	
 private:
 
@@ -226,43 +250,41 @@ private:
 	std::vector<unsigned int> allelesCount;
 
 	//!< Vector of double containing the user marker sites
-	std::vector<double> markerSites;
+	std::vector<int> markerSites;
 
 	//!< List of strings containing the allele sequences of all the individuals of the simulation
 	std::list<std::string> sequences;
 
+
+	//!< Execution mode (param to use)
+	int executionMode;
+	
+
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutations;
-
-    //!< Vector of double containing the migration rates of each allele
-    std::vector<double> migrations ;
-
-
-    //!< Execution mode (param to use)
-	int executionMode;
-
 	
 	//!< Mutation model (simple, kimura, felsenstein)
 	int mutationModel;
-
-	//!< Migration  mode (user input , random )
-	int migrationMode;
-
-
-    //!< Migration  model (simple, kimura, felsenstein)
-    int migrationModel;
-
-
-    //!< Kimura model
+	
+	//!< Kimura model
 	double kimuraDelta;
 	
 	//!< Felsenstein model
 	std::vector<double> felsensteinConstants;
 
 
+	//!< Migration  mode (user input , random )
+	int migrationMode;
+
+    //!< Migration  model (simple, kimura, felsenstein)
+    int migrationModel;
+    
+    //!< Migration rates
+    std::vector<int> migrationRates;
+
+
 	//!< Vector of double containing the selection probabilities of the alleles
 	std::vector<double> selections;
-
 };
 
 #endif
