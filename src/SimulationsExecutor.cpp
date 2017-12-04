@@ -336,7 +336,7 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
     size_t minMoving(_DEFAULT_EXCESS_);
 	// take the value of the smallest subgroup
 	for (auto& elt : allelesCount) {
-		minMoving = std::min(std::max((int) elt, 0), (int) minMoving);
+		minMoving = (size_t ) std::min(std::max((int) elt, 0), (int) minMoving);
 	}
 	
 	size_t starCenter = std::rand() % allelesCount.size();
@@ -348,10 +348,10 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 		size_t rate = 0;
 		
 		if (executionMigMode == _INPUT_USER_) {
-			rate = migration[i];
+			rate =(size_t) migration[i];
 		} else if (executionMigMode == _RANDOM_) {
             // randomly chosen rate
-            rate = RandomDist::uniformIntSingle(1, minMoving - 1);
+            rate =(size_t) RandomDist::uniformIntSingle(1, minMoving - 1);
         }
 
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
@@ -359,8 +359,8 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 				case _COMPLETE_GRAPH_ :
 					{
 						//exchanges between all and every subpopulation
-						migrationRates[i][j] = rate;
-						migrationRates[j][i] = rate;
+						migrationRates[i][j] =(unsigned int) rate;
+						migrationRates[j][i] = (unsigned int) rate;
 					}
 					break;
 					
@@ -368,8 +368,8 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 					{
 						// only the subpopulation in the center exchanges with all the others
 						if (starCenter == i) {
-							migrationRates[i][j] = rate;
-							migrationRates[j][i] = rate;
+							migrationRates[i][j] =(unsigned int) rate;
+							migrationRates[j][i] = (unsigned int)rate;
 						}
 					}
 					break;
@@ -378,10 +378,14 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 					{
 						// exchanges between "neighbor subpopulations "
 						if (j == i + 1 || (j == migrationRates[i].size() - 1 && i == 0)) {							
-							migrationRates[i][j] = rate;
-							migrationRates[j][i] = rate;
+							migrationRates[i][j] =(unsigned int) rate;
+							migrationRates[j][i] = (unsigned int) rate;
 						}
 					}
+				break;
+
+				default :
+					break;
 			}		
 		}
 	}
