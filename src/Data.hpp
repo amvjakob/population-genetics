@@ -1,12 +1,12 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <string>
 #include <vector>
 #include <list>
-#include <functional> 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <functional> 
 #include "Globals.hpp"
 
 
@@ -113,6 +113,8 @@ public:
 	 * 	\return a vector of int, the allele counts
 	 * */
 	const std::vector<unsigned int>& getAllelesCount() const;
+	
+	const std::vector<int>& getMarkerSites() const;
 	
 	/** \brief Getter of the list of allele sequences
 	 * 

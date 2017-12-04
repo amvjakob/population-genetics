@@ -9,7 +9,7 @@ REP = 5
 # Marker Sites
 SITES = 1|3|5
 
-#Bottleneck
+# Bottleneck
 REDUCTION = 2.0
 START = 20
 END = 40

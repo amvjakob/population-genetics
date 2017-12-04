@@ -1,6 +1,21 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <map>
+namespace Nucl {
+	typedef enum Nucleotide { A, C, G, T, N } Nucleotide;
+	
+	const std::map<char, Nucleotide> fromChar = { 
+		{'a', A}, {'A', A},
+		{'c', C}, {'C', C},
+		{'g', G}, {'G', G},
+		{'t', T}, {'T', T},
+		{'n', N}, {'N', N}, {'x', N}, {'*', N}
+	};
+	
+	const char toChar[6] = "ACTGN";
+}
+
 #define _INPUT_COMMENT_ '#'
 #define _INPUT_DECLARATION_ '='
 

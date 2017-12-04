@@ -61,7 +61,7 @@ Simulation::Simulation(std::vector<unsigned int> counts)
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const std::vector<double>& mutationRates, 
-						const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs)
+						const std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N >& nuclMutationProbs)
   : executionMode(_PARAM_MUTATIONS_),
 	populationSize(0), 
 	alleles(als), allelesCount(alsCount), 
@@ -287,25 +287,25 @@ void Simulation::mutatePopulation() {
 										
 				// generate the target mutation
 				double mut = RandomDist::uniformDoubleSingle(0.0, 1.0);
-				Nucleotide target = N;
+				Nucl::Nucleotide target = Nucl::Nucleotide::N;
 				
 				double pCount = 0.0;
-				for (int i = 0; i < (int) Nucleotide::N; ++i) {
-					pCount += mutationTable[(int) Allele::charToNucl.at(alleles[alleleIdx][markerIdx])][i];
+				for (int i = 0; i < Nucl::Nucleotide::N; ++i) {
+					pCount += mutationTable[Nucl::fromChar.at(alleles[alleleIdx][markerIdx])][i];
 					if (mut <= pCount) {
-						target = (Nucleotide) i;
+						target = (Nucl::Nucleotide) i;
 						break;
 					}							
 				}
 				
-				if (target == Nucleotide::N) {
+				if (target == Nucl::Nucleotide::N) {
 					std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
 					throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
 				}
 				
 				// create new mutated allele
 				std::string newAllele = std::string(alleles[alleleIdx]);
-				newAllele[markerIdx] = Allele::nuclToChar[(int) target];
+				newAllele[markerIdx] = Nucl::toChar[target];
 				
 				// remove original allele
 				allelesCount[alleleIdx]--;

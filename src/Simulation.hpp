@@ -2,10 +2,7 @@
 #define SIMULATION_H
 
 #include <vector>
-#include <map>
 #include <array>
-#include <unordered_map>
-#include "Allele.hpp"
 #include "Globals.hpp"
 
 /** \brief Class representing a Simulation
@@ -45,7 +42,7 @@ public:
 	Simulation(const std::vector<std::string>& alleles,
 				const std::vector<unsigned int>& allelesCount,
 				const std::vector<double>& mutationFqs,
-				const std::array< std::array<double, Nucleotide::N>, Nucleotide::N >& nuclMutationProbs);
+				const std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N >& nuclMutationProbs);
 	
 	/** \brief Simulation constructor
 	 *
@@ -80,7 +77,6 @@ public:
 	 * */
 	Simulation(const std::vector<std::string>& alleles,
 				const std::vector<unsigned int>& allelesCount);
-				
 				
 
 	/** \brief Get the alleles in the population
@@ -191,7 +187,7 @@ private:
 	std::vector<double> mutationFqs;
 	
 	//!< Mutation rates for every nucleotide to every nucleotide
-	std::array< std::array<double, N>, N > mutationTable;
+	std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N > mutationTable;
 	
 	
 	//!< List of selections frequencies of each alleles

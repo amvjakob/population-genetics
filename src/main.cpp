@@ -1,8 +1,5 @@
 #include "SimulationsExecutor.hpp"
 #include "Data.hpp"
-#include "Random.hpp"
-#include <vector>
-#include <iostream>
 
 int main() {
 	/*
