@@ -1,6 +1,6 @@
-#include "Random.hpp"
 #include <algorithm>
 #include <cassert>
+#include "Random.hpp"
 
 std::random_device RandomDist::rd;
 std::mt19937 RandomDist::rng = std::mt19937(RandomDist::rd());
@@ -77,7 +77,6 @@ void RandomDist::uniformDoubleVector(std::vector<double>& toFill, double min, do
 }
 
 void RandomDist::uniform(std::vector< double > &res) {
-    
     double delta = sd * sqrt(3.0);
     double lower = mean - delta, upper = mean + delta;
     std::uniform_real_distribution<> unif(lower, upper);
@@ -88,7 +87,6 @@ void RandomDist::uniform(std::vector< double > &res) {
 }
 
 void RandomDist::normal(std::vector< double > &res) {
-   
     std::normal_distribution<> norm(mean, sd);
    
     for (auto I = res.begin(); I != res.end(); I++) {
@@ -117,6 +115,7 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 			// the only way for the parent population to be 0 is if the 
 			// current allele is not present anymore (wiped out)
 			assert(count == 0);
+			assert(n == 0);
 			
 			// if the parent population is empty, there are no more 
 			// alleles to be distributed, thus we can exit the loop
@@ -140,43 +139,10 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 	assert(total == 0);
 }
 
-std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsigned int>& pop, int n) {
-	int total = 0;
-	for (auto& count : pop)
-		total += count;
-		
-	std::vector<unsigned int> res;
+std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsigned int>& pop, int n) {	
+	std::vector<unsigned int> res = pop;
 	
-	for (const auto& count : pop) {
-		
-		// remaining parent population size should be 0 or more	
-		assert(total >= 0);
-		if (total == 0) {
-			// the only way for the parent population to be 0 is if the 
-			// current allele is not present anymore (wiped out)
-			assert(count == 0);
-			assert(n == 0);
-			
-			res.push_back(0);
-			continue;
-		} 
-		
-		// generate new allele copy number
-		double p = count * 1.0 / total;
-		
-		// reduce residual "gene pool"
-		total -= count;
-		
-		// generate new number of allele copies in population
-		int newCount = RandomDist::binomial(n, p);
-		res.push_back(newCount);
-		
-		// reduce residual offspring population size to fill
-		n -= newCount;
-	}
-	
-	assert(n == 0);
-	assert(total == 0);
+	RandomDist::multinomial(res, n);
 	
 	return res;
 }

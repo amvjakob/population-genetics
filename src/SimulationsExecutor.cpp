@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include "SimulationsExecutor.hpp"
+#include "Random.hpp"
 
 
 SimulationsExecutor::SimulationsExecutor(int n, int populationSize, 
@@ -264,10 +264,10 @@ void SimulationsExecutor::generateMutationRates(const Data& data) {
 					assert(c != 1.0);
 				}
 				
-				double pA = consts[Nucleotide::A] / (1.0 - consts[Nucleotide::A]);
-				double pC = consts[Nucleotide::C] / (1.0 - consts[Nucleotide::C]);
-				double pG = consts[Nucleotide::G] / (1.0 - consts[Nucleotide::G]);
-				double pT = consts[Nucleotide::T] / (1.0 - consts[Nucleotide::T]);
+				double pA = consts[Nucl::Nucleotide::A] / (1.0 - consts[Nucl::Nucleotide::A]);
+				double pC = consts[Nucl::Nucleotide::C] / (1.0 - consts[Nucl::Nucleotide::C]);
+				double pG = consts[Nucl::Nucleotide::G] / (1.0 - consts[Nucl::Nucleotide::G]);
+				double pT = consts[Nucl::Nucleotide::T] / (1.0 - consts[Nucl::Nucleotide::T]);
 				
 				nuclMutationProbs = { {
 					{ { 0.0, pC, pG, pT } },

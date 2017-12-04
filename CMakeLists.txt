@@ -10,7 +10,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 option(test "Build tests." ON)
 
-set(SOURCE_FILES src/Allele.cpp src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
+set(SOURCE_FILES src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
 
 include_directories(${CMAKE_SOURCE_DIR}/extra/include)
 

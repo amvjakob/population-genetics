@@ -1,12 +1,12 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <string>
 #include <vector>
 #include <list>
-#include <functional> 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <functional> 
 #include "Globals.hpp"
 
 

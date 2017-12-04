@@ -1,12 +1,10 @@
-#include <string>
-#include <sstream>
-#include <fstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <cassert>
 #include <algorithm>
 #include "Data.hpp"
-#include "Allele.hpp"
-#include "Globals.hpp"
+#include "Random.hpp"
 
 using namespace std;
 
@@ -166,7 +164,7 @@ void Data::collectUserFile(ifstream& file) {
 		
 		if (kimuraDelta >= 1.0/3.0 && kimuraDelta <= 1.0) {
 			mutationModel = _MUTATION_MODEL_KIMURA_;
-		} else if (!felsensteinConstants.empty() && felsensteinConstants.size() == (int) Nucleotide::N) {
+		} else if (!felsensteinConstants.empty() && felsensteinConstants.size() == (int) Nucl::Nucleotide::N) {
 			// check for correct constants
 			double sum = 0.0;
 			for (auto& c : felsensteinConstants) {				
@@ -179,7 +177,7 @@ void Data::collectUserFile(ifstream& file) {
 			
 			// adjust terms
 			if (sum < 1.0) {
-				for (auto& c : felsensteinConstants) c += (1.0 - sum) / (Nucleotide::N);
+				for (auto& c : felsensteinConstants) c += (1.0 - sum) / (Nucl::Nucleotide::N);
 			}
 			
 			// set mutation model
@@ -211,12 +209,12 @@ void Data::collectFastaFile(ifstream& file) {
 		for (auto& marker : markerSites) {
 			char c = line[marker - 1];
 			
-			if (std::string(Allele::nuclToChar).find(c) != string::npos) {
+			if (std::string(Nucl::toChar).find(c) != string::npos) {
 				seq += line[marker - 1];
 			}
 			else {
 				// if we have an unknown nucleotide, generate a valid one randomly
-				seq += Allele::nuclToChar[RandomDist::uniformIntSingle(0, 3)];
+				seq += Nucl::toChar[RandomDist::uniformIntSingle(0, 3)];
 			}
 		}
 

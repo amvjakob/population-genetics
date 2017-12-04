@@ -2,17 +2,14 @@
 #define SIMULATIONS_EXECUTOR_H
 
 #include <iostream>
-#include <algorithm>
 #include <fstream>
 #include <vector>
 #include <deque>
-#include <map>
-#include <unordered_map>
 #include <mutex>
 #include <thread>
 #include "Simulation.hpp"
 #include "Data.hpp"
-#include "Allele.hpp"
+#include "Globals.hpp"
 
 /** \brief Class representing a SimulationsExecutor
  * 
@@ -43,7 +40,6 @@ public:
 	 * \param data					Data file
 	 * */
 	SimulationsExecutor(const Data& data);
-	
 	
 	//!< Because of the threads, we do not allow any copies
 	SimulationsExecutor(const SimulationsExecutor& other) = delete;
@@ -140,7 +136,7 @@ private:
 	std::vector<double> mutations;
 
 	//!< Table of mutation probabilities
-	std::array< std::array<double, Nucleotide::N >, Nucleotide::N > nuclMutationProbs;
+	std::array< std::array<double, Nucl::Nucleotide::N >, Nucl::Nucleotide::N > nuclMutationProbs;
 	
 	
 	//!< List of selections frequencies of each alleles
