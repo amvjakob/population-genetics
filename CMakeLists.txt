@@ -21,23 +21,18 @@ add_executable(Genetics src/main.cpp ${SOURCE_FILES})
 if (test)
 	enable_testing()
 	
-	#find_package(GTest)
-	#if (NOT GTEST_FOUND)
-	#	SET(GTEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extra/include/googletest/include)
-	#	SET(GTEST_BOTH_LIBRARIES gtest gtest_main)
-	#endif(NOT GTEST_FOUND)
+	find_package(GTest)
+	if (NOT GTEST_FOUND)
+		link_directories(${CMAKE_SOURCE_DIR}/extra/lib)
+		SET(GTEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extra/include/googletest/include)
+		SET(GTEST_BOTH_LIBRARIES gtest gtest_main)
+	endif(NOT GTEST_FOUND)
 	
-	add_subdirectory(${CMAKE_SOURCE_DIR}/extra/include/googletest)
-	
-	include_directories(${CMAKE_SOURCE_DIR}/extra/include/googletest/include ${CMAKE_SOURCE_DIR}/extra/include/googletest ${CMAKE_SOURCE_DIR}/extra/include/tclap)
-	
+	include_directories(${GTEST_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src)
 	add_executable(testMyProg test/main.cpp ${SOURCE_FILES})
-	target_link_libraries(testMyProg gtest gtest_main pthread)
+	target_link_libraries(testMyProg ${GTEST_BOTH_LIBRARIES} pthread)
 	add_test(popgen testMyProg)
-	
 
-
-	
 endif(test)
 
 
