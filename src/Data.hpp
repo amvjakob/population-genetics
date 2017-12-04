@@ -114,6 +114,8 @@ public:
 	 * */
 	const std::vector<unsigned int>& getAllelesCount() const;
 	
+	const std::vector<int>& getMarkerSites() const;
+	
 	/** \brief Getter of the list of allele sequences
 	 * 
 	 * 	\return a list of strings, the allele sequences

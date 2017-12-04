@@ -44,7 +44,7 @@ TEST(DataReading, MarkerSites) {
 
 	data.collectAll();
 
-	//EXPECT_EQ(data.getMarkerSites(), knownMS);
+	EXPECT_EQ(data.getMarkerSites(), knownMS);
 }
 
 

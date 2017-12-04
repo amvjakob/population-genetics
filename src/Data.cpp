@@ -300,11 +300,11 @@ const std::vector<double>& Data::getFelsensteinConstants() const {
 	return felsensteinConstants;
 }
 
-int Data:: getMigrationModel() const{
+int Data::getMigrationModel() const {
 	return migrationModel;
 }
 
-int Data:: getMigrationMode() const{
+int Data::getMigrationMode() const {
 	return migrationMode;
 }
 
@@ -312,14 +312,18 @@ const std::vector<int>& Data::getMigrations() const {
     return migrationRates;
 }
 
-double Data::getPopReduction() const{
+double Data::getPopReduction() const {
 	return popReduction;
 }
 
-int Data::getBottleneckStart() const{
+int Data::getBottleneckStart() const {
 	return bottleneckStart;
 }
 
-int Data::getBottleneckEnd() const{
+int Data::getBottleneckEnd() const {
 	return bottleneckEnd;
+}
+
+const std::vector<int>& Data::getMarkerSites() const {
+	return markerSites;
 }
