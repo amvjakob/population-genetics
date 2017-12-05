@@ -247,7 +247,9 @@ public:
 	 * 	\return bottleneckEnd, an int
 	 * */
 	 int getBottleneckEnd() const;
-	 
+
+	 void setDataMigTest(int , int, int  );
+
 	
 private:
 

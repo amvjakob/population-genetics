@@ -325,3 +325,13 @@ int Data::getBottleneckEnd() const {
 const std::vector<int>& Data::getMarkerSites() const {
 	return markerSites;
 }
+
+void Data:: setDataMigTest(int Migexec, int migModel , int migMode ){
+
+	executionMode=Migexec;
+
+	migrationModel=migModel;
+
+	migrationMode= migMode;
+
+}

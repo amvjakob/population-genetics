@@ -108,6 +108,7 @@ Simulation SimulationsExecutor::createSimulation() const {
 			return Simulation(alleles, allelesCount, selectionFqs);
 			
 		case _PARAM_MIGRATION_:
+        std::cout<<"a"<<std::endl;
 			return Simulation(alleles, subPopulations, migrationRates);
 			
 		case _PARAM_BOTTLENECK_:
@@ -134,9 +135,10 @@ void SimulationsExecutor::runSimulation(int id) {
 	while (t < T) {
 		// update simulation
 		simul.update(t);
-		
+
 		// increment clock
 		++t;
+
 		
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
@@ -338,8 +340,9 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 	for (auto& elt : allelesCount) {
 		minMoving = (size_t ) std::min(std::max((int) elt, 0), (int) minMoving);
 	}
-	
-	size_t starCenter = std::rand() % allelesCount.size();
+
+
+    starCenter = std::rand() % allelesCount.size();
 	assert(starCenter <= allelesCount.size());
 	assert(starCenter >= 0);
 	
@@ -351,7 +354,12 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 			rate =(size_t) migration[i];
 		} else if (executionMigMode == _RANDOM_) {
             // randomly chosen rate
-            rate =(size_t) RandomDist::uniformIntSingle(1, minMoving - 1);
+            if (minMoving>1) {
+                rate = (size_t) RandomDist::uniformIntSingle(1, minMoving - 1);
+            }else {
+                rate = minMoving ;
+            }
+
         }
 
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
@@ -391,11 +399,22 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 	}
 	
 	// cout the mutation rates
-	std::cout << "Mutation rate table" << std::endl;
+	std::cout << "Migration rate table" << std::endl;
 	for (auto& mig : migrationRates) {
 		for (auto& m : mig) {
 			std::cout << m << '\t';
 		}
 		std::cout << std::endl;
 	}
+}
+
+
+const int SimulationsExecutor:: getMigrationModel() const {
+
+	return migrationModel;
+}
+
+size_t SimulationsExecutor:: getStarCenter () {
+
+	return starCenter;
 }

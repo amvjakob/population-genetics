@@ -134,13 +134,13 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	assert(migrationRates.size() == subPopulations.size());
 	assert(migrationRates.front().size() == subPopulations.size());
 	
-	for (size_t i = 0; i < subPopulations.size(); ++i) {
+	/*for (size_t i = 0; i < subPopulations.size(); ++i) {
 		int outgoing = 0;
 		for (auto& out : migrationRates[i])
 			outgoing += out;
 			
 		assert(outgoing <= (int) subPopulationSizes[i]);
-	}
+	}*/
 	
 	calcOutputConstants();
 }
@@ -191,6 +191,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 	} else {
 		
 		if (_MIGRATION_DETAILED_OUTPUT_) {
+
 			for (auto subPop = subPopulations.begin(); subPop != subPopulations.end(); ++subPop) {
 				for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
 					if (allele != subPop->begin()) ss << _OUTPUT_SEPARATOR_;
@@ -200,6 +201,8 @@ std::string Simulation::getAlleleFqsForOutput() const {
 				ss << _MIGRATION_OUTPUT_SEPARATOR_;
 			}
 		} else {
+
+
 			int nAlleles = subPopulations.front().size();
 			for (int i = 0; i < nAlleles; ++i) {
 				int sum = 0;
@@ -426,3 +429,26 @@ void Simulation::updateWithMigration() {
 	}	
 }
 
+unsigned int Simulation:: subPopulationSize (std::vector<unsigned int> sub ) {
+
+	unsigned int size(0);
+
+	for (auto pop : sub) {
+
+		size+=pop;
+
+	}
+	return size ;
+}
+
+
+std::vector< std::vector<unsigned int> > Simulation:: getSubPop() {
+
+	return subPopulations;
+}
+
+
+std::vector<unsigned int> Simulation:: getAlleleCount(){
+
+	return allelesCount;
+}
