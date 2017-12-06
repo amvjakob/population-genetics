@@ -2,6 +2,7 @@
 #include <tclap/CmdLine.h>
 #include "../src/Random.hpp"
 #include "../src/Data.hpp"
+#include "../src/SimulationsExecutor.hpp"
 
 using namespace std;
 
@@ -114,6 +115,330 @@ TEST(RandomTest, NormalDistribution) {
 
 	EXPECT_NEAR(input_mean, mean_normal, 2 * input_sd / sqrt(1e4));
 }
+
+
+
+TEST (MigrationTest , FixSubPopulation){
+
+	Data data("../data/input.txt","../data/test.fa");
+
+	data.collectAll();
+
+	SimulationsExecutor simulationsExecutor(data);
+
+	Simulation simul = simulationsExecutor.createSimulation();
+
+	double stopTime (data.getGenerations());
+
+	double t(0);
+
+	while (t <stopTime ){
+
+		simul.update(t);
+
+		for(size_t i(0); i<simul.getAlleleCount().size();++i  ) {
+
+
+
+			//checking if at each step , the incomes are equal to outcomes for each subPop
+			EXPECT_EQ(simul.subPopulationSize(simul.getSubPop()[i]),simul.getAlleleCount()[i]);
+
+		}
+
+		++t;
+
+	}
+
+
+
+}
+
+TEST (MigrationTest ,MigrationEffect) {
+
+
+
+	Data data("../data/input.txt","../data/test.fa");
+
+	data.collectAll();
+
+
+	SimulationsExecutor simulationsExecutor(data);
+
+	Simulation simul = simulationsExecutor.createSimulation();
+
+
+
+	double stopTime (data.getGenerations());
+
+	double t(0);
+
+
+
+	//to initialize the comparison vector
+	std::vector< std::vector<unsigned int> > subPopTest = simul.getSubPop();
+
+
+	while (t <stopTime ){
+
+
+
+        simul.update((int)t);
+
+		++t;
+
+	}
+
+
+
+
+	for(size_t i(0); i<simul.getSubPop().size();++i  ) {
+
+
+		for(size_t j(0); j<simul.getSubPop()[i].size();++j) {
+			//making sure that each subpop is different to it initial state --> proof of migrations
+            if (i!=j) {
+                EXPECT_TRUE(subPopTest[i][j] <= simul.getSubPop()[i][j]);
+            }
+
+
+
+		}
+
+	}
+
+}
+
+TEST (MigrationTest , CompleteGrapshTest ) {
+
+
+    Data data("../data/input.txt", "../data/test.fa");
+
+    data.collectAll();
+
+    data.setDataMigTest(_PARAM_MIGRATION_,_COMPLETE_GRAPH_,_RANDOM_);
+
+
+    SimulationsExecutor simulationsExecutor(data);
+
+    Simulation simul = simulationsExecutor.createSimulation();
+
+
+    double stopTime(data.getGenerations());
+
+    double t(0);
+
+    //to initialize the comparison subPopulation  vector
+
+	std::vector<std::vector<unsigned int> > subPopTest = simul.getSubPop();
+
+    while (t < stopTime) {
+
+        simul.update(t);
+
+        ++t;
+
+    }
+
+
+
+    std::cout << "SubPOPTEST" << std::endl;
+    for (auto& mig : subPopTest) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+
+
+
+    std::cout << "SubPOP" << std::endl;
+    for (auto& mig : simul.getSubPop()) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+    for (size_t i(0); i < simul.getSubPop().size(); ++i) {
+
+
+        for (size_t j(0); j < simul.getSubPop()[i].size(); ++j) {
+
+
+            if (i!=j) {
+
+                //making sure that each subpop exchanges with all the others
+
+                EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
+
+                EXPECT_TRUE(subPopTest[i][j] <= simul.getSubPop()[i][j]);
+
+            }
+
+
+        }
+    }
+}
+
+
+TEST (MigrationTest , RingTest ) {
+
+
+    Data data("../data/input.txt", "../data/test.fa");
+
+    data.collectAll();
+
+    data.setDataMigTest(_PARAM_MIGRATION_,_RING_,_RANDOM_);
+
+    SimulationsExecutor simulationsExecutor(data);
+
+    Simulation simul = simulationsExecutor.createSimulation();
+
+
+    double stopTime(data.getGenerations());
+
+    double t(0);
+
+    //to initialize the comparison subPopulation  vector
+    std::vector<std::vector<unsigned int> > subPopTest = simul.getSubPop();
+
+    while (t < stopTime) {
+
+
+        simul.update(t);
+
+        ++t;
+
+    }
+
+
+    std::cout << "SubPOPTEST" << std::endl;
+    for (auto& mig : subPopTest) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+
+
+
+    std::cout << "SubPOP" << std::endl;
+    for (auto& mig : simul.getSubPop()) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+
+    for (size_t i(0); i < simul.getSubPop().size(); ++i) {
+
+
+        for (size_t j(0); j < simul.getSubPop()[i].size(); ++j) {
+
+            if (j == i + 1) {
+
+                //making sure that each subpop exchanges with all the others
+
+                EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
+
+                EXPECT_TRUE(subPopTest[i][j] <= simul.getSubPop()[i][j]);
+
+            }
+
+        }
+    }
+}
+
+
+
+
+
+TEST (MigrationTest , StarTest ) {
+
+
+    Data data("../data/input.txt", "../data/test.fa");
+
+    data.collectAll();
+
+    data.setDataMigTest(_PARAM_MIGRATION_,_STAR_,_RANDOM_);
+
+
+    SimulationsExecutor simulationsExecutor(data);
+
+    Simulation simul = simulationsExecutor.createSimulation();
+
+
+    double stopTime(data.getGenerations());
+
+    double t(0);
+
+    //to initialize the comparison subPopulation  vector
+    std::vector<std::vector<unsigned int> > subPopTest = simul.getSubPop();
+
+    while (t < stopTime) {
+
+        simul.update(t);
+
+        ++t;
+
+    }
+
+
+    std::cout << "SubPOPTEST" << std::endl;
+    for (auto& mig : subPopTest) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+
+
+
+    std::cout << "SubPOP" << std::endl;
+    for (auto& mig : simul.getSubPop()) {
+        for (auto& m : mig) {
+            std::cout << m << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+    for (size_t i(0); i < simul.getSubPop().size(); ++i) {
+
+
+        for (size_t j(0); j < simul.getSubPop()[i].size(); ++j) {
+
+            if (i != j) {
+
+						if (i == simulationsExecutor.getStarCenter()) {
+
+							//making sure that each subpop exchanges with all the others
+
+							EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
+
+							EXPECT_TRUE(subPopTest[i][j] <= simul.getSubPop()[i][j]);
+
+						} else {
+
+							EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
+
+							EXPECT_TRUE(subPopTest[i][simulationsExecutor.getStarCenter()] <=
+										simul.getSubPop()[i][simulationsExecutor.getStarCenter()]);
+						}
+
+
+            }
+
+        }
+
+    }
+
+
+}
+
 
 
 

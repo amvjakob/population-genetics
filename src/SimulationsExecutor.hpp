@@ -52,8 +52,23 @@ public:
 	 * Invoking this method will create the threads and execute them.
 	 * */
 	void execute();
-	
-	
+
+	/** \brief Generate the subpopulations for a Simulation with migration
+    * */
+	void generateSubPopulations(const Data& data);
+
+
+	/** \brief Generate a new Simulation based on the given parameters
+	 * */
+	Simulation createSimulation() const;
+
+
+	const int getMigrationModel() const ;
+
+	size_t getStarCenter ();
+
+
+
 protected: 
 
 	/** \brief Run a simulation
@@ -91,14 +106,7 @@ protected:
 	 * */
 	 void generateMutationRates(const Data& data);
 	 
-	/** \brief Generate the subpopulations for a Simulation with migration
-	* */
-	void generateSubPopulations(const Data& data);
-    
 
-	/** \brief Generate a new Simulation based on the given parameters
-	 * */
-	Simulation createSimulation() const;
 	
 
 private:
@@ -178,6 +186,9 @@ private:
 	int bufferLowestStep;
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
+
+	size_t starCenter ;
+
 };
 
 #endif
