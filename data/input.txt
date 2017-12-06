@@ -4,15 +4,10 @@
 GEN = 10
 
 # Number of replicas
-REP = 5
+REP = 10
 
 # Marker Sites
-SITES = 1|3|5
-
-# Bottleneck
-REDUCTION = 2.0
-START = 20
-END = 40
+SITES = 1|3
 
 # Execution mode: vars are
 # 0 - none
@@ -20,25 +15,30 @@ END = 40
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-MODE = 2
+MODE = 1
+
+# Bottleneck
+# REDUCTION = 2.0
+# START = 20
+# END = 40
 
 # Migration models: vars are
 # 0 - completeGraph
 # 1 - star
 # 2 - ring
-MIG_MODEL = 2
+# MIG_MODEL = 2
 
 # Migration mode: vars are
 # 0 - userInput
 # 1 - random
-MIG_MODE = 1
+# MIG_MODE = 1
 
 # Migration rates for each subpopulation:
 # MIG_RATES = 3|5
 
 # Mutation probabilities for each site
-# MUT = 1E-7|1E-7|1E-7
-# MUT_KIMURA = 0.5
+MUT = 1E-8|1E-8|1E-8
+MUT_KIMURA = 0.5
 # MUT_FELSENSTEIN = 0.25|0.25|0.2|0.3
 
 # Selection rates for each allele

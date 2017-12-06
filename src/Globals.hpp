@@ -29,7 +29,7 @@ namespace Nucl {
 #define _ERROR_MUTATION_TARGET_UNFINDABLE_ "Did not find mutation target"
 #define _ERROR_OUTPUT_BUFFER_ "Error: trying to add data of a step that has already been written to the result file."
 
-#define _MIN_OUTPUT_PRECISION_ 2
+#define _MIN_OUTPUT_PRECISION_ 3
 
 #define _INPUT_KEY_GENERATIONS_ "GEN"
 #define _INPUT_KEY_REPLICAS_ "REP"

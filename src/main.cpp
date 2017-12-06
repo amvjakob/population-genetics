@@ -12,7 +12,7 @@ int main() {
 	*/
 	
 	
-	Data data("../data/input.txt", "../data/test.fa");
+	Data data("../data/input.txt", "../data/mitogenes.fa");
 	data.collectAll();
 	
 	SimulationsExecutor simulationsExecutorFull(data);

@@ -211,7 +211,17 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 }
 
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
-	results << step << '\t';
+	results << step;
+	if (T > 998 && step < 1000) {
+		if (step < 10)
+			results << " ";
+		if (step < 100)
+			results << " ";
+		
+		results << " ";
+	}
+		
+	results << '\t';
 	
 	for (auto const& data : alleleFqs) {
 		results << data << '\t';

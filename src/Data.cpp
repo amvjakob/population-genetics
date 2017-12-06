@@ -209,7 +209,7 @@ void Data::collectFastaFile(ifstream& file) {
 		for (auto& marker : markerSites) {
 			char c = line[marker - 1];
 			
-			if (std::string(Nucl::toChar).find(c) != string::npos) {
+			if (std::string("ACTG").find(c) != string::npos) {
 				seq += line[marker - 1];
 			}
 			else {
