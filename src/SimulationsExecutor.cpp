@@ -112,7 +112,7 @@ Simulation SimulationsExecutor::createSimulation() const {
 			return Simulation(alleles, subPopulations, migrationRates);
 
 		case _PARAM_BOTTLENECK_:
-			return Simulation(alleles, allelesCount);
+			return Simulation(alleles, allelesCount, bottleneckStart, bottleneckEnd, popReduction);
 
 		case _PARAM_NONE_:
 		default:
