@@ -76,7 +76,10 @@ public:
 	 * \param allelesCount			Number of each allele in the population (common index with \p alleles)
 	 * */
 	Simulation(const std::vector<std::string>& alleles,
-				const std::vector<unsigned int>& allelesCount);
+				const std::vector<unsigned int>& allelesCount,
+				const int start,
+				const int stop,
+				const double reduction);
 				
 
 	/** \brief Get the alleles in the population
@@ -131,11 +134,8 @@ public:
 	 * Creates a time-dependent population size
 	 * 
 	 * \param the time of the simulation, an int
-	 * \param the time of the start of the bottleneck, an int
-	 * \param the time of the end of the bottleneck, an int
-	 * \param the reduction factor of the population size, a double
 	 * */
-	void bottleneck(int simulationTime, int startTime, int stopTime, double reductionFactor);
+	void bottleneck(int simulationTime);
 
     /** \brief Update the Simulation by one step
 	 *
@@ -214,6 +214,14 @@ private:
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
 	
+	//!< Bottleneck population reduction factor
+	double popReduction;
+	
+	//!< Bottleneck start time
+	int bottleneckStart;
+	
+	//!< Bottleneck stop time
+	int bottleneckEnd;
 	
 	//!< Precision for output
 	std::size_t precision;
