@@ -34,3 +34,5 @@ various graphs using jupyterNotebook and plotly library.
 Special Feature:
 The program is coded using a multithreading process. Each thread executes a single
 simulation, allowing for replicas to run simultaneously. This allows for faster simulation.
+
+Presentation of the project (PPTX): <https://prezi.com/p/jfcpou3kqbcd/>
