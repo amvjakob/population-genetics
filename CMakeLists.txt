@@ -10,7 +10,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 option(test "Build tests." ON)
 
-set(SOURCE_FILES src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp) 
+set(SOURCE_FILES src/Simulation.cpp src/SimulationsExecutor.cpp src/Random.cpp src/Data.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/extra/include)
 
@@ -20,14 +20,14 @@ add_executable(Genetics src/main.cpp ${SOURCE_FILES})
 # Testing
 if (test)
 	enable_testing()
-	
+
 	find_package(GTest)
 	if (NOT GTEST_FOUND)
 		link_directories(${CMAKE_SOURCE_DIR}/extra/lib)
 		SET(GTEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extra/include/googletest/include)
 		SET(GTEST_BOTH_LIBRARIES gtest gtest_main)
 	endif(NOT GTEST_FOUND)
-	
+
 	include_directories(${GTEST_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src)
 	add_executable(testMyProg test/main.cpp ${SOURCE_FILES})
 	target_link_libraries(testMyProg ${GTEST_BOTH_LIBRARIES} pthread)
@@ -36,7 +36,7 @@ if (test)
 endif(test)
 
 # Doxygen generation
- 
+
 # We first check if Doxygen is present.
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -47,7 +47,7 @@ if(DOXYGEN_FOUND)
           ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in not found.
           Generate one in the project folder with doxygen -g Doxyfile.in")
      ENDIF(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
- 
+
      # We configure the doxyfile for make.
      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
      add_custom_target(doc

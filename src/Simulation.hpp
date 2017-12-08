@@ -151,6 +151,17 @@ public:
 	 * */
 	void updateWithMigration();
 
+
+
+	unsigned int subPopulationSize (std::vector<unsigned int>);
+
+	std::vector< std::vector<unsigned int> > getSubPop() ;
+
+
+	std::vector<unsigned int> getAlleleCount();
+
+
+
 private:
 
 	/** \brief Calculate ouput constants

@@ -20,7 +20,7 @@ END = 40
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-MODE = 4
+MODE = 2
 
 # Migration models: vars are
 # 0 - completeGraph
@@ -43,4 +43,3 @@ MIG_MODE = 1
 
 # Selection rates for each allele
 # SEL = 0|0
-

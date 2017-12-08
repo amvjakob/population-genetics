@@ -66,6 +66,7 @@ namespace Nucl {
 
 #define _INPUT_USER_ 0
 #define _RANDOM_ 1
+
 #define _DEFAULT_EXCESS_ 1E6
 #define _MIGRATION_OUTPUT_SEPARATOR_ "  "
 
