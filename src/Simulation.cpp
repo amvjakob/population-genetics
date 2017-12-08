@@ -438,6 +438,10 @@ void Simulation::updateWithMigration() {
 	}	
 }
 
+int Simulation::getPopSize() const {
+	return populationSize;
+}
+
 unsigned int Simulation:: subPopulationSize (std::vector<unsigned int> sub ) {
 
 	unsigned int size(0);
@@ -460,4 +464,9 @@ std::vector< std::vector<unsigned int> > Simulation:: getSubPop() {
 std::vector<unsigned int> Simulation:: getAlleleCount(){
 
 	return allelesCount;
+}
+
+void Simulation::setExecutionMode (int execMode) {
+	
+	executionMode = execMode;
 }

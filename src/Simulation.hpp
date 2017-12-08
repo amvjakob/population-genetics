@@ -150,7 +150,9 @@ public:
 	 *
 	 * */
 	void updateWithMigration();
-
+	
+	
+	int getPopSize() const;
 
 
 	unsigned int subPopulationSize (std::vector<unsigned int>);
@@ -160,7 +162,7 @@ public:
 
 	std::vector<unsigned int> getAlleleCount();
 
-
+	void setExecutionMode (int);
 
 private:
 
