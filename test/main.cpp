@@ -324,8 +324,6 @@ TEST (MigrationTest , StarTest ) {
     SimulationsExecutor simulationsExecutor(data);
 
     Simulation simul = simulationsExecutor.createSimulation();
-	
-	simul.setExecutionMode(_PARAM_MIGRATION_);
 
     double stopTime(data.getGenerations());
 
@@ -389,18 +387,18 @@ TEST (MigrationTest , StarTest ) {
 
 }
 
-/*
+
 TEST (BottleneckTest, PopulationReduction) {
 	
 	Data data("../data/test_input.txt", "../data/test.fa");
 	
     data.collectAll();
-
+	
+	data.setExecutionMode(_PARAM_BOTTLENECK_);
+	
     SimulationsExecutor simulationsExecutor(data);
-
+	
     Simulation simul = simulationsExecutor.createSimulation();
-    
-    simul.setExecutionMode(_PARAM_BOTTLENECK_);
     
     double stopTime(data.getGenerations());
 	
@@ -408,30 +406,32 @@ TEST (BottleneckTest, PopulationReduction) {
 	
 	int population = data.getPopSize();
 	
-    double t(0);
+	int popReducted = population / reduction;
+	
+    double t(1);
 
 	
-    while (t < data.getBottleneckStart()) {
-
+    while (t < stopTime) {
+		
         simul.update(t);
 
         ++t;
-        
-        if (t < data.getBottleneckStart()) {
-			EXPECT_EQ(data.getPopSize(), simul.getPopSize());
-		}
-        
-        if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
-			EXPECT_EQ(simul.getPopSize(),population/=reduction);
-		}
-	
-		if (t > data.getBottleneckEnd()) {
-			EXPECT_EQ(data.getPopSize(), simul.getPopSize());
+
+        if (t <= data.getBottleneckStart()) {
+			EXPECT_EQ(simul.getPopSize(), population);	
+		} else if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
+			EXPECT_EQ(simul.getPopSize(),popReducted);
+		} else if (t > data.getBottleneckEnd()) {
+			if (population%2==0) {
+			EXPECT_EQ(simul.getPopSize(), population);
+			} else {
+			EXPECT_EQ(simul.getPopSize(), population-1);
+			}
 		}
     }
     
 }
-*/	
+
 
 
 RandomDist* parse_args(int argc, char **argv) {

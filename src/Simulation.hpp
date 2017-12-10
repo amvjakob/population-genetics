@@ -162,8 +162,6 @@ public:
 
 	std::vector<unsigned int> getAlleleCount();
 
-	void setExecutionMode (int);
-
 private:
 
 	/** \brief Calculate ouput constants
