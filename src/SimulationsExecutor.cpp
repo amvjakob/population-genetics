@@ -2,77 +2,48 @@
 #include <cassert>
 #include <iomanip>
 #include <sstream>
+#include <thread>
 #include "SimulationsExecutor.hpp"
 #include "Random.hpp"
 
 
-SimulationsExecutor::SimulationsExecutor(int n, int populationSize,
-	int simulationSteps, std::vector<unsigned int> counts)
-  : executionMode(_PARAM_NONE_),
-    executionMigMode(_PARAM_NONE_),
-	migrationModel(_PARAM_NONE_),
-	nSimulations(n),
-	N(populationSize),
-	T(simulationSteps),
-	allelesCount(counts)
-{
-	prepare();
-}
-
-SimulationsExecutor::SimulationsExecutor(const Data& data)
-  : executionMode(data.getExecutionMode()),
-    executionMigMode(data.getMigrationMode()),
-	migrationModel(data.getMigrationModel()),
-	nSimulations(data.getReplicates()),
-	N(data.getPopSize()),
-	T(data.getGenerations()),
-	alleles(data.getUniqueSequences()),
-	allelesCount(data.getAllelesCount()),
-	mutations(data.getMutations()),
-	selectionFqs(data.getSelections()),
-	popReduction(data.getPopReduction()),
-	bottleneckStart(data.getBottleneckStart()),
-	bottleneckEnd(data.getBottleneckEnd())
+SimulationsExecutor::SimulationsExecutor(std::string input, std::string fasta)
+  : data(input, fasta)
 {
 	int allelesCountSum = 0;
-	for (auto& alleleCount : allelesCount)
+	for (auto& alleleCount : data.getAllelesCount())
 		allelesCountSum += alleleCount;
 
-	assert(N == allelesCountSum);
+	assert(data.getPopulationSize() == allelesCountSum);
 
 	std::cout << "Running with param: ";
-	switch (executionMode) {
-		case _PARAM_MUTATIONS_:
+	switch (data.getExecutionMode()) {
+		case _EXECUTION_MODE_MUTATIONS_:
 			// generate nucleotide mutation probabilities according to model
-			std::cout << "Mutations" << std::endl;
-			generateMutationRates(data);
+			std::cout << "Mutation" << std::endl;
+			generateMutationRates();
 			break;
 
-		case _PARAM_SELECTION_:
+		case _EXECUTION_MODE_MIGRATION_:
+			std::cout << "Migration" << std::endl;
+			generateSubPopulations();
+			break;
+			
+		case _EXECUTION_MODE_SELECTION_:
 			std::cout << "Selection" << std::endl;
 			break;
 
-		case _PARAM_MIGRATION_:
-			std::cout << "Migration" << std::endl;
-			generateSubPopulations(data);
+		case _EXECUTION_MODE_BOTTLENECK_:
+			std::cout << "Variable population size" << std::endl;
 			break;
 
-		case _PARAM_BOTTLENECK_:
-			std::cout << "Bottleneck" << std::endl;
-			break;
-
-		case _PARAM_NONE_:
+		case _EXECUTION_MODE_NONE_:
 		default:
 			std::cout << "None" << std::endl;
 			break;
 	}
 
-	prepare();
-}
-
-
-void SimulationsExecutor::prepare() {
-    // open result file
+	// open result file
     results.open("results.txt");
 
     // init buffer access values
@@ -80,16 +51,16 @@ void SimulationsExecutor::prepare() {
     bufferHighestStep = 0;
 
 	// add first empty buffer data
-	outputBuffer.push_back( std::vector<std::string>(nSimulations) );
+	outputBuffer.push_back( std::vector<std::string>(data.getNbReplicates()) );
 }
 
 
 void SimulationsExecutor::execute() {
 	// create correct number of threads
-	threads = std::vector<std::thread>(nSimulations);
+	std::vector<std::thread> threads(data.getNbReplicates());
 
 	// init each thread
-	for (int i = 0; i < nSimulations; ++i) {
+	for (int i = 0; i < data.getNbReplicates(); ++i) {
 		threads[i] = std::thread(
 			[=] { runSimulation(i); }
 		);
@@ -100,23 +71,23 @@ void SimulationsExecutor::execute() {
 }
 
 Simulation SimulationsExecutor::createSimulation() const {
-	switch (executionMode) {
-		case _PARAM_MUTATIONS_:
-			return Simulation(alleles, allelesCount, mutations, nuclMutationProbs);
+	switch (data.getExecutionMode()) {
+		case _EXECUTION_MODE_MUTATIONS_:
+			return Simulation(data.getAlleles(), data.getAllelesCount(), data.getMutationRates(), nuclMutationProbs);
 
-		case _PARAM_SELECTION_:
-			return Simulation(alleles, allelesCount, selectionFqs);
+		case _EXECUTION_MODE_MIGRATION_:
+			return Simulation(data.getAlleles(), subPopulations, migrationRates, data.getIsDetailedOutput());
+			
+		case _EXECUTION_MODE_SELECTION_:
+			return Simulation(data.getAlleles(), data.getAllelesCount(), data.getSelections());
 
-		case _PARAM_MIGRATION_:
-        std::cout<<"a"<<std::endl;
-			return Simulation(alleles, subPopulations, migrationRates);
+		case _EXECUTION_MODE_BOTTLENECK_:
+			return Simulation(data.getAlleles(), data.getAllelesCount(), 
+				data.getBottleneckStart(), data.getBottleneckEnd(), data.getPopReduction());
 
-		case _PARAM_BOTTLENECK_:
-			return Simulation(alleles, allelesCount, bottleneckStart, bottleneckEnd, popReduction);
-
-		case _PARAM_NONE_:
+		case _EXECUTION_MODE_NONE_:
 		default:
-			return Simulation(allelesCount);
+			return Simulation(data.getAlleles(), data.getAllelesCount());
 	}
 }
 
@@ -126,6 +97,7 @@ void SimulationsExecutor::runSimulation(int id) {
 	Simulation simul = createSimulation();
 
 	// generate container for states of simulation
+	int T = data.getNbGenerations();
 	std::vector<std::string> states(T + 2);
 
     // write initial allele frequencies
@@ -139,19 +111,17 @@ void SimulationsExecutor::runSimulation(int id) {
 		// increment clock
 		++t;
 
-
 		// write allele frequencies
 		states[t] = simul.getAlleleFqsForOutput();
-
 	}
 
 	// write final line: allele identifiers
 	states[t + 1] = simul.getAlleleStrings();
 
 	// properly format output (add blanks if there were new mutations
-	if (executionMode == _PARAM_MUTATIONS_) {
-		std::size_t lineLength = states.back().size();
-		std::size_t precision = simul.getPrecision();
+	if (data.getExecutionMode() == _EXECUTION_MODE_MUTATIONS_) {
+		size_t lineLength = states.back().size();
+		size_t precision = simul.getPrecision();
 
 		if (states.front().size() != states.back().size()) { // check for any mutations
 			for (auto& state : states) {
@@ -175,11 +145,11 @@ void SimulationsExecutor::runSimulation(int id) {
 }
 
 
-void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
+void SimulationsExecutor::writeData(std::string line, int threadId, int step) {
 	// check that step is valid
 	if (step < bufferLowestStep) {
-		std::cerr << _ERROR_OUTPUT_BUFFER_ << std::endl;
-		throw _ERROR_OUTPUT_BUFFER_;
+		std::cerr << _ERROR_OUTPUT_BUFFER_MSG_ << std::endl;
+		exit(_ERROR_OUTPUT_BUFFER_CODE_);
 	}
 
 	// start lock here to restrict the execution of this function to a single thread
@@ -190,11 +160,11 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 		bufferHighestStep = step;
 
 		// insert new empty vector
-		outputBuffer.push_back(std::vector<std::string>(nSimulations));
+		outputBuffer.push_back(std::vector<std::string>(data.getNbReplicates()));
 	}
 
 	// add data to buffer
-	outputBuffer[step - bufferLowestStep][threadId] = data;
+	outputBuffer[step - bufferLowestStep][threadId] = line;
 
 	// check for data completeness for the lowest step
 	if (std::any_of(
@@ -214,7 +184,7 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
 	results << step;
-	if (T > 998 && step < 1000) {
+	if (data.getNbGenerations() > 998 && step < 1000) {
 		if (step < 10)
 			results << " ";
 		if (step < 100)
@@ -232,7 +202,7 @@ void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string
 	results << '\n';
 }
 
-void SimulationsExecutor::generateMutationRates(const Data& data) {
+void SimulationsExecutor::generateMutationRates() {
 	switch (data.getMutationModel()) {
 		case _MUTATION_MODEL_CANTOR_:
 			{
@@ -305,11 +275,11 @@ void SimulationsExecutor::generateMutationRates(const Data& data) {
 			break;
 
 		default:
-			std::cout << "No model" << std::endl;
+			std::cout << "No mutation model" << std::endl;
 			break;
 	}
 
-	// cout the prob matrix
+	// display the prob matrix
 	for (auto& pX : nuclMutationProbs) {
 		for (auto& p : pX) {
 			std::cout << p << '\t';
@@ -318,19 +288,20 @@ void SimulationsExecutor::generateMutationRates(const Data& data) {
 	}
 }
 
-void SimulationsExecutor::generateSubPopulations(const Data& data) {
-
+void SimulationsExecutor::generateSubPopulations() {
 	// subpopulations generation
-	subPopulations = std::vector< std::vector<unsigned int> >(allelesCount.size(), std::vector<unsigned int>(allelesCount.size(), 0));
-    for (auto it = allelesCount.begin(); it != allelesCount.end(); ++it) {
-        long int idx = it - allelesCount.begin();
+	subPopulations = std::vector< std::vector<unsigned int> >(data.getNbAlleles(), 
+															  std::vector<unsigned int>(data.getNbAlleles(), 0));
+		
+    for (auto it = data.getAllelesCount().begin(); it != data.getAllelesCount().end(); ++it) {
+        long int idx = it - data.getAllelesCount().begin();
 
         subPopulations[idx][idx] += rint(*it);
 
         assert(subPopulations[idx][idx] > 0);
     }
 
-    // cout the subpopulations
+    // display the subpopulations
     std::cout << "Initial subpopulations" << std::endl;
 	for (auto& pop : subPopulations) {
 		for (auto& count : pop) {
@@ -342,73 +313,118 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 
 
     // migration rate generation
-    migrationRates = std::vector<std::vector<unsigned int> >(subPopulations.size(), std::vector<unsigned int>(subPopulations.size(), 0));
-    std::vector<int> migration = data.getMigrations();
-
-    size_t minMoving(_DEFAULT_EXCESS_);
-	// take the value of the smallest subgroup
-	for (auto& elt : allelesCount) {
-		minMoving = (size_t ) std::min(std::max((int) elt, 0), (int) minMoving);
-	}
+    migrationRates = std::vector<std::vector<unsigned int> >(data.getNbAlleles(),
+															 std::vector<unsigned int>(data.getNbAlleles(), 0));
 
 
-    starCenter = std::rand() % allelesCount.size();
-	assert(starCenter <= allelesCount.size());
+    starCenter = std::rand() % data.getNbAlleles();
+	assert(starCenter <= data.getNbAlleles());
 	assert(starCenter >= 0);
 
-    for (size_t i(0); i < migrationRates.size(); ++i) {
+    for (size_t i(0); i < migrationRates.size() - 1; ++i) {
 
 		size_t rate = 0;
 
-		if (executionMigMode == _INPUT_USER_) {
-			rate =(size_t) migration[i];
-		} else if (executionMigMode == _RANDOM_) {
-            // randomly chosen rate
-            if (minMoving>1) {
-                rate = (size_t) RandomDist::uniformIntSingle(1, minMoving - 1);
-            }else {
-                rate = minMoving ;
-            }
+		switch (data.getMigrationMode()) {
+			case _MIGRATION_MODE_INPUT_USER_:
+				{
+					// check if the migration rate index is valid
+					if (i < data.getMigrationRates().size()) {
+						rate = (size_t) data.getMigrationRates()[i];
+					}
+				}
+				break;
 
-        }
+			case _MIGRATION_MODE_RANDOM_:
+				{
+					// take the value of the smallest subgroup still to distribute
+			    	size_t maxMoving(data.getAllelesCount().back());
+					
+					std::vector<unsigned int> remaining(data.getAllelesCount().begin() + i, data.getAllelesCount().end());
+					for (auto& elt : remaining) {
+						maxMoving = (size_t ) std::min(std::max((int) elt, 0), (int) maxMoving);
+					}
+
+					maxMoving = (size_t) (maxMoving * 1.0 / (migrationRates.size() - 1 - i)); // will never be a division by 0 
+
+					// randomly chosen rate
+		            if (maxMoving > 1)
+		                rate = (size_t) RandomDist::uniformIntSingle(1, maxMoving - 1);
+		            else
+		                rate = maxMoving;
+	            }
+	            break;
+
+	        default:
+	         	break;
+		}
 
         for (size_t j = i + 1; j < migrationRates[i].size(); ++j) {
-			switch (migrationModel) {
-				case _COMPLETE_GRAPH_ :
+			switch (data.getMigrationModel()) {
+				case _MIGRATION_MODEL_COMPLETE_GRAPH_:
 					{
 						//exchanges between all and every subpopulation
-						migrationRates[i][j] =(unsigned int) rate;
+						migrationRates[i][j] = (unsigned int) rate;
 						migrationRates[j][i] = (unsigned int) rate;
 					}
 					break;
 
-				case _STAR_ :
+				case _MIGRATION_MODEL_STAR_:
 					{
 						// only the subpopulation in the center exchanges with all the others
 						if (starCenter == i) {
-							migrationRates[i][j] =(unsigned int) rate;
-							migrationRates[j][i] = (unsigned int)rate;
+							migrationRates[i][j] = (unsigned int) rate;
+							migrationRates[j][i] = (unsigned int) rate;
 						}
 					}
 					break;
 
-				case _RING_ :
+				case _MIGRATION_MODEL_RING_:
 					{
-						// exchanges between "neighbor subpopulations "
+						// exchanges between "neighbor subpopulations"
 						if (j == i + 1 || (j == migrationRates[i].size() - 1 && i == 0)) {
-							migrationRates[i][j] =(unsigned int) rate;
+							migrationRates[i][j] = (unsigned int) rate;
 							migrationRates[j][i] = (unsigned int) rate;
 						}
 					}
 				break;
 
-				default :
+				default:
 					break;
 			}
 		}
 	}
 
-	// cout the mutation rates
+	// check the migration rate table
+	for (size_t i = 0; i < subPopulations.size(); ++i) {
+		int popSum = 0;
+		for (size_t j = 0; j < subPopulations[i].size(); ++j) {
+			popSum += subPopulations[i][j];
+		}
+
+		int migSum = 0;
+		for (size_t j = 0; j < migrationRates[i].size(); ++j) {
+			migSum += migrationRates[i][j];
+		}
+
+		if (migSum > popSum) {
+			// there are too many outgoing individuals!
+			// we need to reduce it to the maximal possible value
+
+			size_t j = 0;
+			while (migSum > popSum && migSum > 0) {
+				if (migrationRates[i][j] > 0) {
+					--migrationRates[i][j];
+					--migSum;
+				}
+
+				++j;
+				j %= migrationRates[i].size();
+			}
+		}
+	}
+
+	// display the mutation rates
 	std::cout << "Migration rate table" << std::endl;
 	for (auto& mig : migrationRates) {
 		for (auto& m : mig) {
@@ -418,13 +434,6 @@ void SimulationsExecutor::generateSubPopulations(const Data& data) {
 	}
 }
 
-
-const int SimulationsExecutor:: getMigrationModel() const {
-
-	return migrationModel;
-}
-
-size_t SimulationsExecutor:: getStarCenter () {
-
+size_t SimulationsExecutor::getStarCenter() const {
 	return starCenter;
 }

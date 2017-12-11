@@ -89,14 +89,25 @@ public:
     static std::vector<unsigned int> multinomialByValue(const std::vector<unsigned int>& pop, int n);
      
 private:
+
+	//!< Random device
 	static std::random_device rd;
+
+	//!< Random number generator
 	static std::mt19937 rng;
 
+	//!< Fill a vector with uniform values
     void uniform(std::vector< double >&);
+    //!< Fill a vector with normally distributed values
     void normal(std::vector< double >&);
     
-    double mean, sd;
+    //!< Mean of the distribution
+    double mean;
+    //!< Standard deviation of the distribution
+    double sd;
+    //!< Size of the sample
     int nsample;
+    //!< Flag to indicate normal oder uniform distribution (true for normal)
     bool normdist;
 
 };

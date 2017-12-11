@@ -7,7 +7,8 @@ std::mt19937 RandomDist::rng = std::mt19937(RandomDist::rd());
 
 
 RandomDist::RandomDist(double m, double s, int ns, bool n) 
-    : mean(m), sd(s), nsample(ns), normdist(n) {
+  : mean(m), sd(s), nsample(ns), normdist(n)
+{
     if (s <= 0) {
         throw(1);
     }

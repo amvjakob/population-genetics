@@ -12,33 +12,25 @@ using namespace std;
 TEST(DataReading, PopulationSize) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
-	data.collectAll();
-
-	EXPECT_EQ(data.getPopSize(), 21);
+	EXPECT_EQ(data.getPopulationSize(), 21);
 }
 
 TEST(DataReading, NumberGenerations) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
-	data.collectAll();
-
-	EXPECT_EQ(data.getGenerations(), 3000);
+	EXPECT_EQ(data.getNbGenerations(), 3000);
 }
 
 TEST(DataReading, NumberAlleles) {
 	Data data("../data/test_input.txt", "../data/test.fa");
 
-	data.collectAll();
-
-	EXPECT_EQ((int) data.getAllelesCount().size(), 2);
+	EXPECT_EQ((int) data.getNbAlleles(), 2);
 }
 
 TEST(DataReading, MarkerSites) {
 	Data data("../data/test_input.txt", "../data/test.fa");
 
-	vector<int> knownMS = {1, 2, 3, 4};
-
-	data.collectAll();
+	vector<unsigned int> knownMS = {0, 1, 2, 3};
 
 	EXPECT_EQ(data.getMarkerSites(), knownMS);
 }
@@ -49,8 +41,6 @@ TEST(DataReading, InitialFrequencies) {
 
 	vector<int> knownCount = {9, 12};
 
-	data.collectAll();
-
 	for (size_t i(0); i < (size_t) data.getAllelesCount().size(); ++i) {
 		EXPECT_NEAR(data.getAllelesCount()[i], knownCount[i], 1E-3);
 	}
@@ -59,9 +49,7 @@ TEST(DataReading, InitialFrequencies) {
 TEST(DataReading, NumberReplicates) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
-	data.collectAll();
-
-	EXPECT_EQ(data.getReplicates(), 500);
+	EXPECT_EQ(data.getNbReplicates(), 500);
 }
 
 TEST(DataReading, NucleotidesMutations) {
@@ -69,17 +57,13 @@ TEST(DataReading, NucleotidesMutations) {
 
 	vector <double> knownMut = {10E-8, 10E-8, 10E-8, 10E-8};
 
-	data.collectAll();
-
-	for (size_t i(0); i < data.getMutations().size() ; ++i) {
-		EXPECT_NEAR(data.getMutations()[i], knownMut[i], 1E-3);
+	for (size_t i(0); i < data.getMutationRates().size() ; ++i) {
+		EXPECT_NEAR(data.getMutationRates()[i], knownMut[i], 1E-3);
 	}
 }
 
 TEST (DataReading, Bottleneck) {
 	Data data("../data/test_input.txt","../data/test.fa");
-	
-	data.collectAll();
 	
 	EXPECT_EQ(data.getPopReduction(), 2);
 	EXPECT_EQ(data.getBottleneckStart(), 20);
@@ -90,8 +74,6 @@ TEST(DataReading, AlleleSelection) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
 	vector <double> knownSel = {0.1, -0.8};
-
-	data.collectAll();
 
 	for (size_t i(0); i < data.getSelections().size() ; ++i) {
 		EXPECT_NEAR(data.getSelections()[i], knownSel[i], 1E-3);

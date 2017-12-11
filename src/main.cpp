@@ -1,23 +1,12 @@
 #include "SimulationsExecutor.hpp"
 #include "Data.hpp"
 
-int main() {
-	/*
-	int n = 10;
-	int N = 1000;
-	int T = 1000;
+int main(int argc, char** argv) {
+	std::string inputFileName = argc > 1 ? argv[1] : "../data/input.txt";	
+	std::string fastaFileName = argc > 2 ? argv[2] : "";
 	
-	SimulationsExecutor simulationsExecutor(n, N, T, {0.4, 0.3, 0.2, 0.1});
+	SimulationsExecutor simulationsExecutor(inputFileName, fastaFileName);
 	simulationsExecutor.execute();
-	*/
-	
-	
-	Data data("../data/input.txt", "../data/mitogenes.fa");
-	data.collectAll();
-	
-	SimulationsExecutor simulationsExecutorFull(data);
-	simulationsExecutorFull.execute();
-	
 	
 	return 0;
 }

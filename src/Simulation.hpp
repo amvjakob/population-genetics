@@ -26,9 +26,11 @@ public:
 	 *
 	 * Initialises a new population genetics simulation.
 	 *
+	 * \param alleles				List of alleles in the population
 	 * \param allelesCount			A vector of initial allele counts
 	 * */
-	Simulation(std::vector<unsigned int> allelesCount);
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector<unsigned int>& allelesCount);
 
 	/** \brief Simulation constructor
 	 *
@@ -49,6 +51,20 @@ public:
 	 * Initialises a new population genetics simulation.
 	 *
 	 * \param alleles				List of alleles in the population
+	 * \param subPopulations		Number of each allele in the subpopulations (common index with \p alleles)
+	 * \param migrationRates		Matrix of migration rates 
+	 * \param detailedOutput		Flag for the output format; true will print every subpopulation's frequencies
+	 * */		
+	Simulation(const std::vector<std::string>& alleles,
+				const std::vector< std::vector<unsigned int> >& subPopulations,
+				const std::vector< std::vector<unsigned int> >& migrationRates,
+				bool detailedOutput = false);
+				
+	/** \brief Simulation constructor
+	 *
+	 * Initialises a new population genetics simulation.
+	 *
+	 * \param alleles				List of alleles in the population
 	 * \param allelesCount			Number of each allele in the population (common index with \p alleles)
 	 * \param selectionRates		List of selection rates 
 	 * */			
@@ -56,18 +72,6 @@ public:
 				const std::vector<unsigned int>& allelesCount,
 				const std::vector<double>& selectionRates);
 	
-	/** \brief Simulation constructor
-	 *
-	 * Initialises a new population genetics simulation.
-	 *
-	 * \param alleles				List of alleles in the population
-	 * \param subPopulations		Number of each allele in the subpopulations (common index with \p alleles)
-	 * \param migrationRates		Matrix of migration rates 
-	 * */		
-	Simulation(const std::vector<std::string>& alleles,
-				const std::vector< std::vector<unsigned int> >& subPopulations,
-				const std::vector< std::vector<unsigned int> >& migrationRates);
-				
 	/** \brief Simulation constructor
 	 *
 	 * Initialises a new population genetics simulation.
@@ -84,11 +88,10 @@ public:
 
 	/** \brief Get the alleles in the population
 	 *
-	 * Get the allele distribution in the population at any given simulation step.
-	 * The values represent the id's of the alleles in the population.
+	 * Get the alleles in the population at any given simulation step.
+	 * The values represent the name of the alleles (either a number or a genetic code)
 	 *
 	 * \return A constant reference on the alleles in the population
-	 *
 	 * */
 	const std::vector<std::string>& getAlleles() const;
 	
@@ -98,7 +101,6 @@ public:
 	 * The values represent the number of alleles in the population.
 	 *
 	 * \return A constant reference on the list of number alleles in the population
-	 *
 	 * */
 	const std::vector<unsigned int>& getAllelesCount() const;
 
@@ -126,8 +128,9 @@ public:
 	void update(int t);
 	
 	/** \brief Get the output precision for the frequencies 
+	 *
 	 * */
-	std::size_t getPrecision() const;
+	size_t getPrecision() const;
 	
 	/** \brief Get the total population size
 	 *
@@ -161,13 +164,12 @@ protected:
 	 * */
 	void mutatePopulation();
 	
-	/** \brief Bottleneck effet
+
+	/** \brief Update the Simulation by one step
 	 *
-	 * Creates a time-dependent population size
-	 * 
-	 * \param the time of the simulation, an int
 	 * */
-	void bottleneck(int simulationTime);
+	void updateWithMigration();
+	
 
     /** \brief Update the Simulation by one step
 	 *
@@ -178,10 +180,14 @@ protected:
 	 * */
 	void updateWithSelection();
 	
-	/** \brief Update the Simulation by one step
+
+	/** \brief Bottleneck effet
 	 *
+	 * Creates a time-dependent population size
+	 * 
+	 * \param the time of the simulation, an int
 	 * */
-	void updateWithMigration();
+	void bottleneck(int simulationTime);
 	
 	
 private:
@@ -218,6 +224,9 @@ private:
     
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
+    
+    //!< Flag for detailed output in migration mode
+    bool isMigrationDetailedOutput = false;
 	
 	
 	//!< Bottleneck population reduction factor

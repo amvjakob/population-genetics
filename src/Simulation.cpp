@@ -40,20 +40,20 @@ Simulation& Simulation::operator=(const Simulation& other) {
 }
 
 
-Simulation::Simulation(std::vector<unsigned int> counts)
-  : executionMode(_PARAM_NONE_), populationSize(0)
+Simulation::Simulation(const std::vector<std::string>& als,
+						const std::vector<unsigned int>& alsCount)
+  : executionMode(_EXECUTION_MODE_NONE_),
+	populationSize(0),
+	alleles(als), allelesCount(alsCount)
 {	
-	for (std::size_t i = 0; i < counts.size(); ++i) {
-		std::string idx = std::to_string(i);
+	assert(alleles.size() == allelesCount.size());
+	
+	for (auto& count : allelesCount)
+		populationSize += count;
 		
-		alleles.push_back(idx);
-		allelesCount.push_back(counts[i]);
-		
-		populationSize += counts[i];
-	}
-
 	// make sure sensible parameters were used
 	assert(populationSize > 0);
+	
 	
 	calcOutputConstants();
 }
@@ -62,7 +62,7 @@ Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const std::vector<double>& mutationRates, 
 						const std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N >& nuclMutationProbs)
-  : executionMode(_PARAM_MUTATIONS_),
+  : executionMode(_EXECUTION_MODE_MUTATIONS_),
 	populationSize(0), 
 	alleles(als), allelesCount(alsCount), 
 	mutationFqs(mutationRates), mutationTable(nuclMutationProbs)
@@ -84,9 +84,46 @@ Simulation::Simulation(const std::vector<std::string>& als,
 }
 
 Simulation::Simulation(const std::vector<std::string>& als,
+						const std::vector< std::vector<unsigned int> >& subPopsCount,
+						const std::vector< std::vector<unsigned int> >& migrationFqs,
+						bool detailedOutput)
+  : executionMode(_EXECUTION_MODE_MIGRATION_), 
+	populationSize(0), 
+	alleles(als), subPopulations(subPopsCount),
+	migrationRates(migrationFqs),
+	isMigrationDetailedOutput(detailedOutput)
+{    
+    for (auto& population : subPopsCount) {
+		assert(population.size() == alleles.size());
+		
+		unsigned int subPopSize = 0;
+		for (auto& count : population)
+			subPopSize += count;
+			
+		subPopulationSizes.push_back(subPopSize);
+		populationSize += subPopSize;
+	}
+		
+	// make sure sensible parameters were used
+	assert(populationSize > 0);
+	assert(migrationRates.size() == subPopulations.size());
+	assert(migrationRates.front().size() == subPopulations.size());
+	
+	for (size_t i = 0; i < subPopulations.size(); ++i) {
+		int outgoing = 0;
+		for (auto& out : migrationRates[i])
+			outgoing += out;
+			
+		assert(outgoing <= (int) subPopulationSizes[i]);
+	}
+	
+	calcOutputConstants();
+}
+
+Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const std::vector<double>& selectionRates)
-  : executionMode(_PARAM_SELECTION_),
+  : executionMode(_EXECUTION_MODE_SELECTION_),
 	populationSize(0),
 	alleles(als), allelesCount(alsCount), 
 	selectionFqs(selectionRates)
@@ -109,48 +146,13 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	
 	calcOutputConstants();
 }
-    
-Simulation::Simulation(const std::vector<std::string>& als,
-						const std::vector< std::vector<unsigned int> >& subPopsCount,
-						const std::vector< std::vector<unsigned int> >& migrationFqs)
-  : executionMode(_PARAM_MIGRATION_), 
-	populationSize(0), 
-	alleles(als), subPopulations(subPopsCount),
-	migrationRates(migrationFqs)
-{    
-    for (auto& population : subPopsCount) {
-		assert(population.size() == alleles.size());
-		
-		unsigned int subPopSize = 0;
-		for (auto& count : population)
-			subPopSize += count;
-			
-		subPopulationSizes.push_back(subPopSize);
-		populationSize += subPopSize;
-	}
-		
-	// make sure sensible parameters were used
-	assert(populationSize > 0);
-	assert(migrationRates.size() == subPopulations.size());
-	assert(migrationRates.front().size() == subPopulations.size());
-	
-	/*for (size_t i = 0; i < subPopulations.size(); ++i) {
-		int outgoing = 0;
-		for (auto& out : migrationRates[i])
-			outgoing += out;
-			
-		assert(outgoing <= (int) subPopulationSizes[i]);
-	}*/
-	
-	calcOutputConstants();
-}
 
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const int start,
 						const int stop,
 						const double reduction)
-  : executionMode(_PARAM_BOTTLENECK_),
+  : executionMode(_EXECUTION_MODE_BOTTLENECK_),
 	populationSize(0), 
 	alleles(als), allelesCount(alsCount),
 	popReduction(reduction),
@@ -167,9 +169,10 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	
 	calcOutputConstants();
 	
-	assert(popReduction!=0);
-	assert(bottleneckStart<=bottleneckEnd);
+	assert(popReduction != 0);
+	assert(bottleneckStart <= bottleneckEnd);
 }
+
 
 void Simulation::calcOutputConstants() {
 	std::size_t alleleIdSize = alleles.front().size();
@@ -178,6 +181,7 @@ void Simulation::calcOutputConstants() {
 	precision = alleleIdSize <= 2 + _MIN_OUTPUT_PRECISION_ ? _MIN_OUTPUT_PRECISION_ : alleleIdSize - 2;
 	additionalSpaces = std::max(precision + 2 - alleleIdSize, (size_t) 0);
 }
+
 
 const std::vector<std::string>& Simulation::getAlleles() const {
 	return alleles;
@@ -190,7 +194,7 @@ const std::vector<unsigned int>& Simulation::getAllelesCount() const {
 std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
 	
-	if (executionMode != _PARAM_MIGRATION_) {
+	if (executionMode != _EXECUTION_MODE_MIGRATION_) {
 		
 		for (auto allele = allelesCount.begin(); allele != allelesCount.end(); ++allele) {
 			if (allele != allelesCount.begin()) ss << _OUTPUT_SEPARATOR_;
@@ -199,7 +203,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 		
 	} else {
 		
-		if (_MIGRATION_DETAILED_OUTPUT_) {
+		if (isMigrationDetailedOutput) {
 
 			for (auto subPop = subPopulations.begin(); subPop != subPopulations.end(); ++subPop) {
 				for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
@@ -210,8 +214,6 @@ std::string Simulation::getAlleleFqsForOutput() const {
 				ss << _MIGRATION_OUTPUT_SEPARATOR_;
 			}
 		} else {
-
-
 			int nAlleles = subPopulations.front().size();
 			for (int i = 0; i < nAlleles; ++i) {
 				int sum = 0;
@@ -237,12 +239,12 @@ std::string Simulation::getAlleleStrings() const {
 	}
 	
 	// add string identifiers for each subpopulation
-	if (executionMode == _PARAM_MIGRATION_ && _MIGRATION_DETAILED_OUTPUT_) {
+	if (executionMode == _EXECUTION_MODE_MIGRATION_ && isMigrationDetailedOutput) {
 		std::string onePop = ss.str();
 		
 		assert(subPopulations.size() > 0);
 		
-		for (std::size_t i = 0; i < subPopulations.size() - 1; ++i) {
+		for (std::size_t i = 1; i < subPopulations.size(); ++i) {
 			ss << _MIGRATION_OUTPUT_SEPARATOR_ << onePop;
 		}
 	}
@@ -250,31 +252,28 @@ std::string Simulation::getAlleleStrings() const {
 	return ss.str();
 }
 
-std::size_t Simulation::getPrecision() const {
-	return precision;
-}
 
 void Simulation::update(int t) {	
 	switch (executionMode) {
-		case _PARAM_MUTATIONS_:
+		case _EXECUTION_MODE_MUTATIONS_:
 			RandomDist::multinomial(allelesCount);	
 			mutatePopulation();
 			break;
-
-        case _PARAM_SELECTION_:
-        	updateWithSelection();
-        	break;
-        	
-        case _PARAM_MIGRATION_:
+			
+		case _EXECUTION_MODE_MIGRATION_:
 			updateWithMigration();
 			break;
+
+        case _EXECUTION_MODE_SELECTION_:
+        	updateWithSelection();
+        	break;
 			
-		case _PARAM_BOTTLENECK_:
+		case _EXECUTION_MODE_BOTTLENECK_:
 			bottleneck(t);
 			RandomDist::multinomial(allelesCount, populationSize);
 			break;
         	
-        case _PARAM_NONE_:
+        case _EXECUTION_MODE_NONE_:
 		default:
 			RandomDist::multinomial(allelesCount);
 			break;
@@ -311,8 +310,8 @@ void Simulation::mutatePopulation() {
 				}
 				
 				if (target == Nucl::Nucleotide::N) {
-					std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_ << std::endl;
-					throw _ERROR_MUTATION_TARGET_UNFINDABLE_;
+					std::cerr << _ERROR_MUTATION_TARGET_UNFINDABLE_MSG_ << std::endl;
+					exit(_ERROR_MUTATION_TARGET_UNFINDABLE_CODE_);
 				}
 				
 				// create new mutated allele
@@ -339,19 +338,45 @@ void Simulation::mutatePopulation() {
 				}
 				
 				// some user info
-				std::cout << "Mutated a " << alleles[alleleIdx] << " to a " << newAllele << std::endl;
+				// std::cout << "Mutated a " << alleles[alleleIdx] << " to a " << newAllele << std::endl;
 			}
 		}
 	}
 }
 
-void Simulation::bottleneck(int simulationTime) {
-	if (simulationTime == bottleneckStart) {
-		populationSize /= popReduction;
-	} else if (simulationTime == bottleneckEnd) {
-		populationSize *= popReduction;
+void Simulation::updateWithMigration() {
+	// big container for all movements
+	std::vector< std::vector< std::vector<unsigned int> > > exchange;
+	
+	for (int i = 0; i < (int) subPopulations.size(); ++i) {
+		// exchange for current subpopulation
+		std::vector< std::vector<unsigned int> > subExchange(subPopulations.size(), std::vector<unsigned int>(subPopulations[i].size(), 0));
+		
+		// new values for population that will go
+		int gone = 0;
+		for (int j = 0; j < (int) subExchange.size(); ++j) {
+			gone += migrationRates[i][j];
+			subExchange[j] = RandomDist::multinomialByValue(subPopulations[i], migrationRates[i][j]);
+		}
+	
+		// new values for population that stays
+		subPopulations[i] = RandomDist::multinomialByValue(subPopulations[i], subPopulationSizes[i] - gone);
+
+		exchange.push_back(subExchange);
 	}
+	
+	int nAlleles = subPopulations.front().size();
+	
+	// assign exchanges to target populations
+	for (int i = 0; i < (int) exchange.size(); ++i) {
+		for (int j = 0; j < (int) exchange[i].size(); ++j) {
+			for (int k = 0; k < nAlleles; ++k) {
+				subPopulations[j][k] += exchange[i][j][k];
+			}
+		}
+	}	
 }
+
 
 void Simulation::updateWithSelection() {
 	// genetic drift
@@ -406,37 +431,17 @@ void Simulation::updateWithSelection() {
 	assert(nOffspring == populationSize);
 }
 
-void Simulation::updateWithMigration() {
-	// big container for all movements
-	std::vector< std::vector< std::vector<unsigned int> > > exchange;
-	
-	for (int i = 0; i < (int) subPopulations.size(); ++i) {
-		// exchange for current subpopulation
-		std::vector< std::vector<unsigned int> > subExchange(subPopulations.size(), std::vector<unsigned int>(subPopulations[i].size(), 0));
-		
-		// new values for population that will go
-		int gone = 0;
-		for (int j = 0; j < (int) subExchange.size(); ++j) {
-			gone += migrationRates[i][j];
-			subExchange[j] = RandomDist::multinomialByValue(subPopulations[i], migrationRates[i][j]);
-		}
-	
-		// new values for population that stays
-		subPopulations[i] = RandomDist::multinomialByValue(subPopulations[i], subPopulationSizes[i] - gone);
-
-		exchange.push_back(subExchange);
+void Simulation::bottleneck(int simulationTime) {
+	if (simulationTime == bottleneckStart) {
+		populationSize /= popReduction;
+	} else if (simulationTime == bottleneckEnd) {
+		populationSize *= popReduction;
 	}
-	
-	int nAlleles = subPopulations.front().size();
-	
-	// assign exchanges to target populations
-	for (int i = 0; i < (int) exchange.size(); ++i) {
-		for (int j = 0; j < (int) exchange[i].size(); ++j) {
-			for (int k = 0; k < nAlleles; ++k) {
-				subPopulations[j][k] += exchange[i][j][k];
-			}
-		}
-	}	
+}
+
+
+size_t Simulation::getPrecision() const {
+	return precision;
 }
 
 int Simulation::getPopulationSize() const {
