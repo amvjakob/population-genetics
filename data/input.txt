@@ -1,18 +1,7 @@
 # DATA INPUT FILE
 
-# Number of generations
-GEN = 10
 
-# Number of replicas
-REP = 5
-
-# Marker Sites
-SITES = 1|3|5
-
-# Bottleneck
-REDUCTION = 2.0
-START = 20
-END = 40
+#GENERAL PARAMETERS:
 
 # Execution mode: vars are
 # 0 - none
@@ -22,25 +11,62 @@ END = 40
 # 8 - variable population size
 MODE = 2
 
-# Migration models: vars are
-# 0 - completeGraph
-# 1 - star
-# 2 - ring
-MIG_MODEL = 2
+# Number of generations _ to the time of the simulation
+GEN = 100
 
-# Migration mode: vars are
+# Number of replicas _ corresponds to the number of executed simulations
+REP = 5
+
+# Marker Sites _ loci corresponding to the alleles (sequence of nucleotides)
+SITES = 1|2|1
+
+
+
+#MIGRATION PARAMETERS : to pick a model uncomment the line by deleting the # key
+
+# Migration patterns: Exchange of individuals amongst sub population
+# 0 - completeGraph _ every sub population exchange with one another
+# 1 - star _ every sub population exchanges with the central population
+# 2 - ring _ every sub population exchanges with their neighbours
+# MIG_MODEL = 2
+
+# Migration rate are chosen from: vars are
 # 0 - userInput
 # 1 - random
-MIG_MODE = 1
+# MIG_MODE = 1
 
-# Migration rates for each subpopulation:
+# For the userInput mode: Migration rates (incoming|outgoing) for each subpopulation:
 # MIG_RATES = 3|5
 
-# Mutation probabilities for each site
+
+
+#BOTTLENECK PARAMETERS
+
+# Bottleneck execution mode:
+#Reduction _ reduction size factor
+#Start _ start time of the bottleneck effect
+#End _ end time of the bottleneck effect
+REDUCTION = 2.0
+START = 20
+END = 40
+
+
+
+#MUTATION PARAMETERS : to pick a model uncomment the line by deleting the # key
+
+# Mutation probabilities for marker sites _ when running the simulation with the
+# Mutation parameters, the line needs to be uncommented
 # MUT = 1E-7|1E-7|1E-7
+
+# Mutation model (Cantor model is chosen by default if no other model is picked)
+# the Felsenstein model works if the sum of all the rates need to be equal to 1
 # MUT_KIMURA = 0.5
 # MUT_FELSENSTEIN = 0.25|0.25|0.2|0.3
 
-# Selection rates for each allele
-# SEL = 0|0
 
+
+
+#SELECTION PARAMETERS: to pick a model uncomment the line by deleting the # key
+
+# Selection rates for each allele 
+# SEL = 0|0
