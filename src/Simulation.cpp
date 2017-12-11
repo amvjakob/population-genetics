@@ -465,8 +465,3 @@ std::vector<unsigned int> Simulation:: getAlleleCount(){
 
 	return allelesCount;
 }
-
-void Simulation::setExecutionMode (int execMode) {
-	
-	executionMode = execMode;
-}

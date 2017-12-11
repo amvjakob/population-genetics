@@ -326,9 +326,14 @@ const std::vector<int>& Data::getMarkerSites() const {
 	return markerSites;
 }
 
+void Data::setExecutionMode (int execMode) {
+	
+	executionMode = execMode;
+}
+
 void Data:: setDataMigTest(int Migexec, int migModel , int migMode ){
 
-	executionMode=Migexec;
+	setExecutionMode(Migexec);
 
 	migrationModel=migModel;
 

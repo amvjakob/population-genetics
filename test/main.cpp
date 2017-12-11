@@ -91,6 +91,17 @@ TEST (DataReading, Bottleneck) {
 	EXPECT_EQ(data.getBottleneckEnd(), 40);
 }
 
+TEST(DataReading, AlleleSelection) {
+	Data data("../data/test_input.txt","../data/test.fa");
+
+	vector <double> knownSel = {0.1, -0.8};
+
+	data.collectAll();
+
+	for (size_t i(0); i < data.getSelections().size() ; ++i) {
+		EXPECT_NEAR(data.getSelections()[i], knownSel[i], 1E-3);
+	}
+}
 
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
@@ -213,21 +224,6 @@ TEST (MigrationTest , CompleteGrapshTest ) {
 
     }
 
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
 
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
 
@@ -275,21 +271,6 @@ TEST (MigrationTest , RingTest ) {
         ++t;
     }
 
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
 
 
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
@@ -324,8 +305,6 @@ TEST (MigrationTest , StarTest ) {
     SimulationsExecutor simulationsExecutor(data);
 
     Simulation simul = simulationsExecutor.createSimulation();
-	
-	simul.setExecutionMode(_PARAM_MIGRATION_);
 
     double stopTime(data.getGenerations());
 
@@ -340,22 +319,6 @@ TEST (MigrationTest , StarTest ) {
 
         ++t;
 
-    }
-
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
     }
 
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
@@ -377,9 +340,10 @@ TEST (MigrationTest , StarTest ) {
 
 							EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
 
-							EXPECT_TRUE(subPopTest[i][simulationsExecutor.getStarCenter()] <=
+                            EXPECT_TRUE(subPopTest[i][simulationsExecutor.getStarCenter()] <=
 										simul.getSubPop()[i][simulationsExecutor.getStarCenter()]);
-						}
+                        }
+
             }
 
         }
@@ -389,18 +353,18 @@ TEST (MigrationTest , StarTest ) {
 
 }
 
-/*
+
 TEST (BottleneckTest, PopulationReduction) {
 	
 	Data data("../data/test_input.txt", "../data/test.fa");
 	
     data.collectAll();
-
+	
+	data.setExecutionMode(_PARAM_BOTTLENECK_);
+	
     SimulationsExecutor simulationsExecutor(data);
-
+	
     Simulation simul = simulationsExecutor.createSimulation();
-    
-    simul.setExecutionMode(_PARAM_BOTTLENECK_);
     
     double stopTime(data.getGenerations());
 	
@@ -408,31 +372,38 @@ TEST (BottleneckTest, PopulationReduction) {
 	
 	int population = data.getPopSize();
 	
-    double t(0);
+	int popReducted = population /  (int) reduction;
+	
+    double t(1);
 
 	
-    while (t < data.getBottleneckStart()) {
-
+    while (t < stopTime) {
+		
         simul.update(t);
 
         ++t;
-        
-        if (t < data.getBottleneckStart()) {
-			EXPECT_EQ(data.getPopSize(), simul.getPopSize());
-		}
-        
-        if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
-			EXPECT_EQ(simul.getPopSize(),population/=reduction);
-		}
-	
-		if (t > data.getBottleneckEnd()) {
-			EXPECT_EQ(data.getPopSize(), simul.getPopSize());
+
+        if (t <= data.getBottleneckStart()) {
+
+            EXPECT_EQ(simul.getPopSize(), population);
+
+        } else if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
+
+            EXPECT_EQ(simul.getPopSize(),popReducted);
+
+        } else if (t > data.getBottleneckEnd()) {
+
+            if (population % (int)(data.getPopReduction())==0) {
+
+                EXPECT_EQ(simul.getPopSize(), population);
+			} else {
+
+                EXPECT_EQ(simul.getPopSize(), population-1);
+			}
 		}
     }
     
 }
-*/	
-
 
 RandomDist* parse_args(int argc, char **argv) {
     TCLAP::CmdLine cmd("Random number generator");
