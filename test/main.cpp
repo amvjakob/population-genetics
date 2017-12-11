@@ -229,7 +229,6 @@ TEST (MigrationTest, CompleteGraphTest ) {
 		++t;
 	}
 	
-
 	/*
     std::cout << "SubPOPTEST" << std::endl;
     for (auto& mig : subPopulations) {
@@ -282,6 +281,7 @@ TEST (MigrationTest, RingTest) {
 			// making sure that each subpop is different to its initial state --> proof of migrations
             if (i != j) {
                 EXPECT_TRUE(subPopulations[i][j] <= simul.getSubPopulations()[i][j]);
+
             }
 		}
 	}

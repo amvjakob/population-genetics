@@ -35,4 +35,21 @@ Special Feature:
 The program is coded using a multithreading process. Each thread executes a single
 simulation, allowing for replicas to run simultaneously. This allows for faster simulation.
 
+How to run a simulation:
+The user must use the input.txt file to choose:
+- The number of generations
+- The population size
+- The execution mode (bottleneck, selection, migration, mutation)
+- The marker sites (if using the mutation model)
+
+If working with the mutation model, the user must precise:
+- The mutation model with the appropriate probabilities
+
+If working with the migration mode, the user must precise:
+- The mutation pattern
+- The migration rates
+
+If working with the selection model, the user must precise:
+- the selection rates for each allele
+
 Presentation of the project (PPTX): <https://prezi.com/p/jfcpou3kqbcd/>
