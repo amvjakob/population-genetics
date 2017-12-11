@@ -15,7 +15,7 @@ SITES = 1|3
 # 2 - migration
 # 4 - selection
 # 8 - variable population size
-MODE = 1
+MODE = 2
 
 # Bottleneck
 # REDUCTION = 2.0
@@ -26,12 +26,12 @@ MODE = 1
 # 0 - completeGraph
 # 1 - star
 # 2 - ring
-# MIG_MODEL = 2
+MIG_MODEL = 2
 
 # Migration mode: vars are
 # 0 - userInput
 # 1 - random
-# MIG_MODE = 1
+MIG_MODE = 1
 
 # Migration rates for each subpopulation:
 # MIG_RATES = 3|5

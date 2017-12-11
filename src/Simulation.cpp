@@ -153,9 +153,9 @@ Simulation::Simulation(const std::vector<std::string>& als,
   : executionMode(_PARAM_BOTTLENECK_),
 	populationSize(0), 
 	alleles(als), allelesCount(alsCount),
+	popReduction(reduction),
 	bottleneckStart(start),
-	bottleneckEnd(stop),
-	popReduction(reduction)
+	bottleneckEnd(stop)
 {
 	assert(alleles.size() == allelesCount.size());
 	
@@ -385,9 +385,10 @@ void Simulation::updateWithSelection() {
 		
 		// generate new allele copy number including selection frequency
 		double adjustedPopulation = nParent + nParentCorrection;
-		assert(adjustedPopulation != 0.0);
-		
-		double p = count * (1 + selectionFqs[i]) / adjustedPopulation;
+		double p = 0.0;
+		if (adjustedPopulation != 0.0) {
+			p = count * (1 + selectionFqs[i]) / adjustedPopulation;
+		}
 		
 		// reduce residual "gene pool"
 		nParent -= count;
@@ -438,30 +439,14 @@ void Simulation::updateWithMigration() {
 	}	
 }
 
-int Simulation::getPopSize() const {
+int Simulation::getPopulationSize() const {
 	return populationSize;
 }
 
-unsigned int Simulation:: subPopulationSize (std::vector<unsigned int> sub ) {
-
-	unsigned int size(0);
-
-	for (auto pop : sub) {
-
-		size+=pop;
-
-	}
-	return size ;
-}
-
-
-std::vector< std::vector<unsigned int> > Simulation:: getSubPop() {
-
+const std::vector< std::vector<unsigned int> >& Simulation::getSubPopulations() const {
 	return subPopulations;
 }
 
-
-std::vector<unsigned int> Simulation:: getAlleleCount(){
-
-	return allelesCount;
+const std::vector<size_t>& Simulation::getSubPopulationSizes() const {
+	return subPopulationSizes;
 }

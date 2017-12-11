@@ -213,7 +213,6 @@ void SimulationsExecutor::writeData(std::string data, int threadId, int step) {
 }
 
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
-<<<<<<< HEAD
 	results << step;
 	if (T > 998 && step < 1000) {
 		if (step < 10)
@@ -226,10 +225,6 @@ void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string
 		
 	results << '\t';
 	
-=======
-	results << step << '\t';
-
->>>>>>> 14eadb7ffd9ad2a8d9f177f3ad1ccb1e2682d766
 	for (auto const& data : alleleFqs) {
 		results << data << '\t';
 	}

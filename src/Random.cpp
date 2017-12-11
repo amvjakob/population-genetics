@@ -135,7 +135,7 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 		n -= count;
 	}
 	
-	//assert(n == 0);
+	assert(n == 0);
 	assert(total == 0);
 }
 

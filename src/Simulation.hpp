@@ -129,6 +129,38 @@ public:
 	 * */
 	std::size_t getPrecision() const;
 	
+	/** \brief Get the total population size
+	 *
+	 * */
+	int getPopulationSize() const;
+	
+	/** \brief Get the subpopulations
+	 * 
+	 * */
+	const std::vector< std::vector<unsigned int> >& getSubPopulations() const;
+
+	/** \brief Get the sizes of the subpopulations
+	 * 
+	 * */
+	const std::vector<size_t>& getSubPopulationSizes() const;
+
+protected:
+
+	/** \brief Calculate ouput constants
+	 * 
+	 * Caculates the needed precision and additional spaces for the output to be aligned
+	 * 
+	 * */
+	void calcOutputConstants();
+	
+	
+	/** \brief Generates mutations in the current population
+	 * 
+	 * Mutates nucleotides from the marker sequences depending on model
+	 * 
+	 * */
+	void mutatePopulation();
+	
 	/** \brief Bottleneck effet
 	 *
 	 * Creates a time-dependent population size
@@ -152,34 +184,7 @@ public:
 	void updateWithMigration();
 	
 	
-	int getPopSize() const;
-
-
-	unsigned int subPopulationSize (std::vector<unsigned int>);
-
-	std::vector< std::vector<unsigned int> > getSubPop() ;
-
-
-	std::vector<unsigned int> getAlleleCount();
-
 private:
-
-	/** \brief Calculate ouput constants
-	 * 
-	 * Caculates the needed precision and additional spaces for the output to be aligned
-	 * 
-	 * */
-	void calcOutputConstants();
-	
-	
-	/** \brief Generates mutations in the current population
-	 * 
-	 * Mutates nucleotides from the marker sequences depending on model
-	 * 
-	 * */
-	void mutatePopulation();
-	
-	
 	//!< Execution mode
 	int executionMode;
 	
@@ -214,6 +219,7 @@ private:
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
 	
+	
 	//!< Bottleneck population reduction factor
 	double popReduction;
 	
@@ -222,6 +228,7 @@ private:
 	
 	//!< Bottleneck stop time
 	int bottleneckEnd;
+	
 	
 	//!< Precision for output
 	std::size_t precision;

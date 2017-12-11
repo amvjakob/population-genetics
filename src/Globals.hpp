@@ -13,7 +13,9 @@ namespace Nucl {
 		{'n', N}, {'N', N}, {'x', N}, {'*', N}
 	};
 	
-	const char toChar[6] = "ACTGN";
+	const char toChar[6] = "ACGTN";
+	
+	const char possibleChars[5] = "ACGT";
 }
 
 #define _INPUT_COMMENT_ '#'
