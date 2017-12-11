@@ -443,24 +443,6 @@ TEST (BottleneckTest, PopulationReduction) {
     
 }
 
-/*TEST(SelectionTest, UpdateAllelesFqsWithSel) {
-	Data data("../data/test_input.txt","../data/test.fa");
-
-	vector <double> knownProbabilities = {0, 0};
-	
-	data.collectAll();
-	SimulationsExecutor simulationsExecutor(data);
-	Simulation simul = simulationsExecutor.createSimulation();
-
-	simul.updateWithSelection();
-	
-	for (auto i : knownProbabilities) {
-		EXPECT_NEAR(simul.probabilitiesBuffer[i], knownProbabilities[i], 1E-3);
-	}
-}*/
-
-
-
 RandomDist* parse_args(int argc, char **argv) {
     TCLAP::CmdLine cmd("Random number generator");
     TCLAP::ValueArg<int> nsample("N", "sample_size", "Number of random numbers to generate",  true, 1, "int");
