@@ -224,21 +224,6 @@ TEST (MigrationTest , CompleteGrapshTest ) {
 
     }
 
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
 
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
 
@@ -286,21 +271,6 @@ TEST (MigrationTest , RingTest ) {
         ++t;
     }
 
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
 
 
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
@@ -351,22 +321,6 @@ TEST (MigrationTest , StarTest ) {
 
     }
 
-    std::cout << "SubPOPTEST" << std::endl;
-    for (auto& mig : subPopTest) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "SubPOP" << std::endl;
-    for (auto& mig : simul.getSubPop()) {
-        for (auto& m : mig) {
-            std::cout << m << '\t';
-        }
-        std::cout << std::endl;
-    }
-
     for (size_t i(0); i < simul.getSubPop().size(); ++i) {
 
 
@@ -386,9 +340,10 @@ TEST (MigrationTest , StarTest ) {
 
 							EXPECT_TRUE(subPopTest[i][i] >= simul.getSubPop()[i][i]);
 
-							EXPECT_TRUE(subPopTest[i][simulationsExecutor.getStarCenter()] <=
+                            EXPECT_TRUE(subPopTest[i][simulationsExecutor.getStarCenter()] <=
 										simul.getSubPop()[i][simulationsExecutor.getStarCenter()]);
-						}
+                        }
+
             }
 
         }
@@ -417,7 +372,7 @@ TEST (BottleneckTest, PopulationReduction) {
 	
 	int population = data.getPopSize();
 	
-	int popReducted = population / reduction;
+	int popReducted = population /  (int) reduction;
 	
     double t(1);
 
@@ -429,14 +384,21 @@ TEST (BottleneckTest, PopulationReduction) {
         ++t;
 
         if (t <= data.getBottleneckStart()) {
-			EXPECT_EQ(simul.getPopSize(), population);	
-		} else if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
-			EXPECT_EQ(simul.getPopSize(),popReducted);
-		} else if (t > data.getBottleneckEnd()) {
-			if (population%2==0) {
-			EXPECT_EQ(simul.getPopSize(), population);
+
+            EXPECT_EQ(simul.getPopSize(), population);
+
+        } else if (t>=data.getBottleneckStart() and t <=data.getBottleneckEnd()) {
+
+            EXPECT_EQ(simul.getPopSize(),popReducted);
+
+        } else if (t > data.getBottleneckEnd()) {
+
+            if (population % (int)(data.getPopReduction())==0) {
+
+                EXPECT_EQ(simul.getPopSize(), population);
 			} else {
-			EXPECT_EQ(simul.getPopSize(), population-1);
+
+                EXPECT_EQ(simul.getPopSize(), population-1);
 			}
 		}
     }
