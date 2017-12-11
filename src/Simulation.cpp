@@ -146,10 +146,16 @@ Simulation::Simulation(const std::vector<std::string>& als,
 }
 
 Simulation::Simulation(const std::vector<std::string>& als,
-						const std::vector<unsigned int>& alsCount)
+						const std::vector<unsigned int>& alsCount,
+						const int start,
+						const int stop,
+						const double reduction)
   : executionMode(_PARAM_BOTTLENECK_),
 	populationSize(0), 
-	alleles(als), allelesCount(alsCount)
+	alleles(als), allelesCount(alsCount),
+	bottleneckStart(start),
+	bottleneckEnd(stop),
+	popReduction(reduction)
 {
 	assert(alleles.size() == allelesCount.size());
 	
@@ -160,6 +166,9 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	assert(populationSize > 0);
 	
 	calcOutputConstants();
+	
+	assert(popReduction!=0);
+	assert(bottleneckStart<=bottleneckEnd);
 }
 
 void Simulation::calcOutputConstants() {
@@ -261,7 +270,7 @@ void Simulation::update(int t) {
 			break;
 			
 		case _PARAM_BOTTLENECK_:
-			//bottleneck(t);
+			bottleneck(t);
 			RandomDist::multinomial(allelesCount, populationSize);
 			break;
         	
@@ -336,11 +345,11 @@ void Simulation::mutatePopulation() {
 	}
 }
 
-void Simulation::bottleneck(int simulationTime, int startTime, int stopTime, double reductionFactor) {
-	if (simulationTime == startTime) {
-		populationSize /= reductionFactor;
-	} else if (simulationTime == stopTime) {
-		populationSize *= reductionFactor;
+void Simulation::bottleneck(int simulationTime) {
+	if (simulationTime == bottleneckStart) {
+		populationSize /= popReduction;
+	} else if (simulationTime == bottleneckEnd) {
+		populationSize *= popReduction;
 	}
 }
 
@@ -427,6 +436,10 @@ void Simulation::updateWithMigration() {
 			}
 		}
 	}	
+}
+
+int Simulation::getPopSize() const {
+	return populationSize;
 }
 
 unsigned int Simulation:: subPopulationSize (std::vector<unsigned int> sub ) {
