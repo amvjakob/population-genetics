@@ -91,6 +91,17 @@ TEST (DataReading, Bottleneck) {
 	EXPECT_EQ(data.getBottleneckEnd(), 40);
 }
 
+TEST(DataReading, AlleleSelection) {
+	Data data("../data/test_input.txt","../data/test.fa");
+
+	vector <double> knownSel = {0.1, -0.8};
+
+	data.collectAll();
+
+	for (size_t i(0); i < data.getSelections().size() ; ++i) {
+		EXPECT_NEAR(data.getSelections()[i], knownSel[i], 1E-3);
+	}
+}
 
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
@@ -431,6 +442,22 @@ TEST (BottleneckTest, PopulationReduction) {
     }
     
 }
+
+/*TEST(SelectionTest, UpdateAllelesFqsWithSel) {
+	Data data("../data/test_input.txt","../data/test.fa");
+
+	vector <double> knownProbabilities = {0, 0};
+	
+	data.collectAll();
+	SimulationsExecutor simulationsExecutor(data);
+	Simulation simul = simulationsExecutor.createSimulation();
+
+	simul.updateWithSelection();
+	
+	for (auto i : knownProbabilities) {
+		EXPECT_NEAR(simul.probabilitiesBuffer[i], knownProbabilities[i], 1E-3);
+	}
+}*/
 
 
 
