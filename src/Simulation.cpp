@@ -411,8 +411,15 @@ void Simulation::updateWithSelection() {
 		// generate new allele copy number including selection frequency
 		double adjustedPopulation = nParent + nParentCorrection;
 		double p = 0.0;
-		if (adjustedPopulation != 0.0) {
+		
+		// calculate the probability of each allele to be transmitted to
+		// the next generation. 
+		// if the last allele is lethal (selectionFqs = -1), the ajusted 
+		// population will be 0 (nParent = nParentCorrection) => to take into account
+		if(adjustedPopulation != 0) {
 			p = count * (1 + selectionFqs[i]) / adjustedPopulation;
+		} else {
+			p = 0.0;
 		}
 		
 		// reduce residual "gene pool"

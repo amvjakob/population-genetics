@@ -80,6 +80,19 @@ TEST(DataReading, AlleleSelection) {
 	}
 }
 
+TEST(SelectionTest, AlleleLethality) {
+    Data data("../data/test_input.txt","../data/test.fa");
+
+    vector <double> knownProbabilities = {0.5, -1};
+
+    data.collectAll();
+    Simulation simul = Simulation({"1", "2"}, {10, 20}, knownProbabilities);
+
+    simul.update(1);
+
+    EXPECT_EQ(simul.getAlleleCount()[1], 0.0);
+}
+
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
 
