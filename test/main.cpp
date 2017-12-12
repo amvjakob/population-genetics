@@ -90,7 +90,7 @@ TEST(SelectionTest, AlleleLethality) {
 
     simul.update(1);
 
-    EXPECT_EQ(simul.getAlleleCount()[1], 0.0);
+    EXPECT_EQ(simul.getAllelesCount()[1], 0.0);
 }
 
 TEST(RandomTest, UniformDistribution) {
