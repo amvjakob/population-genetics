@@ -85,9 +85,7 @@ TEST(SelectionTest, AlleleLethality) {
 
     vector <double> knownProbabilities = {0.5, -1};
 
-    data.collectAll();
     Simulation simul = Simulation({"1", "2"}, {10, 20}, knownProbabilities);
-
     simul.update(1);
 
     EXPECT_EQ(simul.getAllelesCount()[1], 0.0);
