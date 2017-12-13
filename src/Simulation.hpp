@@ -17,8 +17,10 @@ class Simulation {
 public:
 
 	Simulation() = default;
+
 	
 	Simulation(const Simulation& other);
+
 	
 	Simulation& operator=(const Simulation& other);
 
@@ -31,6 +33,7 @@ public:
 	 * */
 	Simulation(const std::vector<std::string>& alleles,
 				const std::vector<unsigned int>& allelesCount);
+
 
 	/** \brief Simulation constructor
 	 *
@@ -45,6 +48,7 @@ public:
 				const std::vector<unsigned int>& allelesCount,
 				const std::vector<double>& mutationFqs,
 				const std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N >& nuclMutationProbs);
+
 	
 	/** \brief Simulation constructor
 	 *
@@ -59,6 +63,7 @@ public:
 				const std::vector< std::vector<unsigned int> >& subPopulations,
 				const std::vector< std::vector<unsigned int> >& migrationRates,
 				bool detailedOutput = false);
+
 				
 	/** \brief Simulation constructor
 	 *
@@ -71,6 +76,7 @@ public:
 	Simulation(const std::vector<std::string>& alleles,
 				const std::vector<unsigned int>& allelesCount,
 				const std::vector<double>& selectionRates);
+
 	
 	/** \brief Simulation constructor
 	 *
@@ -94,6 +100,7 @@ public:
 	 * \return A constant reference on the alleles in the population
 	 * */
 	const std::vector<std::string>& getAlleles() const;
+
 	
 	/** \brief Get the number of alleles in the population
 	 *
@@ -104,12 +111,14 @@ public:
 	 * */
 	const std::vector<unsigned int>& getAllelesCount() const;
 
+
 	/** \brief Utility function to format the allele numbers to frequencies for the output
 	 *
 	 * \return A string containing the allele frequencies at the current
 	 * time step. with the following format: 0.50|...|0.25
 	 * */
 	std::string getAlleleFqsForOutput() const;
+
 
 	/** \brief Utility function to get and format the allele identifiers
 	 *
@@ -126,26 +135,31 @@ public:
 	 *
 	 * */
 	void update(int t);
+
 	
 	/** \brief Get the output precision for the frequencies 
 	 *
 	 * */
 	size_t getPrecision() const;
 	
+
 	/** \brief Get the total population size
 	 *
 	 * */
 	int getPopulationSize() const;
 	
+
 	/** \brief Get the subpopulations
 	 * 
 	 * */
 	const std::vector< std::vector<unsigned int> >& getSubPopulations() const;
 
+
 	/** \brief Get the sizes of the subpopulations
 	 * 
 	 * */
 	const std::vector<size_t>& getSubPopulationSizes() const;
+
 
 protected:
 
@@ -191,6 +205,7 @@ protected:
 	
 	
 private:
+
 	//!< Execution mode
 	int executionMode;
 	
@@ -198,9 +213,11 @@ private:
 	//!< Size of the population
 	int populationSize;
 
+
 	//!< List of alleles of the current simulation
 	std::vector<std::string> alleles;
 	
+
 	//!< Count of the alleles in the current simulation
 	std::vector<unsigned int> allelesCount;
 	
@@ -208,6 +225,7 @@ private:
 	//!< List of marker-specifix mutation frequencies
 	std::vector<double> mutationFqs;
 	
+
 	//!< Mutation rates for every nucleotide to every nucleotide
 	std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N > mutationTable;
 	
@@ -219,12 +237,15 @@ private:
 	//!< Table containing the sub-populations
     std::vector< std::vector<unsigned int> > subPopulations;
     
+
     //!< Table of subpopulation sizes
     std::vector<std::size_t> subPopulationSizes;
     
+
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
     
+
     //!< Flag for detailed output in migration mode
     bool isMigrationDetailedOutput = false;
 	
@@ -232,9 +253,11 @@ private:
 	//!< Bottleneck population reduction factor
 	double popReduction;
 	
+
 	//!< Bottleneck start time
 	int bottleneckStart;
 	
+
 	//!< Bottleneck stop time
 	int bottleneckEnd;
 	
@@ -242,9 +265,9 @@ private:
 	//!< Precision for output
 	std::size_t precision;
 	
+
 	//!< Additional spaces for correct output format
 	std::size_t additionalSpaces;
 };
-
 
 #endif

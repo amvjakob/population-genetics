@@ -10,12 +10,13 @@
 #include "Data.hpp"
 #include "Globals.hpp"
 
+
 /** \brief Class representing a SimulationsExecutor
  * 
  * This class is a wrapper for the execution of multiple single
- * Simulations with the same initial parameters (e.g. to generate statistics).
+ * simulations with the same initial parameters (e.g. to generate statistics).
  * The Simulations are run on different threads and their outputs stored
- * in a common file. * 
+ * in a common file.  
  * */
 class SimulationsExecutor {
 	
@@ -24,19 +25,22 @@ public:
 	/** \brief SimulationsExecutor constructor
 	 * 
 	 * Initialises a new SimulationsExecutor, a wrapper for a series of Simulations
-	 * Uses the given parameters to construct a Data object to read the simulation params
+	 * uses the given parameters to construct a Data object to read the simulation params.
 	 *
 	 * \param input 		the path of the input file to be read
 	 * \param fasta 		the path of the fasta file to be read
 	 * */
 	SimulationsExecutor(std::string input, std::string fasta);
 	
+
 	//!< Because of the threads, we do not allow any copies
 	SimulationsExecutor(const SimulationsExecutor& other) = delete;
 	
+
 	//!< Because of the threads, we do not allow any copies
 	SimulationsExecutor& operator=(const SimulationsExecutor& other) = delete;
 	
+
 	/** \brief Start the execution of the simulations
 	 * 
 	 * Invoking this method will create the threads and execute them.
@@ -60,6 +64,7 @@ protected:
 	 * */
 	void runSimulation(int id);
 	
+
 	/** \brief Write data to a buffer to be eventually put in a result file
 	 * 
 	 * Writes data to a temporary buffer, which performs the actual output
@@ -72,6 +77,7 @@ protected:
 	 * */
 	void writeData(std::string line, int threadId, int step);
 	
+
 	/** \brief Write one step of all simulations to the result file
 	 * 
 	 * Wrties the data passed as argument in the result file.
@@ -102,6 +108,7 @@ protected:
 	 * */
 	int getMigrationModel() const ;
 
+
 	/** \brief Get the index of the population at the center of a star-shaped migration pattern
 	 *
 	 * \return An size_t representing the index of the population at the center of a star-shaped migration pattern
@@ -120,14 +127,15 @@ private:
 	
 	//!< Table containing the sub-populations
     std::vector< std::vector<unsigned int> > subPopulations;
+
     
     //!< Table containing migration rates for each sub group
     std::vector< std::vector<unsigned int> > migrationRates;
 
+
     //!< The index of the population at the center of a star-shaped migration pattern
     size_t starCenter;
 	
-
 
 	//!< Result file
 	std::ofstream results;
@@ -135,12 +143,16 @@ private:
 
 	//!< Mutex for lock guarding
 	std::mutex writerMutex;
+
 	
 	//!< Output buffer for result data
 	std::deque< std::vector<std::string> > outputBuffer;
 
+
 	//!< Lowest step that is still in the buffer
 	int bufferLowestStep;
+
+
 	//!< Highest step that is already in the buffer
 	int bufferHighestStep;
 };

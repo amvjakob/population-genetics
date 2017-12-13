@@ -8,6 +8,7 @@
 
 using namespace std;
 
+
 Data::Data(string input, string fasta) 
   : inputName(input), fastaName(fasta), withFasta(fasta != ""),
 	populationSize(0), nbGenerations(0),
@@ -25,6 +26,7 @@ Data::Data(string input, string fasta)
 
 	collectAll();
 }
+
 
 void Data::collectAll() {
 	// read user file
@@ -58,6 +60,7 @@ void Data::collectAll() {
 		checkFastaFile();
 	}
 }
+
 
 void Data::collectUserFile(ifstream& file) {
 	string line, key;
@@ -158,6 +161,7 @@ void Data::collectUserFile(ifstream& file) {
 	}
 }
 
+
 void Data::checkUserFile() {
 	// check basic params
 	if (!(nbGenerations > 0)) {
@@ -203,6 +207,7 @@ void Data::checkUserFile() {
 			exit(1);
 		}
 	}
+
 
 	// set mutation model, if mutation_mode
 	switch (executionMode) {
@@ -326,6 +331,7 @@ void Data::collectFastaFile(ifstream& file) {
 	}
 }
 
+
 void Data::checkFastaFile() {
 	// count the alleles
 	list<string> uniqueSequences = sequences;
@@ -344,33 +350,41 @@ void Data::checkFastaFile() {
 	}
 }
 
+
 int Data::getPopulationSize() const {
 	return populationSize;
 }
+
 
 int Data::getNbGenerations() const {
 	return nbGenerations;
 }
 
+
 int Data::getNbReplicates() const {
 	return nbReplicates;
 }
+
 
 size_t Data::getNbAlleles() const {
 	return allelesCount.size();
 }
 
+
 const std::vector<unsigned int>& Data::getAllelesCount() const {
 	return allelesCount;
 }
+
 
 const std::vector<std::string>& Data::getAlleles() const {
 	return alleles;
 }
 
+
 const std::vector<unsigned int>& Data::getMarkerSites() const {
 	return markerSites;
 }
+
 
 int Data::getExecutionMode() const {
 	return executionMode;
@@ -381,13 +395,16 @@ const vector<double>& Data::getMutationRates() const {
 	return mutationRates;
 }
 
+
 int Data::getMutationModel() const {
 	return mutationModel;
 }
 
+
 double Data::getKimuraDelta() const {
 	return kimuraDelta;
 }
+
 
 const std::vector<double>& Data::getFelsensteinConstants() const {
 	return felsensteinConstants;
@@ -398,13 +415,16 @@ int Data::getMigrationModel() const {
 	return migrationModel;
 }
 
+
 int Data::getMigrationMode() const {
 	return migrationMode;
 }
 
+
 const std::vector<int>& Data::getMigrationRates() const {
     return migrationRates;
 }
+
 
 bool Data::getIsDetailedOutput() const {
 	return isMigrationDetailedOutput;
@@ -420,9 +440,11 @@ double Data::getPopReduction() const {
 	return popReduction;
 }
 
+
 int Data::getBottleneckStart() const {
 	return bottleneckStart;
 }
+
 
 int Data::getBottleneckEnd() const {
 	return bottleneckEnd;

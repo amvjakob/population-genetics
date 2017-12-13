@@ -7,6 +7,7 @@
 #include "Simulation.hpp"
 #include "Random.hpp"
 
+
 Simulation::Simulation(const Simulation& other)
   : executionMode(other.executionMode),
 	populationSize(other.populationSize),
@@ -58,6 +59,7 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	calcOutputConstants();
 }
 
+
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const std::vector<double>& mutationRates, 
@@ -82,6 +84,7 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	
 	calcOutputConstants();
 }
+
 
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector< std::vector<unsigned int> >& subPopsCount,
@@ -120,6 +123,7 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	calcOutputConstants();
 }
 
+
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
 						const std::vector<double>& selectionRates)
@@ -146,6 +150,7 @@ Simulation::Simulation(const std::vector<std::string>& als,
 	
 	calcOutputConstants();
 }
+
 
 Simulation::Simulation(const std::vector<std::string>& als,
 						const std::vector<unsigned int>& alsCount,
@@ -187,9 +192,11 @@ const std::vector<std::string>& Simulation::getAlleles() const {
 	return alleles;
 }
 
+
 const std::vector<unsigned int>& Simulation::getAllelesCount() const {
 	return allelesCount;
 }
+
 
 std::string Simulation::getAlleleFqsForOutput() const {
 	std::stringstream ss;
@@ -229,6 +236,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 	
 	return ss.str();
 }
+
 
 std::string Simulation::getAlleleStrings() const {
 	std::stringstream ss;
@@ -279,6 +287,7 @@ void Simulation::update(int t) {
 			break;
 	}
 }
+
 
 void Simulation::mutatePopulation() {
 	assert(!mutationFqs.empty());
@@ -343,6 +352,7 @@ void Simulation::mutatePopulation() {
 		}
 	}
 }
+
 
 void Simulation::updateWithMigration() {
 	// big container for all movements
@@ -418,8 +428,6 @@ void Simulation::updateWithSelection() {
 		// population will be 0 (nParent = nParentCorrection) => to take into account
 		if(adjustedPopulation != 0) {
 			p = count * (1 + selectionFqs[i]) / adjustedPopulation;
-		} else {
-			p = 0.0;
 		}
 		
 		// reduce residual "gene pool"
@@ -437,6 +445,7 @@ void Simulation::updateWithSelection() {
 	assert(nParent == 0);
 	assert(nOffspring == populationSize);
 }
+
 
 void Simulation::bottleneck(int simulationTime) {
 	if (simulationTime == bottleneckStart) {

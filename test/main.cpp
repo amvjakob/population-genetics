@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <tclap/CmdLine.h>
 #include "../src/Random.hpp"
 #include "../src/Data.hpp"
 #include "../src/SimulationsExecutor.hpp"
@@ -15,17 +14,20 @@ TEST(DataReading, PopulationSize) {
 	EXPECT_EQ(data.getPopulationSize(), 21);
 }
 
+
 TEST(DataReading, NumberGenerations) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
 	EXPECT_EQ(data.getNbGenerations(), 3000);
 }
 
+
 TEST(DataReading, NumberAlleles) {
 	Data data("../data/test_input.txt", "../data/test.fa");
 
 	EXPECT_EQ((int) data.getNbAlleles(), 2);
 }
+
 
 TEST(DataReading, MarkerSites) {
 	Data data("../data/test_input.txt", "../data/test.fa");
@@ -46,11 +48,13 @@ TEST(DataReading, InitialFrequencies) {
 	}
 }
 
+
 TEST(DataReading, NumberReplicates) {
 	Data data("../data/test_input.txt","../data/test.fa");
 
 	EXPECT_EQ(data.getNbReplicates(), 500);
 }
+
 
 TEST(DataReading, NucleotidesMutations) {
 	Data data("../data/test_input.txt","../data/test.fa");
@@ -62,6 +66,7 @@ TEST(DataReading, NucleotidesMutations) {
 	}
 }
 
+
 TEST (DataReading, Bottleneck) {
 	Data data("../data/test_input.txt","../data/test.fa");
 	
@@ -69,6 +74,7 @@ TEST (DataReading, Bottleneck) {
 	EXPECT_EQ(data.getBottleneckStart(), 20);
 	EXPECT_EQ(data.getBottleneckEnd(), 40);
 }
+
 
 TEST(DataReading, AlleleSelection) {
 	Data data("../data/test_input.txt","../data/test.fa");
@@ -80,6 +86,11 @@ TEST(DataReading, AlleleSelection) {
 	}
 }
 
+
+// For the following part, we test specific functionalities 
+// for the different additional executables of the program 
+// (mutations, migrations, bottleneck and selections)
+
 TEST(SelectionTest, AlleleLethality) {
     Data data("../data/test_input.txt","../data/test.fa");
 
@@ -90,6 +101,7 @@ TEST(SelectionTest, AlleleLethality) {
 
     EXPECT_EQ(simul.getAllelesCount()[1], 0.0);
 }
+
 
 TEST(RandomTest, UniformDistribution) {
 	double mean_uniform(0), input_mean(1.35), input_sd(2.8);
@@ -104,6 +116,7 @@ TEST(RandomTest, UniformDistribution) {
 	EXPECT_NEAR(input_mean, mean_uniform, 3 * input_sd / sqrt(1e4));
 }
 
+
 TEST(RandomTest, NormalDistribution) {
 	double mean_normal(0), input_mean(1.35), input_sd(2.8);
 
@@ -114,6 +127,7 @@ TEST(RandomTest, NormalDistribution) {
 
 	EXPECT_NEAR(input_mean, mean_normal, 2 * input_sd / sqrt(1e4));
 }
+
 
 TEST (MigrationTest, FixSubPopulation) {
 	
@@ -177,6 +191,7 @@ TEST (MigrationTest, FixSubPopulation) {
 	}
 }
 
+
 TEST (MigrationTest, MigrationEffect) {
 	std::vector<std::string> alleles = { "1", "2", "3" };
 	std::vector< std::vector< unsigned int > > subPopulations = { { 10, 0, 0 }, { 0, 20, 0 }, { 0, 0, 30 } };
@@ -203,6 +218,7 @@ TEST (MigrationTest, MigrationEffect) {
 		}
 	}
 }
+
 
 TEST (MigrationTest, CompleteGraphTest ) {
 	
@@ -280,6 +296,7 @@ TEST (MigrationTest, RingTest) {
 	}
 }
 
+
 TEST (MigrationTest, StarTest) {
 
 	std::vector<std::string> alleles = { "1", "2", "3" };
@@ -318,6 +335,7 @@ TEST (MigrationTest, StarTest) {
 	}
 }
 
+
 TEST (BottleneckTest, PopulationReduction) {
 	int startTime = 20;
 	int endTime = 40;
@@ -344,54 +362,6 @@ TEST (BottleneckTest, PopulationReduction) {
 		
 		++t;
     }
-}
-
-RandomDist* parse_args(int argc, char **argv) {
-    TCLAP::CmdLine cmd("Random number generator");
-    TCLAP::ValueArg<int> nsample("N", "sample_size", "Number of random numbers to generate",  true, 1, "int");
-    cmd.add(nsample);
-    TCLAP::ValueArg<double> meanval("m", "mean", "Mean value",  true, 0, "double");
-    cmd.add( meanval );
-    TCLAP::ValueArg< double > sdev("s", "std_dev", "Standard deviation",  true, 1, "double");
-    cmd.add( sdev );
-    TCLAP::SwitchArg  uniform("u", "uniform", "Uniform distribution", true);
-    cmd.add( uniform );
-    TCLAP::SwitchArg  normal("n", "normal", "Normal distribution", true);
-    cmd.add(normal);
-    cmd.parse( argc, argv );
-    double m = meanval.getValue(), s = sdev.getValue();
-    int ns = nsample.getValue();
-    bool norm =  normal.getValue();
-    if ( !(norm ^ uniform.getValue()) ) {
-        throw(3);
-    }
-    RandomDist* rng = new RandomDist(m, s, ns, norm);
-    return rng;
-}
-
-int main_random(int argc, char **argv) {
-    RandomDist *rng = 0;
-    try {
-        rng = parse_args(argc, argv);
-    } catch(const int n) {
-        switch (n) {
-        case 1:
-            std::cerr << "Standard deviation must be positive\n";
-            break;
-        case 2:
-            std::cerr << "Sample size must be positive\n";
-            break;
-        case 3:
-            std::cerr << "Please choose either normal or uniform distribution\n";
-            break;
-        }
-        return n;
-    }
-    for (auto I : rng->generate_numbers()) {
-        std::cout << I << " "; std::cout << "\n";
-    }
-    if (rng) delete rng;
-    return 0;
 }
 
 

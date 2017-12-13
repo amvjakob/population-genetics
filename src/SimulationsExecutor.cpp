@@ -70,6 +70,7 @@ void SimulationsExecutor::execute() {
 	for (auto& th : threads) th.join();
 }
 
+
 Simulation SimulationsExecutor::createSimulation() const {
 	switch (data.getExecutionMode()) {
 		case _EXECUTION_MODE_MUTATIONS_:
@@ -182,6 +183,7 @@ void SimulationsExecutor::writeData(std::string line, int threadId, int step) {
 	++bufferLowestStep;
 }
 
+
 void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string>& alleleFqs) {
 	results << step;
 	if (data.getNbGenerations() > 998 && step < 1000) {
@@ -201,6 +203,7 @@ void SimulationsExecutor::writeAlleleFqs(int step, const std::vector<std::string
 
 	results << '\n';
 }
+
 
 void SimulationsExecutor::generateMutationRates() {
 	switch (data.getMutationModel()) {
@@ -288,6 +291,7 @@ void SimulationsExecutor::generateMutationRates() {
 	}
 }
 
+
 void SimulationsExecutor::generateSubPopulations() {
 	// subpopulations generation
 	subPopulations = std::vector< std::vector<unsigned int> >(data.getNbAlleles(), 
@@ -314,8 +318,7 @@ void SimulationsExecutor::generateSubPopulations() {
 
     // migration rate generation
     migrationRates = std::vector<std::vector<unsigned int> >(data.getNbAlleles(),
-															 std::vector<unsigned int>(data.getNbAlleles(), 0));
-
+					 std::vector<unsigned int>(data.getNbAlleles(), 0));
 
     starCenter = std::rand() % data.getNbAlleles();
 	assert(starCenter <= data.getNbAlleles());
@@ -433,6 +436,7 @@ void SimulationsExecutor::generateSubPopulations() {
 		std::cout << std::endl;
 	}
 }
+
 
 size_t SimulationsExecutor::getStarCenter() const {
 	return starCenter;

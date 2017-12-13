@@ -17,6 +17,7 @@ RandomDist::RandomDist(double m, double s, int ns, bool n)
     }
 }
 
+
 std::vector<double> RandomDist::generate_numbers() {
     std::vector<double> result(nsample);
     if (normdist) {
@@ -28,10 +29,12 @@ std::vector<double> RandomDist::generate_numbers() {
     return result;
 }
 
+
 int RandomDist::binomial(int n, double p) {
 	std::binomial_distribution<int> dbinom(n, p);
 	return dbinom(rng);
 }
+
 
 int RandomDist::uniformIntSingle(int min, int max) {
 	// init random distribution
@@ -41,6 +44,7 @@ int RandomDist::uniformIntSingle(int min, int max) {
 	return distr(RandomDist::rng);
 }
 
+
 double RandomDist::uniformDoubleSingle(double min, double max) {
 	// init random distribution
 	std::uniform_real_distribution<> distr(min, max);
@@ -48,6 +52,7 @@ double RandomDist::uniformDoubleSingle(double min, double max) {
 	// get one value
 	return distr(RandomDist::rng);
 }
+
 
 void RandomDist::uniformIntVector(std::vector<int>& toFill, int min, int max) {
 	// init random distribution
@@ -63,6 +68,7 @@ void RandomDist::uniformIntVector(std::vector<int>& toFill, int min, int max) {
 	); 
 }
 
+
 void RandomDist::uniformDoubleVector(std::vector<double>& toFill, double min, double max) {
 	// init random distribution
 	std::uniform_real_distribution<> distr(min, max);
@@ -77,6 +83,7 @@ void RandomDist::uniformDoubleVector(std::vector<double>& toFill, double min, do
 	); 
 }
 
+
 void RandomDist::uniform(std::vector< double > &res) {
     double delta = sd * sqrt(3.0);
     double lower = mean - delta, upper = mean + delta;
@@ -87,6 +94,7 @@ void RandomDist::uniform(std::vector< double > &res) {
     }
 }
 
+
 void RandomDist::normal(std::vector< double > &res) {
     std::normal_distribution<> norm(mean, sd);
    
@@ -95,6 +103,7 @@ void RandomDist::normal(std::vector< double > &res) {
     }
 }
 
+
 void RandomDist::multinomial(std::vector<unsigned int>& pop) {
 	int n = 0;
 	for (auto& count : pop)
@@ -102,6 +111,7 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop) {
 		
 	RandomDist::multinomial(pop, n);
 }
+
 
 void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 	int total = 0;
@@ -139,6 +149,7 @@ void RandomDist::multinomial(std::vector<unsigned int>& pop, int n) {
 	assert(n == 0);
 	assert(total == 0);
 }
+
 
 std::vector<unsigned int> RandomDist::multinomialByValue(const std::vector<unsigned int>& pop, int n) {	
 	std::vector<unsigned int> res = pop;

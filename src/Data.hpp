@@ -37,11 +37,13 @@ public:
 	 * */
 	int getPopulationSize() const;
 
+
 	/** \brief Getter of the number of generations
 	 *
 	 * 	\return numberGenerations, an int
 	 * */
 	int getNbGenerations() const;
+
 
 	/** \brief Getter of the number of replicates
 	 *
@@ -49,11 +51,13 @@ public:
 	 * */
 	int getNbReplicates() const;
 
+
 	/** \brief Getter of the number of alleles
 	 *
 	 * 	\return numberAlleles, a size_t
 	 * */
 	size_t getNbAlleles() const;
+
 
 	/** \brief Getter of the vector of the allele counts
 	 * 
@@ -61,11 +65,13 @@ public:
 	 * */
 	const std::vector<unsigned int>& getAllelesCount() const;
 
+
 	/** \brief Getter of the vector of the alleles
 	 * 
 	 * 	\return a vector of strings, the alleles
 	 * */
 	const std::vector<std::string>& getAlleles() const;
+
 
 	/** \brief Get the marker sites on the alleles
 	 * 
@@ -73,6 +79,7 @@ public:
 	 * */
 	const std::vector<unsigned int>& getMarkerSites() const;
 
+	
 	/** \brief Get the execution mode of a Simulation (mutation, migration, ...)
 	 * 
 	 * \return An int whose meaning is defined in Globals.hpp
@@ -86,10 +93,12 @@ public:
 	 * */
 	const std::vector<double>& getMutationRates() const;
 
+
 	/** \brief Get the mutation model to use for a Simulation (Cantor, Kimura, ...)
 	 * 
 	 * */
 	int getMutationModel() const;
+
 	
 	/** \brief Get the value necessary to create a Kimura mutation model
 	 * 
@@ -97,6 +106,7 @@ public:
 	 * */
 	double getKimuraDelta() const;
 	
+
 	/** \brief Get the values necessary to create a Felsenstein mutation model
 	 * 
 	 * \return The values of the constants for a Felsenstein model
@@ -109,11 +119,13 @@ public:
 	 * */
     int getMigrationModel() const;
 
+
 	/** \brief Get the migration mode to use for a Simulation (random, user input , ...)
 	 *
 	 * */
 	int getMigrationMode() const;
 	
+
 	/** \brief Getter of the sites migration rates for each allele
      *
      * The user is supposed to know the number of different allele.
@@ -123,6 +135,7 @@ public:
      * */
     const std::vector<int>& getMigrationRates() const;
     
+
     /** \brief Get whether the output should be detailed if in migration mode
      * 
      * */
@@ -139,6 +152,7 @@ public:
 	 * 	\return popReduction, a double
 	 * */
 	double getPopReduction() const;
+
 	 
 	/** \brief Getter of the start of the bottleneck
 	 *
@@ -146,6 +160,7 @@ public:
 	 * */
 	int getBottleneckStart() const;
 	 
+
 	/** \brief Getter of the end of the bottleneck
 	 *
 	 * 	\return bottleneckEnd, an int
@@ -159,6 +174,7 @@ public:
 	static constexpr unsigned int str2int(const char* str, int h = 0) {
 		return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
 	} 
+
     
     /** \brief Extracts a value from a line
 	 * 
@@ -184,6 +200,7 @@ public:
 		}
 	}
 	
+
 	/** \brief Extracts a vector of values from a line
 	 * 
 	 * \param into			the variable to store the extracted values into
@@ -218,6 +235,7 @@ protected:
 	 * */
 	void collectAll();
 
+
 	/** \brief Collects data from the user file
 	 *
 	 * Reads the number of generations, the marker sites, the number of getReplicates
@@ -225,11 +243,13 @@ protected:
 	 * */
 	void collectUserFile(std::ifstream& file);
 
+
 	/** \brief Checks the data from the user file
 	 *
 	 * Reviews the read values and evalutes if the parameters are correct to run a Simulation
 	 * */
 	void checkUserFile();
+
 
 	/** \brief Collects data from the fasta file
 	 *
@@ -240,6 +260,7 @@ protected:
 	 *
 	 * */
 	void collectFastaFile(std::ifstream& file);
+
 
 	/** \brief Checks the data from the fasta file
 	 *
@@ -255,9 +276,11 @@ private:
 	//!< Name of the user input file, a string
 	std::string inputName;
 
+	
 	//!< Name of the fasta file, a string
 	std::string fastaName;
 
+	
 	//!< Flag for operating mode
 	bool withFasta;
 
@@ -265,24 +288,31 @@ private:
 	//!< Size of the population, an int
 	int populationSize;
 
+	
 	//!< Number of generations (number of simulation steps), an int
 	int nbGenerations;
+	
 	
 	//!< Number of replicates of the simulation, an int
 	int nbReplicates;
 
+	
 	//!< Vector containing the allele frequencies when running without fasta file
 	std::vector<double> allelesFqs;
 
+	
 	//!< List of alleles in the Simulations
 	std::vector<std::string> alleles;
+	
 	
 	//!< Vector of double containing the allele frequencies of the fasta file
 	std::vector<unsigned int> allelesCount;
 
+	
 	//!< Vector of double containing the user marker sites
 	std::vector<unsigned int> markerSites;
 
+	
 	//!< List of strings containing the allele sequences of all the individuals of the simulation
 	std::list<std::string> sequences;
 
@@ -294,11 +324,14 @@ private:
 	//!< Vector of double containing the mutations probabilities of the marker sites
 	std::vector<double> mutationRates;
 	
+	
 	//!< Mutation model (simple, kimura, felsenstein)
 	int mutationModel;
 	
+	
 	//!< Kimura model
 	double kimuraDelta;
+	
 	
 	//!< Felsenstein model
 	std::vector<double> felsensteinConstants;
@@ -307,11 +340,14 @@ private:
 	//!< Migration  model (complete graph, ring, star)
     int migrationModel;
     
+    
     //!< Migration  mode (user input, random)
 	int migrationMode;
     
+    
     //!< Migration rates
     std::vector<int> migrationRates;
+    
     
     //!< Flag for the detailed output or not
     bool isMigrationDetailedOutput;
@@ -324,8 +360,10 @@ private:
 	//!< Bottleneck population reduction factor
 	double popReduction;
 	
+	
 	//!< Bottleneck start time
 	int bottleneckStart;
+	
 	
 	//!< Bottleneck stop time
 	int bottleneckEnd;
