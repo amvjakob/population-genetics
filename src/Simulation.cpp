@@ -426,7 +426,7 @@ void Simulation::updateWithSelection() {
 		// the next generation. 
 		// if the last allele is lethal (selectionFqs = -1), the ajusted 
 		// population will be 0 (nParent = nParentCorrection) => to take into account
-		if(adjustedPopulation != 0) {
+		if (adjustedPopulation != 0.0) {
 			p = count * (1 + selectionFqs[i]) / adjustedPopulation;
 		}
 		

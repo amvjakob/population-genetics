@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include <thread>
+#include <ctime>
 #include "SimulationsExecutor.hpp"
 #include "Random.hpp"
 
@@ -16,58 +17,74 @@ SimulationsExecutor::SimulationsExecutor(std::string input, std::string fasta)
 
 	assert(data.getPopulationSize() == allelesCountSum);
 
-	std::cout << "Running with param: ";
 	switch (data.getExecutionMode()) {
 		case _EXECUTION_MODE_MUTATIONS_:
 			// generate nucleotide mutation probabilities according to model
-			std::cout << "Mutation" << std::endl;
 			generateMutationRates();
 			break;
 
 		case _EXECUTION_MODE_MIGRATION_:
-			std::cout << "Migration" << std::endl;
 			generateSubPopulations();
 			break;
 			
-		case _EXECUTION_MODE_SELECTION_:
-			std::cout << "Selection" << std::endl;
-			break;
-
-		case _EXECUTION_MODE_BOTTLENECK_:
-			std::cout << "Variable population size" << std::endl;
-			break;
-
-		case _EXECUTION_MODE_NONE_:
 		default:
-			std::cout << "None" << std::endl;
 			break;
 	}
-
-	// open result file
-    results.open("results.txt");
-
-    // init buffer access values
-    bufferLowestStep = 0;
-    bufferHighestStep = 0;
-
-	// add first empty buffer data
-	outputBuffer.push_back( std::vector<std::string>(data.getNbReplicates()) );
+	    
+    // init number of threads
+    nThreads = std::thread::hardware_concurrency();
+    if (nThreads == 0) {
+		nThreads = 4;
+		std::cout << "No hardware info, running on 4 threads" << std::endl;
+	} else {
+		std::cout << nThreads << " threads supported" << std::endl;
+	}
+	
+	// output vals
+	outputVals = std::vector< std::vector<std::string> >(
+			data.getNbGenerations() + 2, 
+			std::vector<std::string>(data.getNbReplicates())
+	);
 }
 
 
 void SimulationsExecutor::execute() {
+	// chrono
+	time_t t1 = time(0);
+	
+	// create simulation partition
+	std::vector<int> nbSimulations(nThreads, data.getNbReplicates() / nThreads);
+	
+	// assign remaining simulations
+	int rest = data.getNbReplicates() % nThreads;
+	while (rest > 0) {
+		++nbSimulations[rest];
+		--rest;
+	}
+	
 	// create correct number of threads
-	std::vector<std::thread> threads(data.getNbReplicates());
+	std::vector<std::thread> threads(nThreads);
 
 	// init each thread
-	for (int i = 0; i < data.getNbReplicates(); ++i) {
-		threads[i] = std::thread(
-			[=] { runSimulation(i); }
-		);
+	int minSimulationIdx = 0;
+	for (size_t i = 0; i < nThreads; ++i) {
+		threads[i] = std::thread([=] {
+			runSimulation(nbSimulations[i], minSimulationIdx);
+		});
+		
+		minSimulationIdx += nbSimulations[i];
 	}
 
 	// join threads (wait for every thread to end before ending main thread)
 	for (auto& th : threads) th.join();
+	
+	// write data to ouput file
+	writeData();
+
+	// get end of the simulation
+	time_t t2 = time(0);
+
+	std::cout << "[done in " << t2 - t1 << " s]" << std::endl;
 }
 
 
@@ -93,94 +110,69 @@ Simulation SimulationsExecutor::createSimulation() const {
 }
 
 
-void SimulationsExecutor::runSimulation(int id) {
-	// create new simulation
-	Simulation simul = createSimulation();
-
+void SimulationsExecutor::runSimulation(int nSimulations, int firstSimulationIdx) {
+	if (nSimulations == 0) return;
+	
 	// generate container for states of simulation
 	int T = data.getNbGenerations();
-	std::vector<std::string> states(T + 2);
+	
+	for (int i = firstSimulationIdx; i < nSimulations + firstSimulationIdx; ++i) {
+		// create new simulation
+		Simulation simul = createSimulation();		
 
-    // write initial allele frequencies
-	states[0] = simul.getAlleleFqsForOutput();
+		// write initial allele frequencies
+		outputVals[0][i] = simul.getAlleleFqsForOutput();
 
-	int t = 0;
-	while (t < T) {
-		// update simulation
-		simul.update(t);
+		int t = 0;
+		while (t < T) {
+			// update simulation
+			simul.update(t);
 
-		// increment clock
-		++t;
+			// increment clock
+			++t;
 
-		// write allele frequencies
-		states[t] = simul.getAlleleFqsForOutput();
-	}
+			// write allele frequencies
+			outputVals[t][i] = simul.getAlleleFqsForOutput();
+		}
 
-	// write final line: allele identifiers
-	states[t + 1] = simul.getAlleleStrings();
+		// write final line: allele identifiers
+		outputVals[t + 1][i] = simul.getAlleleStrings();
 
-	// properly format output (add blanks if there were new mutations
-	if (data.getExecutionMode() == _EXECUTION_MODE_MUTATIONS_) {
-		size_t lineLength = states.back().size();
-		size_t precision = simul.getPrecision();
+		// properly format output (add blanks if there were new mutations
+		if (data.getExecutionMode() == _EXECUTION_MODE_MUTATIONS_) {
+			size_t lineLength = simul.getAlleleStrings().size();
+			size_t precision = simul.getPrecision();
 
-		if (states.front().size() != states.back().size()) { // check for any mutations
-			for (auto& state : states) {
-				if (state.size() < lineLength) {
-					std::stringstream ss;
-					ss << state;
+			if (outputVals.front()[i].size() != outputVals.back()[i].size()) { // check for any mutations
+				for (size_t j = 0; j < outputVals.size(); ++j) {
+					auto& state = outputVals[j][i];
+					
+					if (state.size() < lineLength) {
+						std::stringstream ss;
+						ss << state;
 
-					while (ss.tellp() < (int) lineLength) {
-						ss << _OUTPUT_SEPARATOR_ << std::setprecision(precision) << std::fixed << 0.0;
+						// add additional zeroes to end of line
+						while (ss.tellp() < (int) lineLength) {
+							ss << _OUTPUT_SEPARATOR_ << std::setprecision(precision) << std::fixed << 0.0;
+						}
+
+						state = ss.str();
 					}
-
-					state = ss.str();
 				}
 			}
 		}
 	}
-
-	for (int i = 0; i < (int) states.size(); ++i) {
-		writeData(states[i], id, i);
-	}
 }
 
 
-void SimulationsExecutor::writeData(std::string line, int threadId, int step) {
-	// check that step is valid
-	if (step < bufferLowestStep) {
-		std::cerr << _ERROR_OUTPUT_BUFFER_MSG_ << std::endl;
-		exit(_ERROR_OUTPUT_BUFFER_CODE_);
+void SimulationsExecutor::writeData() {
+	// open result file
+    results.open("results.txt");
+    
+	// write to result file
+	for (int i = 0; i < (int) outputVals.size(); ++i) {
+		writeAlleleFqs(i, outputVals[i]);	
 	}
-
-	// start lock here to restrict the execution of this function to a single thread
-	std::lock_guard<std::mutex> lock(writerMutex);
-
-	if (step > bufferHighestStep) {
-		// assign new highest step
-		bufferHighestStep = step;
-
-		// insert new empty vector
-		outputBuffer.push_back(std::vector<std::string>(data.getNbReplicates()));
-	}
-
-	// add data to buffer
-	outputBuffer[step - bufferLowestStep][threadId] = line;
-
-	// check for data completeness for the lowest step
-	if (std::any_of(
-			std::begin(outputBuffer.front()),
-			std::end(outputBuffer.front()),
-			[](std::string elem) {
-				return elem.empty();
-			})
-		) return;
-
-	// write data from buffer to file, since the buffer for the
-	// lowest step is full
-	writeAlleleFqs(bufferLowestStep, outputBuffer.front());
-	outputBuffer.pop_front();
-	++bufferLowestStep;
 }
 
 

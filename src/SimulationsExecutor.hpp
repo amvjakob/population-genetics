@@ -60,22 +60,15 @@ protected:
 	 * 
 	 * This method is executed by a thread.
 	 * 
-	 * \param id		the id of the simulation
+	 * \param nSimulations			number of simulations to be run
+	 * \param firstSimulationIdx	simulation index offset (relevant for output)
 	 * */
-	void runSimulation(int id);
+	void runSimulation(int nSimulations, int firstSimulationIdx);
 	
 
-	/** \brief Write data to a buffer to be eventually put in a result file
-	 * 
-	 * Writes data to a temporary buffer, which performs the actual output
-	 * once it has gathered the data of every thread for a given step.
-	 * This function is lock guarded.
-	 * 
-	 * \param line			the data to be written (usually allele frequencies)
-	 * \param threadId		the id of the executing thread
-	 * \param step			the current step of the simulation
+	/** \brief Write data to the result file
 	 * */
-	void writeData(std::string line, int threadId, int step);
+	void writeData();
 	
 
 	/** \brief Write one step of all simulations to the result file
@@ -139,22 +132,12 @@ private:
 
 	//!< Result file
 	std::ofstream results;
-    
-
-	//!< Mutex for lock guarding
-	std::mutex writerMutex;
-
 	
-	//!< Output buffer for result data
-	std::deque< std::vector<std::string> > outputBuffer;
-
-
-	//!< Lowest step that is still in the buffer
-	int bufferLowestStep;
-
-
-	//!< Highest step that is already in the buffer
-	int bufferHighestStep;
+	//!< Number of threads
+	unsigned int nThreads;
+	
+	//!< Output values
+	std::vector< std::vector<std::string> > outputVals;
 };
 
 #endif
