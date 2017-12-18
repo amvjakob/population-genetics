@@ -69,7 +69,7 @@ TEST(DataReading, NucleotidesMutations) {
 
 TEST (DataReading, Bottleneck) {
 	Data data("../data/test_input.txt","../data/test.fa");
-	
+
 	EXPECT_EQ(data.getPopReduction(), 2);
 	EXPECT_EQ(data.getBottleneckStart(), 20);
 	EXPECT_EQ(data.getBottleneckEnd(), 40);
@@ -87,8 +87,8 @@ TEST(DataReading, AlleleSelection) {
 }
 
 
-// For the following part, we test specific functionalities 
-// for the different additional executables of the program 
+// For the following part, we test specific functionalities
+// for the different additional executables of the program
 // (mutations, migrations, bottleneck and selections)
 
 
@@ -123,7 +123,7 @@ TEST(MutationTest, NoMutation) {
 	std::vector<std::string> alleles = { "ATG", "CTA", "GCC", "CGA" };
 	std::vector<unsigned int> allelesCount = { 25, 25, 25, 25 };
 	std::vector<double> mutationRates = { 0.0, 0.0, 0.0 };
-	
+
 	double p = 1.0 / 3.0;
 	std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N > nuclMutationProbs = { {
 					{ { 0.0, p, p, p } },
@@ -131,16 +131,16 @@ TEST(MutationTest, NoMutation) {
 					{ { p, p, 0.0, p } },
 					{ { p, p, p, 0.0 } }
 				} };
-	
+
 	Simulation simul = Simulation(alleles, allelesCount, mutationRates, nuclMutationProbs);
-	
+
 	int t = 0;
 	while (t < 500) {
 		simul.update(t);
-		
+
 		// no mutations, so allele count must remain constant
-		EXPECT_EQ(simul.getAllelesCount(), 4);
-		
+		EXPECT_EQ(simul.getAlleles().size(), 4);
+
 		++t;
 	}
 }
@@ -149,7 +149,7 @@ TEST(MutationTest, Mutation) {
 	std::vector<std::string> alleles = { "A" };
 	std::vector<unsigned int> allelesCount = { 100 };
 	std::vector<double> mutationRates = { 1.0 };
-	
+
 	double p = 1.0 / 3.0;
 	std::array< std::array<double, Nucl::Nucleotide::N>, Nucl::Nucleotide::N > nuclMutationProbs = { {
 					{ { 0.0, p, p, p } },
@@ -157,18 +157,15 @@ TEST(MutationTest, Mutation) {
 					{ { p, p, 0.0, p } },
 					{ { p, p, p, 0.0 } }
 				} };
-	
+
 	Simulation simul = Simulation(alleles, allelesCount, mutationRates, nuclMutationProbs);
-	
+
 	int t = 0;
 	while (t < 10) {
 		simul.update(t);
-		
-		for (int i = 0; i
-		
-		// no mutations, so allele count must remain constant
-		EXPECT_EQ(simul.getAllelesCount(), 4);
-		
+
+		EXPECT_TRUE((int) simul.getAlleles().size() > 1);
+
 		++t;
 	}
 }
@@ -180,27 +177,27 @@ TEST(MigrationTest, FixSubPopulation) {
 	std::vector< std::vector<unsigned int> > migrationRates = {
 		{ 0, 3, 5 },
 		{ 3, 0, 6 },
-		{ 5, 6, 0 } 
+		{ 5, 6, 0 }
 	};
-	
+
 	Simulation simul = Simulation(alleles, subPopulations, migrationRates);
 
 	int t(0);
 	while (t < 500) {
 		simul.update(t);
-				
+
 		int totalSize = 0;
-		for (size_t i(0); i < simul.getSubPopulations().size(); ++i) {			
-			int subPopulationSize = 0;			
+		for (size_t i(0); i < simul.getSubPopulations().size(); ++i) {
+			int subPopulationSize = 0;
 			for (auto& subPopAlleleCount : simul.getSubPopulations()[i])
 				subPopulationSize += subPopAlleleCount;
-			
+
 			// checking if at each step, the incomes are equal to outcomes for each subPop
 			EXPECT_EQ(subPopulationSize, simul.getSubPopulationSizes()[i]);
-			
+
 			totalSize += subPopulationSize;
 		}
-		
+
 		EXPECT_EQ(totalSize, simul.getPopulationSize());
 
 		++t;
@@ -211,12 +208,12 @@ TEST(MigrationTest, FixSubPopulation) {
 TEST(MigrationTest, MigrationEffect) {
 	std::vector<std::string> alleles = { "1", "2", "3" };
 	std::vector< std::vector<unsigned int> > subPopulations = { { 10, 0, 0 }, { 0, 20, 0 }, { 0, 0, 30 } };
-	std::vector< std::vector<unsigned int> > migrationRates = { 
+	std::vector< std::vector<unsigned int> > migrationRates = {
 		{ 0, 3, 5 },
 		{ 3, 0, 6 },
-		{ 5, 6, 0 } 
+		{ 5, 6, 0 }
 	};
-	
+
 	Simulation simul = Simulation(alleles, subPopulations, migrationRates);
 
 	int t(0);
@@ -239,12 +236,12 @@ TEST(MigrationTest, MigrationEffect) {
 TEST(MigrationTest, CompleteGraphTest ) {
 	std::vector<std::string> alleles = { "1", "2", "3" };
 	std::vector< std::vector< unsigned int > > subPopulations = { { 10, 0, 0 }, { 0, 20, 0 }, { 0, 0, 30 } };
-	std::vector< std::vector< unsigned int > > migrationRates = { 
+	std::vector< std::vector< unsigned int > > migrationRates = {
 		{ 0, 3, 5 },
 		{ 3, 0, 6 },
-		{ 5, 6, 0 } 
+		{ 5, 6, 0 }
 	};
-	
+
 	Simulation simul = Simulation(alleles, subPopulations, migrationRates);
 
 	int t(0);
@@ -252,7 +249,7 @@ TEST(MigrationTest, CompleteGraphTest ) {
         simul.update(t);
 		++t;
 	}
-    
+
     for (size_t i(0); i < simul.getSubPopulations().size(); ++i) {
 		for (size_t j(0); j < simul.getSubPopulations()[i].size(); ++j) {
 			// making sure that each subpop is different to its initial state --> proof of migrations
@@ -267,12 +264,12 @@ TEST(MigrationTest, CompleteGraphTest ) {
 TEST(MigrationTest, RingTest) {
     std::vector<std::string> alleles = { "1", "2", "3" };
 	std::vector< std::vector<unsigned int> > subPopulations = { { 10, 0, 0 }, { 0, 20, 0 }, { 0, 0, 30 } };
-	std::vector< std::vector<unsigned int> > migrationRates = { 
+	std::vector< std::vector<unsigned int> > migrationRates = {
 		{ 0, 3, 5 },
 		{ 3, 0, 6 },
-		{ 5, 6, 0 } 
+		{ 5, 6, 0 }
 	};
-	
+
 	Simulation simul = Simulation(alleles, subPopulations, migrationRates);
 
 	int t(0);
@@ -280,7 +277,7 @@ TEST(MigrationTest, RingTest) {
         simul.update(t);
 		++t;
 	}
-    
+
     for (size_t i(0); i < simul.getSubPopulations().size(); ++i) {
 		for (size_t j(0); j < simul.getSubPopulations()[i].size(); ++j) {
 			// making sure that each subpop is different to its initial state --> proof of migrations
@@ -296,13 +293,13 @@ TEST(MigrationTest, RingTest) {
 TEST(MigrationTest, StarTest) {
 	std::vector<std::string> alleles = { "1", "2", "3" };
 	std::vector< std::vector<unsigned int> > subPopulations = { { 10, 0, 0 }, { 0, 20, 0 }, { 0, 0, 30 } };
-	std::vector< std::vector<unsigned int> > migrationRates = { 
+	std::vector< std::vector<unsigned int> > migrationRates = {
 		{ 0, 3, 5 },
 		{ 3, 0, 6 },
-		{ 5, 6, 0 } 
+		{ 5, 6, 0 }
 	};
 	size_t starCenter = 1;
-	
+
 	Simulation simul = Simulation(alleles, subPopulations, migrationRates);
 
 	int t(0);
@@ -310,14 +307,14 @@ TEST(MigrationTest, StarTest) {
         simul.update(t);
 		++t;
 	}
-    
+
     for (size_t i(0); i < simul.getSubPopulations().size(); ++i) {
 		for (size_t j(0); j < simul.getSubPopulations()[i].size(); ++j) {
 			// making sure that each subpop is different to its initial state --> proof of migrations
             if (i != j) {
-				
+
 				EXPECT_TRUE(subPopulations[i][i] >= simul.getSubPopulations()[i][i]);
-				
+
 				if (i == starCenter) {
 					// making sure that each subpop exchanges with all the others
 					EXPECT_TRUE(subPopulations[i][j] <= simul.getSubPopulations()[i][j]);
@@ -343,26 +340,26 @@ TEST (BottleneckTest, PopulationReduction) {
 	int startTime = 20;
 	int endTime = 40;
 	double reduction = 2.0;
-	
+
 	int initialPopulation = 20;
 	int reducedPopulation = 10;
-	
+
     Simulation simul = Simulation({ "1", "2" }, { 10, 10 }, startTime, endTime, reduction);
-    
+
     double t(0);
     while(t < 500) {
         simul.update(t);
 
         if (t < startTime) {
 			EXPECT_EQ(simul.getPopulationSize(), initialPopulation);
-			
+
 		} else if (t >= startTime and t < endTime) {
 			EXPECT_EQ(simul.getPopulationSize(), reducedPopulation);
-			
+
 		} else if (t >= endTime) {
 			EXPECT_EQ(simul.getPopulationSize(), initialPopulation);
 		}
-		
+
 		++t;
     }
 }

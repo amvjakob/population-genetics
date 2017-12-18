@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Data::Data(string input, string fasta) 
+Data::Data(string input, string fasta)
   : inputName(input), fastaName(fasta), withFasta(fasta != ""),
 	populationSize(0), nbGenerations(0),
 	nbReplicates(0), executionMode(_EXECUTION_MODE_NONE_),
@@ -127,16 +127,16 @@ void Data::collectUserFile(ifstream& file) {
             case str2int(_INPUT_KEY_MIGRATION_RATES_):
                 extractValues<int>(migrationRates, line, strToInt);
                 break;
-                
+
             case str2int(_INPUT_KEY_MIGRATION_DETAILED_OUTPUT_):
 				{
 					int detailedOutput = 0;
 					extractValue<int>(detailedOutput, line, strToInt);
-					
+
 					isMigrationDetailedOutput = detailedOutput == 1;
 				}
 				break;
-            
+
             // SELECTION
 			case str2int(_INPUT_KEY_SELECTION_RATES_):
 				extractValues<double>(selections, line, strToDouble);
@@ -192,7 +192,7 @@ void Data::checkUserFile() {
 		// generate allelesn and allele counts
 		for (size_t i = 0; i < allelesFqs.size(); ++i) {
 			string idx = to_string(i);
-			
+
 			alleles.push_back(idx);
 			allelesCount.push_back((unsigned int) (allelesFqs[i] * populationSize));
 		}
@@ -281,10 +281,10 @@ void Data::checkUserFile() {
 		case _EXECUTION_MODE_MIGRATION_:
 			migrationMode = migrationRates.empty() ? _MIGRATION_MODE_RANDOM_ : _MIGRATION_MODE_INPUT_USER_;
 			break;
-			
+
 		case _EXECUTION_MODE_SELECTION_:
 			break;
-			
+
 		case _EXECUTION_MODE_BOTTLENECK_:
 			break;
 
@@ -312,7 +312,7 @@ void Data::collectFastaFile(ifstream& file) {
 		size_t lineLength = line.size();
 		for (auto& marker : markerSites) {
 			// check that the marker is valid
-			if (marker < 0 || marker >= lineLength) {
+			if (marker >= lineLength) {
 				cerr << _ERROR_MARKER_SITE_OUT_OF_BOUNDS_MSG_ << endl;
 				exit(_ERROR_MARKER_SITE_OUT_OF_BOUNDS_CODE_);
 			}
