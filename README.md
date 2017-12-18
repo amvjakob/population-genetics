@@ -31,16 +31,17 @@ The program can be launched using two different methods:
 2. `./Genetics path/to/input.txt`, runs the simulation with the specified input file
 3. `./Genetics path/to/input.txt path/to/fasta.fa`, runs the simulation with the specified input file and the given fasta file. The input file is modified by the user to decide on the various simulation parameters (population size, number of generations, mutation marker sites, etc.).
  
+The required parameters and meaning of each are detailed in the default input file `data/input.txt`.
 Finally, the `results.txt` file generated for each simulation and can be used to generate various graphs using jupyterNotebook and plotly library.
  
 #### Note
 For a simulation using mutation models, a fasta file is mandatory.
 
 
-## Special Feature:
+## Special feature: Multithreading
 The program is coded using multiple threads. Each thread executes a single simulation, allowing for replicas to run simultaneously. This allows for faster simulation.
 
-## Run a simulation:
+## Run a simulation
 The user must use the input.txt file to choose:
 - the number of generations
 - the population size
