@@ -35,7 +35,7 @@ To run the program, follow these steps:
 The program can be launched using two different methods:
 1. `./Genetics`, runs the simulation using only the default input file (data/input.txt) with the desired parameters for the simulation
 2. `./Genetics path/to/input.txt`, runs the simulation with the specified input file
-3. `./Genetics path/to/input.txt path/to/fasta.fa", runs the simulation with the specified input file and the given fasta file. The input file is modified by the user to decide on the various simulation parameters (population size, number of generations, mutation marker sites, etc.).
+3. `./Genetics path/to/input.txt path/to/fasta.fa`, runs the simulation with the specified input file and the given fasta file. The input file is modified by the user to decide on the various simulation parameters (population size, number of generations, mutation marker sites, etc.).
  
 # Note:
 For a simulation using mutation models, a fasta file is mandatory
