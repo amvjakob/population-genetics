@@ -21,21 +21,33 @@ to decide on a specific mutation model (Cantor, Felsenstein, Kimura) and the
 migration mode requires the pattern followed by the sub-groups as well as the allele
 repartition (random or input by the user).
 
-The program can be launched using two different methods:
-  1- using only an input file (.txt) with the desired parameters for the simulation
-  2- using the fasta and input.txt file. The input file is modified by the user to
-     decide on the various simulation parameters (population size, number of generations,
-     mutation marker sites, etc.).
-  Note: for a simulation using mutation models, a fasta file is mandatory
+### Setup the project
+To run the program, follow these steps:
+1. Download or clone repository
+2. Navigate to the cloned / downloaded folder (Team_4)
+3. `mkdir build`, `cd build` to enter the build folder
+4. `cmake ..` to run CMake and generate the makefiles
+5. `make` to make both the simulation as well as the tests.
+6. `make test` to make and run the tests
+7. `make doc` to generate the Doxygen documentation
 
-Finally, the results.txt file generated for each simulation and can be used to generate
+
+The program can be launched using two different methods:
+1. `./Genetics`, runs the simulation using only the default input file (data/input.txt) with the desired parameters for the simulation
+2. `./Genetics path/to/input.txt`, runs the simulation with the specified input file
+3. `./Genetics path/to/input.txt path/to/fasta.fa", runs the simulation with the specified input file and the given fasta file. The input file is modified by the user to decide on the various simulation parameters (population size, number of generations, mutation marker sites, etc.).
+ 
+# Note:
+For a simulation using mutation models, a fasta file is mandatory
+
+Finally, the `results.txt` file generated for each simulation and can be used to generate
 various graphs using jupyterNotebook and plotly library.
 
-Special Feature:
+### Special Feature:
 The program is coded using a multithreading process. Each thread executes a single
 simulation, allowing for replicas to run simultaneously. This allows for faster simulation.
 
-How to run a simulation:
+### Run a simulation:
 The user must use the input.txt file to choose:
 - The number of generations
 - The population size
