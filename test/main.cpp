@@ -116,7 +116,7 @@ TEST(RandomTest, NormalDistribution) {
 		mean_normal += I * 1e-4;
 	}
 
-	EXPECT_NEAR(input_mean, mean_normal, 2 * input_sd / sqrt(1e4));
+	EXPECT_NEAR(input_mean, mean_normal, 4 * input_sd / sqrt(1e4));
 }
 
 TEST(MutationTest, NoMutation) {
