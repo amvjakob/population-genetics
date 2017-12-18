@@ -205,7 +205,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 		
 		for (auto allele = allelesCount.begin(); allele != allelesCount.end(); ++allele) {
 			if (allele != allelesCount.begin()) ss << _OUTPUT_SEPARATOR_;
-			ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
+			ss << std::setprecision((int) precision) << std::fixed << (*allele) * 1.0 / populationSize;
 		}
 		
 	} else {
@@ -215,13 +215,13 @@ std::string Simulation::getAlleleFqsForOutput() const {
 			for (auto subPop = subPopulations.begin(); subPop != subPopulations.end(); ++subPop) {
 				for (auto allele = subPop->begin(); allele != subPop->end(); ++allele) {
 					if (allele != subPop->begin()) ss << _OUTPUT_SEPARATOR_;
-					ss << std::setprecision(precision) << std::fixed << (*allele) * 1.0 / populationSize;
+					ss << std::setprecision((int) precision) << std::fixed << (*allele) * 1.0 / populationSize;
 				}
 				
 				ss << _MIGRATION_OUTPUT_SEPARATOR_;
 			}
 		} else {
-			int nAlleles = subPopulations.front().size();
+			int nAlleles = (int)subPopulations.front().size();
 			for (int i = 0; i < nAlleles; ++i) {
 				int sum = 0;
 				for (int j = 0; j < (int) subPopulations.size(); ++j) {
@@ -229,7 +229,7 @@ std::string Simulation::getAlleleFqsForOutput() const {
 				}
 				
 				if (i != 0) ss << _OUTPUT_SEPARATOR_;
-				ss << std::setprecision(precision) << std::fixed << sum * 1.0 / populationSize;
+				ss << std::setprecision((int) precision) << std::fixed << sum * 1.0 / populationSize;
 			}
 		}
 	}
@@ -250,7 +250,7 @@ std::string Simulation::getAlleleStrings() const {
 	if (executionMode == _EXECUTION_MODE_MIGRATION_ && isMigrationDetailedOutput) {
 		std::string onePop = ss.str();
 		
-		assert(subPopulations.size() > 0);
+		assert(!subPopulations.empty());
 		
 		for (std::size_t i = 1; i < subPopulations.size(); ++i) {
 			ss << _MIGRATION_OUTPUT_SEPARATOR_ << onePop;
@@ -370,12 +370,12 @@ void Simulation::updateWithMigration() {
 		}
 	
 		// new values for population that stays
-		subPopulations[i] = RandomDist::multinomialByValue(subPopulations[i], subPopulationSizes[i] - gone);
+		subPopulations[i] = RandomDist::multinomialByValue(subPopulations[i],(int) subPopulationSizes[i] - gone);
 
 		exchange.push_back(subExchange);
 	}
 	
-	int nAlleles = subPopulations.front().size();
+	int nAlleles = (int) subPopulations.front().size();
 	
 	// assign exchanges to target populations
 	for (int i = 0; i < (int) exchange.size(); ++i) {
@@ -435,7 +435,7 @@ void Simulation::updateWithSelection() {
 		nParentCorrection -= count * selectionFqs[i];
 		
 		// generate new number of allele copies in population
-        count = RandomDist::binomial(populationSize - nOffspring, p);
+        count = (unsigned int) RandomDist::binomial(populationSize - nOffspring, p);
 		
 		// increase offspring population size
 		nOffspring += count;

@@ -35,15 +35,15 @@ SimulationsExecutor::SimulationsExecutor(std::string input, std::string fasta)
     nThreads = std::thread::hardware_concurrency();
     if (nThreads == 0) {
 		nThreads = 4;
-		std::cout << "No hardware info, running on 4 threads" << std::endl;
+		std::cout << "No hardware info detected, running on 4 threads" << std::endl;
 	} else {
-		std::cout << nThreads << " threads supported" << std::endl;
+		std::cout << "Running on " << nThreads << " threads by system recommandation" << std::endl;
 	}
 	
 	// output vals
 	outputVals = std::vector< std::vector<std::string> >(
-			data.getNbGenerations() + 2, 
-			std::vector<std::string>(data.getNbReplicates())
+            (unsigned long) (data.getNbGenerations() + 2),
+			std::vector<std::string>((unsigned long) data.getNbReplicates())
 	);
 }
 
@@ -153,7 +153,7 @@ void SimulationsExecutor::runSimulation(int nSimulations, int firstSimulationIdx
 
 						// add additional zeroes to end of line
 						while (ss.tellp() < (int) lineLength) {
-							ss << _OUTPUT_SEPARATOR_ << std::setprecision(precision) << std::fixed << 0.0;
+							ss << _OUTPUT_SEPARATOR_ << std::setprecision((int) precision) << std::fixed << 0.0;
 						}
 
 						state = ss.str();
@@ -201,7 +201,7 @@ void SimulationsExecutor::generateMutationRates() {
 	switch (data.getMutationModel()) {
 		case _MUTATION_MODEL_CANTOR_:
 			{
-				std::cout << "Cantor model" << std::endl;
+				//std::cout << "Cantor model" << std::endl;
 
 				double p = 1.0 / 3.0;
 
@@ -216,7 +216,7 @@ void SimulationsExecutor::generateMutationRates() {
 
 		case _MUTATION_MODEL_KIMURA_:
 			{
-				std::cout << "Kimura model" << std::endl;
+				//std::cout << "Kimura model" << std::endl;
 
 				double transition = data.getKimuraDelta();
 				double transversion = (1.0 - transition) / 2.0;
@@ -233,7 +233,7 @@ void SimulationsExecutor::generateMutationRates() {
 
 		case _MUTATION_MODEL_FELSENSTEIN_:
 			{
-				std::cout << "Felsenstein model" << std::endl;
+				//std::cout << "Felsenstein model" << std::endl;
 
 				std::vector<double> consts = data.getFelsensteinConstants();
 
@@ -270,7 +270,7 @@ void SimulationsExecutor::generateMutationRates() {
 			break;
 
 		default:
-			std::cout << "No mutation model" << std::endl;
+			//std::cout << "No mutation model" << std::endl;
 			break;
 	}
 
@@ -298,14 +298,14 @@ void SimulationsExecutor::generateSubPopulations() {
     }
 
     // display the subpopulations
-    std::cout << "Initial subpopulations" << std::endl;
+   /* std::cout << "Initial subpopulations" << std::endl;
 	for (auto& pop : subPopulations) {
 		for (auto& count : pop) {
 			std::cout << count << '\t';
 		}
 		std::cout << std::endl;
 	}
-	std::cout << "---------" << std::endl;
+	std::cout << "---------" << std::endl;*/
 
 
     // migration rate generation
@@ -344,7 +344,7 @@ void SimulationsExecutor::generateSubPopulations() {
 
 					// randomly chosen rate
 		            if (maxMoving > 1)
-		                rate = (size_t) RandomDist::uniformIntSingle(1, maxMoving - 1);
+		                rate = (size_t) RandomDist::uniformIntSingle(1,(int) maxMoving - 1);
 		            else
 		                rate = maxMoving;
 	            }
@@ -420,13 +420,13 @@ void SimulationsExecutor::generateSubPopulations() {
 	}
 
 	// display the mutation rates
-	std::cout << "Migration rate table" << std::endl;
+	/*std::cout << "Migration rate table" << std::endl;
 	for (auto& mig : migrationRates) {
 		for (auto& m : mig) {
 			std::cout << m << '\t';
 		}
 		std::cout << std::endl;
-	}
+	}*/
 }
 
 
